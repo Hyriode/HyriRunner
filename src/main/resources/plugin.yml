@@ -1,0 +1,5 @@
+main: fr.hyriode.runner.HyriRunner
+version: @version@
+name: HyriRunner
+author: Akkashi
+depend: [Hyrame]

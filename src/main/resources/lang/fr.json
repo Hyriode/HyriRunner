@@ -1,0 +1,33 @@
+{
+  "message.preparation": "&7Vous avez 15 secondes pour vous préparer au lancement !",
+  "message.border-shrink": "&cLa bordure commence à rétrécir ! Courez vers le centre de la carte !",
+  "message.damage-on": "&cVous êtes maintenant vulnérable !",
+  "message.border-end": "&cLa bordure est arrivée au centre. La pvp sera activé dans 5 secondes !",
+  "message.pvp-on": "&cLe pvp est maintenant activé !",
+  "message.first-place-sword": "%player% &7a atteint le centre en premier! Il obtient alors une&c épée en diamant&7 !",
+  "message.first-place-armor": "%player% &7a atteint le centre en premier! Il obtient alors une&c armure en diamant&7 !",
+  "title.arrived": "&3&lBelle course !",
+  "subtitle.arrived": "&7Vous êtes le &b#%position% !",
+  "message.kill-by-player": " a été tué par ",
+  "message.died": " est mort.",
+
+  "scoreboard.time.display": "Temps : ",
+  "scoreboard.border.display": "Bordure : ",
+  "scoreboard.alive.display": "Joueurs : ",
+  "scoreboard.centre.display": "Centre : ",
+  "scoreboard.kills.display": "Eliminations : ",
+  "scoreboard.position.display": "Position : ",
+
+  "team.blue.display": "&9Bleu",
+  "team.red.display": "&cRouge",
+  "team.green.display": "&aVert",
+  "team.yellow.display": "&eJaune",
+  "team.aqua.display": "&bAqua",
+  "team.pink.display": "&dRose",
+  "team.white.display": "&fBlanc",
+  "team.gray.display": "&8Gris",
+  "team.darkgreen.display": "&2Jade",
+  "team.orange.display": "&6Orange",
+  "team.black.display": "&0Noir",
+  "team.purple.display": "&5Violet"
+}

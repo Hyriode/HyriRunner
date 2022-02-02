@@ -1,0 +1,33 @@
+{
+  "message.preparation": "&7You have 15 seconds to prepare for launch!",
+  "message.border-shrink": "&cThe border begins to shrink! Run to the center of the map!",
+  "message.damage-on": "&cYou are now vulnerable!",
+  "message.border-end": "&cThe border arrived to the center. The pvp will be enabled in 5 seconds!",
+  "message.pvp-on": "&cThe pvp is now enabled!",
+  "message.first-place-sword": "%player% &7reached the center first! He just got a&c diamond sword&7 !",
+  "message.first-place-armor": "%player% &7reached the center first! He just got a&c diamond armor&7 !",
+  "title.arrived": "&3&lGood run!",
+  "subtitle.arrived": "&7You are the &b#%position%!",
+  "message.kill-by-player": " was killed by ",
+  "message.died": " died.",
+
+  "scoreboard.time.display": "Time: ",
+  "scoreboard.border.display": "Border: ",
+  "scoreboard.alive.display": "Players: ",
+  "scoreboard.centre.display": "Center: ",
+  "scoreboard.kills.display": "Kills: ",
+  "scoreboard.position.display": "Position: ",
+
+  "team.blue.display": "&9Blue",
+  "team.red.display": "&cRed",
+  "team.green.display": "&aGreen",
+  "team.yellow.display": "&eYellow",
+  "team.aqua.display": "&bAqua",
+  "team.pink.display": "&dPink",
+  "team.white.display": "&fWhite",
+  "team.gray.display": "&8Gray",
+  "team.darkgreen.display": "&2Jade",
+  "team.orange.display": "&6Orange",
+  "team.black.display": "&0Black",
+  "team.purple.display": "&5Purple"
+}
