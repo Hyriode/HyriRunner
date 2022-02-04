@@ -2,7 +2,6 @@ package fr.hyriode.runner.game;
 
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGame;
-import fr.hyriode.hyrame.game.HyriGamePlayer;
 import fr.hyriode.hyrame.game.HyriGameState;
 import fr.hyriode.hyrame.game.team.HyriGameTeam;
 import fr.hyriode.hyrame.game.util.HyriGameItems;
@@ -10,8 +9,11 @@ import fr.hyriode.hyrame.item.ItemBuilder;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.player.HyriRunnerPlayer;
 import fr.hyriode.runner.api.statistics.HyriRunnerStatistics;
-import fr.hyriode.runner.game.gamemap.HyriRunnerSafeTeleport;
+import fr.hyriode.runner.game.map.HyriRunnerSafeTeleport;
 import fr.hyriode.runner.game.scoreboard.HyriRunnerFirstPhaseScoreboard;
+import fr.hyriode.runner.game.scoreboard.HyriRunnerScoreboard;
+import fr.hyriode.runner.game.team.HyriRunnerGameTeam;
+import fr.hyriode.runner.game.team.HyriRunnerGameTeams;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -25,25 +27,33 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
 
-    private HyriRunner plugin;
     private WorldBorder wb;
-    private boolean joinable;
+    private boolean accessible;
     private boolean pvp;
     private boolean damage;
     private boolean canPlace = false;
     private boolean borderEnd = false;
-    private HyriRunnerGameTask hyriRunnerGameTask;
+
+    private HyriRunnerGameTask gameTask;
+
+    private final HyriRunner plugin;
 
     public HyriRunnerGame(IHyrame hyrame, HyriRunner plugin) {
         super(hyrame, plugin, "therunner", "TheRunner", HyriRunnerGamePlayer.class);
-
         this.plugin = plugin;
         this.maxPlayers = HyriRunnerGameType.getByName(plugin.getConfiguration().getGameType()).orElse(HyriRunnerGameType.SOLO).getTeamSize() * 12;
-        this.minPlayers = this.maxPlayers/3;
+        this.minPlayers = this.maxPlayers / 3;
+
+        this.damage = false;
+        this.pvp = false;
+        this.accessible = false;
+
         this.registerTeams();
     }
 
@@ -110,48 +120,68 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         super.start();
 
         this.initBorder();
-        HyriPositionCalculator calculator = new HyriPositionCalculator(plugin);
+
+        final HyriPositionCalculator calculator = new HyriPositionCalculator(plugin);
+
         new HyriPositionCalculator.Cage(calculator.getCuboidCenter()).setCage();
-        this.teleportPlayers(calculator, (gamePlayers) -> {
-            HyriRunnerArrow arrow = new HyriRunnerArrow(plugin);
+
+        this.teleportPlayers(calculator, () -> {
+            final HyriRunnerArrow arrow = new HyriRunnerArrow(plugin);
+
             arrow.schedule();
-            gamePlayers.forEach(hyriRunnerGamePlayer -> this.setupInventory(hyriRunnerGamePlayer.getPlayer()));
+
+            this.players.forEach(gamePlayer -> this.setupInventory(gamePlayer.getPlayer()));
+
             this.sendMessageToAll(player -> HyriRunnerMessages.PREPARATION.get().getForPlayer(player));
+
             new BukkitRunnable() {
+
                 private int index = 15;
 
                 @Override
                 public void run() {
-                    gamePlayers.forEach(hyriRunnerGamePlayer -> hyriRunnerGamePlayer.getPlayer().setLevel(index));
+                    players.forEach(gamePlayer -> gamePlayer.getPlayer().setLevel(index));
+
                     if (index == 0) {
                         calculator.removeCages();
-                        hyriRunnerGameTask = new HyriRunnerGameTask(plugin);
-                        gamePlayers.forEach(hyriRunnerGamePlayer -> {
-                            hyriRunnerGamePlayer.setScoreboard(new HyriRunnerFirstPhaseScoreboard(plugin, hyriRunnerGamePlayer.getPlayer()));
+                        gameTask = new HyriRunnerGameTask(plugin);
+
+                        players.forEach(gamePlayer -> {
+                            final HyriRunnerScoreboard scoreboard = new HyriRunnerFirstPhaseScoreboard(plugin, gamePlayer.getPlayer());
+
+                            gamePlayer.setScoreboard(scoreboard);
+
+                            scoreboard.show();
                         });
-                        hyriRunnerGameTask.runTaskTimer(plugin, 0, 20);
-                        gamePlayers.forEach(hyriRunnerGamePlayer -> hyriRunnerGamePlayer.getScoreboard().show());
+
+                        gameTask.runTaskTimer(plugin, 0, 20);
+
                         detectBorderEnd();
+
                         canPlace = true;
+
                         cancel();
                     }
+
                     index--;
                 }
             }.runTaskTimer(plugin, 0, 20);
         });
     }
 
-    public ArrayList<HyriRunnerGamePlayer> getPositionLead(HyriRunner plugin) {
-        ArrayList<HyriRunnerGamePlayer> l = new ArrayList<>();
-                players.forEach(hyriRunnerGamePlayer -> {
-                    if(!hyriRunnerGamePlayer.isSpectator()) {
-                        l.add(hyriRunnerGamePlayer);
-                    } else {
-                        l.remove(hyriRunnerGamePlayer);
-                    }
-                });
-                l.sort(Comparator.comparingInt(HyriRunnerGamePlayer::getDistance));
-        return l;
+    public List<HyriRunnerGamePlayer> getPositionLead() {
+        List<HyriRunnerGamePlayer> list = new ArrayList<>();
+
+        players.forEach(gamePlayer -> {
+            if(!gamePlayer.isSpectator()) {
+                list.add(gamePlayer);
+            } else {
+                list.remove(gamePlayer);
+            }
+        });
+
+        list.sort(Comparator.comparingInt(HyriRunnerGamePlayer::getDistance));
+        return list;
     }
 
     public HyriGameTeam getWinner() {
@@ -171,16 +201,18 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
     @Override
     public void win(HyriGameTeam winner) {
         super.win(winner);
-        this.hyriRunnerGameTask.cancel();
+
+        this.gameTask.cancel();
     }
 
-    private void teleportPlayers(HyriPositionCalculator calculator, HyriRunnerSafeTeleport.ISafeTeleport iSafeTeleport) {
-        HyriRunnerSafeTeleport safeTeleport = new HyriRunnerSafeTeleport(plugin, players);
-        safeTeleport.setiSafeTeleport(iSafeTeleport);
+    private void teleportPlayers(HyriPositionCalculator calculator, HyriRunnerSafeTeleport.Callback callback) {
+        final HyriRunnerSafeTeleport safeTeleport = new HyriRunnerSafeTeleport(plugin);
+
+        safeTeleport.setCallback(callback);
         safeTeleport.teleportPlayers(calculator.getLocation());
     }
 
-    public void setupInventory(Player player) {
+    private void setupInventory(Player player) {
         ItemBuilder helmet = new ItemBuilder(Material.IRON_HELMET).unbreakable().withEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
         ItemBuilder chestPlate = new ItemBuilder(Material.DIAMOND_CHESTPLATE).unbreakable().withEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
         ItemBuilder leggings = new ItemBuilder(Material.IRON_LEGGINGS).unbreakable().withEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
@@ -209,57 +241,66 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         wb.setSize(1500 * 2);
         wb.setWarningDistance(25);
     }
+
     public void startBorderShrink() {
         double time = Math.floor((1500.0 - 50.0) / 6.0);
         wb.setSize(50, (long) time);
     }
+
     public void detectBorderEnd() {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if(wb.getSize() == 50) {
+                if(wb.getSize() <= 50) {
                     borderEnd = true;
                     cancel();
                 }
             }
         }.runTaskTimer(plugin, 0, 20);
     }
-    public void deleteBorder() {
-        wb.reset();
+
+    public List<HyriRunnerGamePlayer> getArrivedPlayers() {
+        return this.players.stream().filter(HyriRunnerGamePlayer::isArrived).collect(Collectors.toList());
     }
 
     public boolean isPvp() {
         return pvp;
     }
+
     public void setPvp(boolean pvp) {
         this.pvp = pvp;
     }
+
     public boolean isDamage() {
         return damage;
     }
+
     public void setDamage(boolean damage) {
         this.damage = damage;
     }
+
     public boolean isBorderEnd() {
         return borderEnd;
     }
+
     public void setBorderEnd(boolean borderEnd) {
         this.borderEnd = borderEnd;
     }
 
-    public HyriRunnerGameTask getHyriRunnerGameTask() {
-        return hyriRunnerGameTask;
+    public HyriRunnerGameTask getGameTask() {
+        return gameTask;
     }
 
-    public boolean isJoinable() {
-        return joinable;
+    public boolean isAccessible() {
+        return this.accessible;
     }
 
-    public void setJoinable(boolean joinable) {
-        this.joinable = joinable;
+    public void setAccessible(boolean accessible) {
+        this.accessible = accessible;
     }
 
     public boolean isCanPlace() {
         return canPlace;
     }
+
 }

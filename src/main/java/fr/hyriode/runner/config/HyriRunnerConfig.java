@@ -23,7 +23,7 @@ public class HyriRunnerConfig implements IHyriConfiguration {
     private final HyriConfigurationEntry.StringEntry gameTypeEntry;
 
     private final FileConfiguration config;
-    private HyriRunner plugin;
+    private final HyriRunner plugin;
 
     public HyriRunnerConfig(HyriRunner plugin) {
         this.plugin = plugin;
@@ -37,6 +37,9 @@ public class HyriRunnerConfig implements IHyriConfiguration {
 
         this.gameType = "solo";
         this.gameTypeEntry = new HyriConfigurationEntry.StringEntry("game-type", this.config);
+
+        this.create();
+        this.load();
     }
 
     @Override
@@ -53,6 +56,7 @@ public class HyriRunnerConfig implements IHyriConfiguration {
     @Override
     public void load() {
         HyriRunner.log("Loading configuration...");
+
         this.spawn = this.spawnEntry.get();
         this.minPlayers = this.minPlayersEntry.get();
         this.gameType = this.gameTypeEntry.get();
@@ -61,6 +65,7 @@ public class HyriRunnerConfig implements IHyriConfiguration {
     @Override
     public void save() {
         HyriRunner.log("Saving configuration...");
+
         this.spawnEntry.set(this.spawn);
         this.minPlayersEntry.set(this.minPlayers);
         this.gameTypeEntry.set(this.gameType);

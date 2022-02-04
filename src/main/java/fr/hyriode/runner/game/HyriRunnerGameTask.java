@@ -12,7 +12,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class HyriRunnerGameTask extends BukkitRunnable {
 
     private int index;
-    private HyriRunner plugin;
+
+    private final HyriRunner plugin;
 
     public HyriRunnerGameTask(HyriRunner plugin) {
         this.plugin = plugin;
@@ -20,24 +21,27 @@ public class HyriRunnerGameTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        final HyriRunnerGame game = this.plugin.getGame();
 
         if (index == 0) {
-            plugin.getGame().startBorderShrink();
-            plugin.getGame().sendMessageToAll(player -> HyriRunnerMessages.BORDER_SHRINK.get().getForPlayer(player));
-            plugin.getGame().getPlayers().forEach(hyriRunnerGamePlayer -> {
+            game.startBorderShrink();
+            game.sendMessageToAll(player -> HyriRunnerMessages.BORDER_SHRINK.get().getForPlayer(player));
+            game.getPlayers().forEach(hyriRunnerGamePlayer -> {
                 Player p = hyriRunnerGamePlayer.getPlayer();
                 p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 3f, 3f);
             });
         }
         if (index == 30) {
-            plugin.getGame().setDamage(true);
-            plugin.getGame().sendMessageToAll(player -> HyriRunnerMessages.DAMAGE_ON.get().getForPlayer(player));
+            game.setDamage(true);
+            game.sendMessageToAll(player -> HyriRunnerMessages.DAMAGE_ON.get().getForPlayer(player));
         }
-        if (plugin.getGame().isBorderEnd()) {
-            plugin.getGame().setBorderEnd(false);
-            plugin.getGame().sendMessageToAll(player -> HyriRunnerMessages.BORDER_END.get().getForPlayer(player));
+        if (game.isBorderEnd()) {
+            game.setBorderEnd(false);
+            game.sendMessageToAll(player -> HyriRunnerMessages.BORDER_END.get().getForPlayer(player));
+
             new BukkitRunnable() {
                 private int index = 5;
+
                 final HyriLanguageMessage pvpMessage = new HyriLanguageMessage("message.pvp-incoming")
                         .addValue(HyriLanguage.FR, ChatColor.RED + "Le pvp va s'activer dans %index% secondes !")
                         .addValue(HyriLanguage.EN, ChatColor.RED + "Le pvp will be enabled in %index% seconds!");
@@ -45,22 +49,24 @@ public class HyriRunnerGameTask extends BukkitRunnable {
                 @Override
                 public void run() {
                     if (index > 1) {
-                        plugin.getGame().sendMessageToAll(player -> pvpMessage.getForPlayer(player).replace("%index%", String.valueOf(index)));
+                        game.sendMessageToAll(player -> pvpMessage.getForPlayer(player).replace("%index%", String.valueOf(index)));
                     }
                     if (index == 1) {
-                        plugin.getGame().sendMessageToAll(player -> pvpMessage.getForPlayer(player)
+                        game.sendMessageToAll(player -> pvpMessage.getForPlayer(player)
                                 .replace("%index%", String.valueOf(index))
                                 .replace("secondes", "seconde")
                                 .replace("seconds", "second"));
                     }
                     if (index == 0) {
-                        plugin.getGame().setPvp(true);
-                        plugin.getGame().sendMessageToAll(player -> HyriRunnerMessages.PVP_ON.get().getForPlayer(player));
-                        plugin.getGame().getPlayers().forEach(hyriRunnerGamePlayer -> {
-                            Player p = hyriRunnerGamePlayer.getPlayer();
-                            hyriRunnerGamePlayer.getScoreboard().hide();
-                            hyriRunnerGamePlayer.setScoreboard(new HyriRunnerSecondPhaseScoreboard(plugin, p));
-                            hyriRunnerGamePlayer.getScoreboard().show();
+                        game.setPvp(true);
+                        game.sendMessageToAll(player -> HyriRunnerMessages.PVP_ON.get().getForPlayer(player));
+                        game.getPlayers().forEach(gamePlayer -> {
+                            final Player p = gamePlayer.getPlayer();
+
+                            gamePlayer.getScoreboard().hide();
+                            gamePlayer.setScoreboard(new HyriRunnerSecondPhaseScoreboard(plugin, p));
+                            gamePlayer.getScoreboard().show();
+
                             p.playSound(p.getLocation(), Sound.ENDERDRAGON_GROWL, 3f, 3f);
                         });
                         cancel();
@@ -71,9 +77,12 @@ public class HyriRunnerGameTask extends BukkitRunnable {
         }
 
         index++;
-        plugin.getGame().getPlayers().forEach(player -> {
+
+        game.getPlayers().forEach(player -> {
             if (player != null) {
-                player.getScoreboard().addTimeLine();
+                if (player.getScoreboard() != null) {
+                    player.getScoreboard().addTimeLine();
+                }
             }
         });
     }

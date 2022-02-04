@@ -1,4 +1,4 @@
-package fr.hyriode.runner.game;
+package fr.hyriode.runner.game.team;
 
 import fr.hyriode.hyrame.game.team.HyriGameTeamColor;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;

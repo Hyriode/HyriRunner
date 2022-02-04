@@ -1,11 +1,11 @@
-package fr.hyriode.runner.game.gamemap;
+package fr.hyriode.runner.game.map;
 
-public class HyriRunnerMapChunks {
+public class HyriRunnerMapChunk {
 
     private int x;
     private int z;
 
-    public HyriRunnerMapChunks(int x, int z) {
+    public HyriRunnerMapChunk(int x, int z) {
         this.x = x;
         this.z = z;
     }
@@ -25,4 +25,5 @@ public class HyriRunnerMapChunks {
     public void setZ(int z) {
         this.z = z;
     }
+
 }

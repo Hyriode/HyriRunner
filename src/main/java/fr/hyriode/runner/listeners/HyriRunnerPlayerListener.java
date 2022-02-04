@@ -56,7 +56,10 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
-        if(!this.plugin.getGame().isDamage()) return;
+        if (!this.plugin.getGame().isDamage()) {
+            event.setCancelled(true);
+            return;
+        }
         if (this.plugin.getGame().getState() == HyriGameState.PLAYING) {
             if (event.getEntity() instanceof Player) {
                 final Player player = (Player) event.getEntity();
@@ -71,23 +74,28 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
                     }
                 }
             }
-        } else {
-            event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if(!plugin.getGame().isCanPlace()) e.setCancelled(true);
+        if(!plugin.getGame().isCanPlace()){
+            e.setCancelled(true);
+        }
     }
+
     @EventHandler
     public void onHeartRegen(EntityRegainHealthEvent e) {
         e.setCancelled(e.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED));
     }
+
     @EventHandler
     public void onSpawn(EntitySpawnEvent e) {
-        if (!e.getEntityType().equals(EntityType.DROPPED_ITEM)) e.setCancelled(true);
+        if (!e.getEntityType().equals(EntityType.DROPPED_ITEM)) {
+            e.setCancelled(true);
+        }
     }
+
     @EventHandler
     public void onWeather(WeatherChangeEvent e) {
         e.setCancelled(true);
@@ -102,7 +110,9 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
 
     @EventHandler
     public void onPJoin(AsyncPlayerPreLoginEvent e) {
-        if(!plugin.getGame().isJoinable()) e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "The game map is generating...");
+        if(!plugin.getGame().isAccessible()) {
+            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "The game map is generating...");
+        }
     }
 
     @EventHandler
@@ -111,4 +121,5 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
             e.setCancelled(true);
         }
     }
+
 }

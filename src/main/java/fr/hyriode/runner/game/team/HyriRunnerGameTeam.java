@@ -1,9 +1,8 @@
-package fr.hyriode.runner.game;
+package fr.hyriode.runner.game.team;
 
 import fr.hyriode.hyrame.game.team.HyriGameTeam;
-import fr.hyriode.hyrame.game.team.HyriGameTeamColor;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.runner.HyriRunner;
+import fr.hyriode.runner.game.HyriRunnerGameType;
 
 public class HyriRunnerGameTeam extends HyriGameTeam {
 
@@ -13,4 +12,5 @@ public class HyriRunnerGameTeam extends HyriGameTeam {
         super(gameTeam.getName(), gameTeam.getDisplayName(), gameTeam.getColor(), HyriRunnerGameType.getCurrentType().getTeamSize());
         this.plugin = plugin;
     }
+
 }

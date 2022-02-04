@@ -2,6 +2,7 @@ package fr.hyriode.runner.game;
 
 import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.HyriGamePlayer;
+import fr.hyriode.hyrame.game.util.HyriDeadScreen;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.language.IHyriLanguageManager;
 import fr.hyriode.hyrame.title.Title;
@@ -21,12 +22,18 @@ import java.util.function.Function;
 
 public class HyriRunnerGamePlayer extends HyriGamePlayer {
 
+    private boolean arrived;
     private int position;
+
     private HyriRunner plugin;
+
     private HyriRunnerScoreboard scoreboard;
+
     private Player lastHitter;
     private BukkitTask lastHitterTask;
+
     private HyriRunnerPlayer account;
+
     private long kills;
     private long deaths;
 
@@ -82,7 +89,6 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
     public void setPosition(int position) {
         this.position = position;
     }
-
 
     public void kill() {
         final HyriRunnerGame game = this.plugin.getGame();
@@ -166,7 +172,16 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
     }
 
     public void setPlugin(HyriRunner plugin) {
-        this.plugin =plugin;
+        this.plugin = plugin;
     }
+
+    public boolean isArrived() {
+        return this.arrived;
+    }
+
+    public void setArrived(boolean arrived) {
+        this.arrived = arrived;
+    }
+
 }
 

@@ -1,4 +1,4 @@
-package fr.hyriode.runner.externaltool;
+package fr.hyriode.runner.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
