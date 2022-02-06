@@ -16,9 +16,6 @@ public class HyriRunnerConfig implements IHyriConfiguration {
     private Location spawn;
     private final HyriConfigurationEntry.LocationEntry spawnEntry;
 
-    private int minPlayers;
-    private final HyriConfigurationEntry.IntegerEntry minPlayersEntry;
-
     private String gameType;
     private final HyriConfigurationEntry.StringEntry gameTypeEntry;
 
@@ -32,9 +29,6 @@ public class HyriRunnerConfig implements IHyriConfiguration {
         this.spawn = DEFAULT_LOCATION.get();
         this.spawnEntry = new HyriConfigurationEntry.LocationEntry("spawn", this.config);
 
-        this.minPlayers = 2;
-        this.minPlayersEntry = new HyriConfigurationEntry.IntegerEntry("min-players", this.config);
-
         this.gameType = "solo";
         this.gameTypeEntry = new HyriConfigurationEntry.StringEntry("game-type", this.config);
 
@@ -46,8 +40,6 @@ public class HyriRunnerConfig implements IHyriConfiguration {
     public void create() {
         this.spawnEntry.setDefault(this.spawn);
 
-        this.minPlayersEntry.setDefault(this.minPlayers);
-
         this.gameTypeEntry.setDefault(this.gameType);
 
         this.plugin.saveConfig();
@@ -58,7 +50,6 @@ public class HyriRunnerConfig implements IHyriConfiguration {
         HyriRunner.log("Loading configuration...");
 
         this.spawn = this.spawnEntry.get();
-        this.minPlayers = this.minPlayersEntry.get();
         this.gameType = this.gameTypeEntry.get();
     }
 
@@ -67,7 +58,6 @@ public class HyriRunnerConfig implements IHyriConfiguration {
         HyriRunner.log("Saving configuration...");
 
         this.spawnEntry.set(this.spawn);
-        this.minPlayersEntry.set(this.minPlayers);
         this.gameTypeEntry.set(this.gameType);
 
         this.plugin.saveConfig();
@@ -80,10 +70,6 @@ public class HyriRunnerConfig implements IHyriConfiguration {
 
     public Location getSpawn() {
         return spawn;
-    }
-
-    public int getMinPlayers() {
-        return minPlayers;
     }
 
     public String getGameType() {

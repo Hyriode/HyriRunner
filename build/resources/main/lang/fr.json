@@ -10,6 +10,9 @@
   "subtitle.arrived": "&7Vous êtes le &b#%position% !",
   "message.kill-by-player": " a été tué par ",
   "message.died": " est mort.",
+  "message.challenge-failed": "&cVous avez raté le défi : %challenge%",
+  "message.last-challenge-used": "&3Votre défi sélectionné est : %challenge%",
+  "message.teleportation-init": "&3La téléportation des joueurs est en train de commencer.",
 
   "scoreboard.time.display": "Temps : ",
   "scoreboard.border.display": "Bordure : ",
@@ -29,5 +32,13 @@
   "team.darkgreen.display": "&2Jade",
   "team.orange.display": "&6Orange",
   "team.black.display": "&0Noir",
-  "team.purple.display": "&5Violet"
+  "team.purple.display": "&5Violet",
+
+  "item.challenge": "&6Défis",
+  "challenge.first.name": "&bPremier",
+  "challenge.first.lore.1": "&7Soyez le premier à arriver",
+  "challenge.first.lore.2": "&7au centre pour réussir ce défi.",
+  "challenge.warrior.name": "&bGuerrier",
+  "challenge.warrior.lore.1": "&7Ne prenez aucun bonus",
+  "challenge.warrior.lore.2": "&7d'arrivée pour réussir ce défi."
 }

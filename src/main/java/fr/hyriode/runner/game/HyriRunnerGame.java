@@ -7,8 +7,10 @@ import fr.hyriode.hyrame.game.team.HyriGameTeam;
 import fr.hyriode.hyrame.game.util.HyriGameItems;
 import fr.hyriode.hyrame.item.ItemBuilder;
 import fr.hyriode.runner.HyriRunner;
+import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.api.player.HyriRunnerPlayer;
 import fr.hyriode.runner.api.statistics.HyriRunnerStatistics;
+import fr.hyriode.runner.challenges.HyriRunnerChallenge;
 import fr.hyriode.runner.game.map.HyriRunnerSafeTeleport;
 import fr.hyriode.runner.game.scoreboard.HyriRunnerFirstPhaseScoreboard;
 import fr.hyriode.runner.game.scoreboard.HyriRunnerScoreboard;
@@ -25,10 +27,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
@@ -41,6 +40,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
     private boolean borderEnd = false;
 
     private HyriRunnerGameTask gameTask;
+    private HyriRunnerArrow arrow;
 
     private final HyriRunner plugin;
 
@@ -82,14 +82,24 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
 
         HyriRunnerPlayer account = this.plugin.getApi().getPlayerManager().getPlayer(uuid);
 
-        if(account == null) {
+        if (account == null) {
             account = new HyriRunnerPlayer(uuid);
         }
 
         gamePlayer.setAccount(account);
         gamePlayer.setConnectionTime();
+        Optional<HyriRunnerChallenge> challenge = HyriRunnerChallenge.getWithModel(account.getLastSelectedChallenge());
+        challenge.ifPresent(hyriRunnerChallenge -> {
+            gamePlayer.setChallenge(hyriRunnerChallenge);
+            gamePlayer.sendMessage(HyriRunnerMessages.LAST_CHALLENGE_USED.get().getForPlayer(player)
+                    .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(gamePlayer.getChallenge().getKey()).getForPlayer(player)));
+        });
 
         HyriGameItems.TEAM_CHOOSER.give(this.hyrame, player, 0);
+        player.getInventory().setItem(4, new ItemBuilder(Material.PAPER)
+                .withName(HyriRunner.getLanguageManager().getMessage("item.challenge")
+                        .getForPlayer(player))
+                .build());
         HyriGameItems.LEAVE_ITEM.give(this.hyrame, player, 8);
 
         player.teleport(plugin.getConfiguration().getSpawn());
@@ -110,8 +120,12 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
             statistics.addKills(gamePlayer.getKills());
             statistics.addDeaths(gamePlayer.getDeaths());
 
-            this.plugin.getApi().getPlayerManager().sendPlayer(account);
+            account.getCompletedChallenges().add(gamePlayer.getChallenge().getModel());
         }
+        if(gamePlayer.getChallenge() != null) {
+            account.setLastSelectedChallenge(gamePlayer.getChallenge().getModel());
+        }
+        this.plugin.getApi().getPlayerManager().sendPlayer(account);
         super.handleLogout(player);
     }
 
@@ -126,9 +140,10 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         new HyriPositionCalculator.Cage(calculator.getCuboidCenter()).setCage();
 
         this.teleportPlayers(calculator, () -> {
-            final HyriRunnerArrow arrow = new HyriRunnerArrow(plugin);
-
-            arrow.schedule();
+            players.forEach(hyriRunnerGamePlayer -> {
+                this.arrow = new HyriRunnerArrow(hyriRunnerGamePlayer.getPlayer());
+                this.arrow.runTaskTimer(plugin, 0, 5);
+            });
 
             this.players.forEach(gamePlayer -> this.setupInventory(gamePlayer.getPlayer()));
 
@@ -173,7 +188,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         List<HyriRunnerGamePlayer> list = new ArrayList<>();
 
         players.forEach(gamePlayer -> {
-            if(!gamePlayer.isSpectator()) {
+            if (!gamePlayer.isSpectator()) {
                 list.add(gamePlayer);
             } else {
                 list.remove(gamePlayer);
@@ -201,8 +216,23 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
     @Override
     public void win(HyriGameTeam winner) {
         super.win(winner);
-
-        this.gameTask.cancel();
+        if(winner != null) {
+            this.gameTask.cancel();
+            winner.getPlayers().forEach(player -> {
+                HyriRunnerGamePlayer hyriGamePlayer = this.getPlayer(player.getUUID());
+                for (HyriRunnerChallengeModel value : HyriRunnerChallengeModel.values()) {
+                    Optional<HyriRunnerChallenge> oChallenge = HyriRunnerChallenge.getWithModel(value);
+                    oChallenge.ifPresent(challenge -> {
+                        if(hyriGamePlayer.getChallenge() != null) {
+                            if(hyriGamePlayer.getChallenge().getCondition(hyriGamePlayer)) {
+                                hyriGamePlayer.getChallenge().getReward(hyriGamePlayer);
+                            } else hyriGamePlayer.sendMessage(HyriRunnerMessages.CHALLENGE_FAILED.get().getForPlayer(hyriGamePlayer.getPlayer())
+                                    .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(hyriGamePlayer.getChallenge().getKey()).getForPlayer(hyriGamePlayer.getPlayer())));
+                        }
+                    });
+                }
+            });
+        }
     }
 
     private void teleportPlayers(HyriPositionCalculator calculator, HyriRunnerSafeTeleport.Callback callback) {
@@ -210,6 +240,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
 
         safeTeleport.setCallback(callback);
         safeTeleport.teleportPlayers(calculator.getLocation());
+        sendMessageToAll(player -> HyriRunnerMessages.INIT_TELEPORTATION.get().getForPlayer(player));
     }
 
     private void setupInventory(Player player) {
@@ -251,12 +282,12 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if(wb.getSize() <= 50) {
+                if (wb.getSize() <= 51) {
                     borderEnd = true;
                     cancel();
                 }
             }
-        }.runTaskTimer(plugin, 0, 20);
+        }.runTaskTimerAsynchronously(plugin, 0, 20);
     }
 
     public List<HyriRunnerGamePlayer> getArrivedPlayers() {
@@ -301,6 +332,10 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
 
     public boolean isCanPlace() {
         return canPlace;
+    }
+
+    public HyriRunnerArrow getArrow() {
+        return this.arrow;
     }
 
 }

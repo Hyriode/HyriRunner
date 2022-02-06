@@ -19,32 +19,45 @@ public class HyriRunnerArrivedGui extends HyriInventory {
 
     private final HyriRunner plugin;
 
-    HyriLanguageMessage swordName = new HyriLanguageMessage("gui.sword")
+    HyriLanguageMessage swordName = new HyriLanguageMessage("arrived.gui.sword")
             .addValue(HyriLanguage.FR, ChatColor.AQUA + "Amélioration d'épée")
             .addValue(HyriLanguage.EN, ChatColor.AQUA + "Sword upgrade");
-    HyriLanguageMessage armorName = new HyriLanguageMessage("gui.armor")
+    HyriLanguageMessage armorName = new HyriLanguageMessage("arrived.gui.armor")
             .addValue(HyriLanguage.FR, ChatColor.AQUA + "Amélioration d'armure")
             .addValue(HyriLanguage.EN, ChatColor.AQUA + "Armor upgrade");
+    HyriLanguageMessage nothingName = new HyriLanguageMessage("arrived.gui.nothing")
+            .addValue(HyriLanguage.FR, ChatColor.RED + "Aucune amélioration")
+            .addValue(HyriLanguage.EN, ChatColor.RED + "No upgrade");
     ItemBuilder sword = new ItemBuilder(Material.DIAMOND_SWORD).withName(swordName.getForPlayer(getOwner().getPlayer()));
     ItemBuilder armor = new ItemBuilder(Material.DIAMOND_CHESTPLATE).withName(armorName.getForPlayer(getOwner().getPlayer()));
+    ItemBuilder nothing = new ItemBuilder(Material.BARRIER).withName(nothingName.getForPlayer(getOwner().getPlayer()));
 
     public HyriRunnerArrivedGui(Player owner, String name, HyriRunner plugin) {
         super(owner, name, 9);
         this.plugin = plugin;
-        this.setItem(3, sword.build(), event -> {
+        this.setItem(1, sword.build(), event -> {
             event.setCancelled(true);
             Player p = (Player) event.getWhoClicked();
             HyriRunnerGameListener.hasChosen = true;
+            plugin.getGame().getPlayer(p.getUniqueId()).setWarrior(false);
             p.closeInventory();
             p.getInventory().remove(Material.IRON_SWORD);
             p.getInventory().addItem(new ItemBuilder(Material.DIAMOND_SWORD).withEnchant(Enchantment.DAMAGE_ALL, 2).unbreakable().build());
             plugin.getGame().sendMessageToAll(player -> HyriRunnerMessages.FIRST_PLACE_SWORD.get().getForPlayer(player)
                     .replace("%player%", plugin.getGame().getPlayer(owner.getUniqueId()).getTeam().getColor().getChatColor() + owner.getName()));
         });
-        this.setItem(5, armor.build(), event -> {
+        this.setItem(4, nothing.build(), event -> {
             event.setCancelled(true);
             Player p = (Player) event.getWhoClicked();
             HyriRunnerGameListener.hasChosen = true;
+            plugin.getGame().getPlayer(p.getUniqueId()).setWarrior(true);
+            p.closeInventory();
+        });
+        this.setItem(7, armor.build(), event -> {
+            event.setCancelled(true);
+            Player p = (Player) event.getWhoClicked();
+            HyriRunnerGameListener.hasChosen = true;
+            plugin.getGame().getPlayer(p.getUniqueId()).setWarrior(false);
             p.closeInventory();
             p.getEquipment().setHelmet(new ItemBuilder(Material.DIAMOND_HELMET).unbreakable().build());
             p.getEquipment().setLeggings(new ItemBuilder(Material.DIAMOND_LEGGINGS).unbreakable().build());
@@ -62,7 +75,7 @@ public class HyriRunnerArrivedGui extends HyriInventory {
         Player p = (Player) event.getPlayer();
 
         if (!HyriRunnerGameListener.hasChosen) {
-            p.sendMessage("Choix guerrier.");
+            this.open();
         }
         Title.sendTitle(
                 p,

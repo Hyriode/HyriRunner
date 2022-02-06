@@ -15,6 +15,10 @@ public class HyriRunnerGameTask extends BukkitRunnable {
 
     private final HyriRunner plugin;
 
+    private final HyriLanguageMessage message = new HyriLanguageMessage("message.invincibility")
+            .addValue(HyriLanguage.FR, ChatColor.RED + "Vous serez vulnérable dans %seconds% secondes !")
+            .addValue(HyriLanguage.EN, ChatColor.RED + "You are going to be vulnerable in %seconds% seconds!");
+
     public HyriRunnerGameTask(HyriRunner plugin) {
         this.plugin = plugin;
     }
@@ -26,10 +30,27 @@ public class HyriRunnerGameTask extends BukkitRunnable {
         if (index == 0) {
             game.startBorderShrink();
             game.sendMessageToAll(player -> HyriRunnerMessages.BORDER_SHRINK.get().getForPlayer(player));
+            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(30)));
             game.getPlayers().forEach(hyriRunnerGamePlayer -> {
                 Player p = hyriRunnerGamePlayer.getPlayer();
                 p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 3f, 3f);
             });
+        }
+        if (index == 10) {
+            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(20)));
+        }
+        if (index == 27) {
+            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(3)));
+        }
+        if (index == 28) {
+            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(2)));
+        }
+        if (index == 29) {
+            game.sendMessageToAll(player -> message.getForPlayer(player)
+                    .replace("%seconds%", String.valueOf(1))
+                    .replace("secondes", "seconde")
+                    .replace("seconds", "second")
+            );
         }
         if (index == 30) {
             game.setDamage(true);
@@ -38,9 +59,10 @@ public class HyriRunnerGameTask extends BukkitRunnable {
         if (game.isBorderEnd()) {
             game.setBorderEnd(false);
             game.sendMessageToAll(player -> HyriRunnerMessages.BORDER_END.get().getForPlayer(player));
+            game.getArrow().cancel();
 
             new BukkitRunnable() {
-                private int index = 5;
+                private int primeIndex = 5;
 
                 final HyriLanguageMessage pvpMessage = new HyriLanguageMessage("message.pvp-incoming")
                         .addValue(HyriLanguage.FR, ChatColor.RED + "Le pvp va s'activer dans %index% secondes !")
@@ -48,16 +70,16 @@ public class HyriRunnerGameTask extends BukkitRunnable {
 
                 @Override
                 public void run() {
-                    if (index > 1) {
-                        game.sendMessageToAll(player -> pvpMessage.getForPlayer(player).replace("%index%", String.valueOf(index)));
+                    if (primeIndex > 1) {
+                        game.sendMessageToAll(player -> pvpMessage.getForPlayer(player).replace("%index%", String.valueOf(primeIndex)));
                     }
-                    if (index == 1) {
+                    if (primeIndex == 1) {
                         game.sendMessageToAll(player -> pvpMessage.getForPlayer(player)
-                                .replace("%index%", String.valueOf(index))
+                                .replace("%index%", String.valueOf(primeIndex))
                                 .replace("secondes", "seconde")
                                 .replace("seconds", "second"));
                     }
-                    if (index == 0) {
+                    if (primeIndex == 0) {
                         game.setPvp(true);
                         game.sendMessageToAll(player -> HyriRunnerMessages.PVP_ON.get().getForPlayer(player));
                         game.getPlayers().forEach(gamePlayer -> {
@@ -71,7 +93,7 @@ public class HyriRunnerGameTask extends BukkitRunnable {
                         });
                         cancel();
                     }
-                    index--;
+                    primeIndex--;
                 }
             }.runTaskTimer(plugin, 0, 20);
         }

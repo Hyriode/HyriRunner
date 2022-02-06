@@ -63,6 +63,13 @@ public class HyriRunnerSafeTeleport implements Listener {
             PacketUtil.sendPacket(player, new PacketPlayOutMapChunk(((CraftChunk) location.getWorld().getChunkAt(chunk.getX(), chunk.getZ())).getHandle(), true, 20));
         }
 
+        plugin.getGame().getPlayers().forEach(p -> {
+            final ActionBar bar = new ActionBar(TELEPORT_MESSAGE.getForPlayer(p.getPlayer())
+                    .replace("%already%", String.valueOf(teleportedPlayers))
+                    .replace("%total%", String.valueOf(totalPlayers))
+            );
+            bar.send(p.getPlayer());
+        });
         player.teleport(location);
         player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
 
@@ -75,15 +82,6 @@ public class HyriRunnerSafeTeleport implements Listener {
             public void run() {
                 if(Duration.between(before, Instant.now()).toMillis() >= 350) {
                     teleportPlayers(location);
-
-                    plugin.getGame().getPlayers().forEach(p -> {
-                        final ActionBar bar = new ActionBar(TELEPORT_MESSAGE.getForPlayer(p.getPlayer())
-                                .replace("%already%", String.valueOf(teleportedPlayers))
-                                .replace("%total%", String.valueOf(totalPlayers))
-                        );
-                        bar.send(p.getPlayer());
-                    });
-
                     cancel();
                 }
             }

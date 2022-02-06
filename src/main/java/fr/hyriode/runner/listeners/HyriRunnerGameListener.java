@@ -48,9 +48,9 @@ public class HyriRunnerGameListener extends HyriListener<HyriRunner> {
                     if(game.getArrivedPlayers().isEmpty()) {
                         gamePlayer.setArrived(true);
 
-                        final HyriLanguageMessage guiName = new HyriLanguageMessage("gui.name")
-                                .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA+ "Bonus de première place")
-                                .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA+ "First place bonus");
+                        final HyriLanguageMessage guiName = new HyriLanguageMessage("arrived.gui.name")
+                                .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA+ "Bonus d'arrivée")
+                                .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA+ "Arrival bonus");
 
                         final HyriRunnerArrivedGui gui = new HyriRunnerArrivedGui(player, guiName.getForPlayer(player), plugin);
 

@@ -5,6 +5,7 @@ import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.language.IHyriLanguageManager;
 import fr.hyriode.hyriapi.HyriAPI;
 import fr.hyriode.runner.api.HyriRunnerApi;
+import fr.hyriode.runner.challenges.HyriRunnerChallenge;
 import fr.hyriode.runner.config.HyriRunnerConfig;
 import fr.hyriode.runner.game.HyriRunnerGame;
 import fr.hyriode.runner.game.HyriRunnerGameType;
@@ -34,6 +35,7 @@ public class HyriRunner extends JavaPlugin {
         this.hyrame = HyrameLoader.load(new HyriRunnerProvider(this));
         languageManager = this.hyrame.getLanguageManager();
         this.api = new HyriRunnerApi(HyriAPI.get().getRedisConnection().getPool());
+        this.api.start();
         this.gameMap = new HyriRunnerMap("map");
         this.configuration = new HyriRunnerConfig(this);
 
@@ -41,6 +43,7 @@ public class HyriRunner extends JavaPlugin {
 
         this.game = new HyriRunnerGame(this.hyrame, this);
         this.hyrame.getGameManager().registerGame(this.game);
+        HyriRunnerChallenge.registerChallenges();
 
         this.setupMapGenerator();
     }
@@ -62,7 +65,7 @@ public class HyriRunner extends JavaPlugin {
 
         new HyriRunnerMapGenerator(Bukkit.getWorld(this.gameMap.getName()), this)
                 .setFuture(completableFuture)
-                .generate(1000 / 16, true);
+                .generate(1000, true);
     }
 
     @Override

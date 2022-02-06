@@ -10,8 +10,10 @@ import java.util.function.Consumer;
 
 public class HyriRunnerApi {
 
-    public static final String REDIS_KEY = "rtf:";
+    public static final String REDIS_KEY = "therunner:";
     public static final Gson GSON = new Gson();
+
+    private boolean running;
 
     private final HyriRunnerPlayerManager playerManager;
 
@@ -24,24 +26,34 @@ public class HyriRunnerApi {
         this.jedisPool = jedisPool;
         this.redisRequests = new LinkedBlockingQueue<>();
         this.redisRequestsThread = new Thread(() -> {
-            try {
-                final Consumer<Jedis> request = this.redisRequests.take();
-
-                try (final Jedis jedis = this.getRedisResource()) {
-                    if (jedis != null) {
-                        request.accept(jedis);
+            while (running) {
+                try {
+                    final Consumer<Jedis> request = this.redisRequests.take();
+                    try (final Jedis jedis = this.getRedisResource()) {
+                        if (jedis != null) {
+                            request.accept(jedis);
+                        }
                     }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (InterruptedException ignored) {}
+            }
         }, "Runner API - Redis processor");
         this.playerManager = new HyriRunnerPlayerManager(this);
     }
 
     public void start() {
+        this.running = true;
         this.redisRequestsThread.start();
     }
 
     public void stop() {
+        this.running = false;
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         this.redisRequestsThread.interrupt();
     }
 

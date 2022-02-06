@@ -5,7 +5,9 @@ import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.HyriRunnerGame;
 import fr.hyriode.runner.game.HyriRunnerGamePlayer;
+import fr.hyriode.runner.inventories.HyriRunnerChallengeGui;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityStatus;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -81,6 +83,13 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
     public void onInteract(PlayerInteractEvent e) {
         if(!plugin.getGame().isCanPlace()){
             e.setCancelled(true);
+        }
+        if(plugin.getGame().getState().equals(HyriGameState.WAITING) || plugin.getGame().getState().equals(HyriGameState.READY)) {
+            if(e.getItem() != null) {
+                if(e.getItem().getType().equals(Material.PAPER)) {
+                    new HyriRunnerChallengeGui(e.getPlayer(), plugin).open();
+                }
+            }
         }
     }
 

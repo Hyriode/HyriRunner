@@ -1,9 +1,11 @@
 package fr.hyriode.runner.game.map;
 
 import fr.hyriode.runner.HyriRunner;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -11,11 +13,11 @@ import java.util.List;
 
 public class HyriRunnerMapGenerator {
 
-    private int actualChunk;
-    private int totalChunk;
-    private int remainingChunk;
-
+    private BukkitTask task;
     private List<HyriRunnerMapChunk> chunks;
+
+    private int lastShow;
+    private int numberChunk;
 
     private CompletableFuture completableFuture;
 
@@ -30,43 +32,52 @@ public class HyriRunnerMapGenerator {
         this.map = this.plugin.getGameMap();
     }
 
-    public void generate(int radius, boolean initialize) {
-        if (initialize) {
-            final Chunk origin = world.getChunkAt(0, 0);
+    public void generate(int size, boolean initialize) {
 
-            this.chunks = this.map.getChunksAround(origin, radius);
-            this.remainingChunk = chunks.size();
-            this.totalChunk = chunks.size();
-        }
+        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, new Runnable()
+        {
+            private int todo = ((size * 2) * (size * 2)) / 256;
+            private int x = -size;
+            private int z = -size;
 
-        final Instant before = Instant.now();
-        for (int i = this.actualChunk; i < this.chunks.size(); i++) {
-            final HyriRunnerMapChunk mapChunk = chunks.get(i);
+            @Override
+            public void run()
+            {
+                int i = 0;
 
-            this.remainingChunk--;
-            this.actualChunk++;
+                while (i < 50)
+                {
+                    world.getChunkAt(world.getBlockAt(this.x, 64, this.z)).load(true);
 
-            final Chunk chunk = world.getChunkAt(mapChunk.getX(), mapChunk.getZ());
-
-            chunk.load(true);
-
-            if (Duration.between(before, Instant.now()).toMillis() >= 450) {
-                final int percentage = (this.totalChunk - this.remainingChunk) * 100 / this.totalChunk;
-
-                System.out.println("The game map (" + ((this.totalChunk - this.remainingChunk) / 16) + "/" + (this.totalChunk / 16) + ") is generated at " + percentage + "%");
-
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        generate(radius, false);
+                    int percentage = numberChunk * 100 / todo;
+                    if (percentage > lastShow && percentage % 10 == 0)
+                    {
+                        lastShow = percentage;
+                        plugin.getLogger().info("Loading chunks (" + percentage + "%)");
                     }
-                }.runTaskLater(plugin, 7L);
-                return;
-            }
-        }
-        completableFuture.onComplete(world);
-    }
 
+                    this.z += 16;
+
+                    if (this.z >= size)
+                    {
+                        this.z = -size;
+                        this.x += 16;
+                    }
+
+                    if (this.x >= size)
+                    {
+                        task.cancel();
+                        completableFuture.onComplete(world);
+                        return;
+                    }
+
+                    numberChunk++;
+                    i++;
+                }
+            }
+        }, 1L, 1L);
+
+    }
     public HyriRunnerMapGenerator setFuture(CompletableFuture completableFuture) {
         this.completableFuture = completableFuture;
         return this;

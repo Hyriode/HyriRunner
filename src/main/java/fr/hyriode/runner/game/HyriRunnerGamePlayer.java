@@ -9,7 +9,9 @@ import fr.hyriode.hyrame.title.Title;
 import fr.hyriode.hyrame.utils.Symbols;
 import fr.hyriode.hyriapi.settings.HyriLanguage;
 import fr.hyriode.runner.HyriRunner;
+import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.api.player.HyriRunnerPlayer;
+import fr.hyriode.runner.challenges.HyriRunnerChallenge;
 import fr.hyriode.runner.game.scoreboard.HyriRunnerScoreboard;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -18,6 +20,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 public class HyriRunnerGamePlayer extends HyriGamePlayer {
@@ -37,6 +40,9 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
     private long kills;
     private long deaths;
 
+    private HyriRunnerChallenge challenge;
+    private boolean warrior;
+
     public HyriRunnerGamePlayer(HyriGame<?> game, Player player) {
         super(game, player);
     }
@@ -47,6 +53,14 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
 
     public void setAccount(HyriRunnerPlayer account) {
         this.account = account;
+    }
+
+    public boolean isWarrior() {
+        return warrior;
+    }
+
+    public void setWarrior(boolean warrior) {
+        this.warrior = warrior;
     }
 
     public void setLastHitter(Player lastHitter) {
@@ -63,7 +77,7 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
                     public void run() {
                         setLastHitter(null);
                     }
-                }.runTaskLater(this.plugin, 20 * 15L);
+                }.runTaskLaterAsynchronously(this.plugin, 20 * 15L);
             }
         }
     }
@@ -95,6 +109,18 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
 
         this.hide();
 
+        for (HyriRunnerChallengeModel value : HyriRunnerChallengeModel.values()) {
+            Optional<HyriRunnerChallenge> oChallenge = HyriRunnerChallenge.getWithModel(value);
+            oChallenge.ifPresent(challenge -> {
+                if(this.getChallenge() != null) {
+                    if(this.getChallenge().getCondition(this)) {
+                        this.getChallenge().getReward(this);
+                    } else this.sendMessage(HyriRunnerMessages.CHALLENGE_FAILED.get().getForPlayer(this.player)
+                            .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(this.getChallenge().getKey()).getForPlayer(this.player)));
+                }
+            });
+        }
+
         final PlayerInventory playerInventory = this.player.getInventory();
 
         for (ItemStack content : playerInventory.getContents()) {
@@ -106,6 +132,7 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
         playerInventory.clear();
 
         this.player.setHealth(20.0F);
+        Bukkit.getWorld(this.plugin.getGameMap().getName()).strikeLightningEffect(this.player.getLocation());
         this.player.teleport(new Location(Bukkit.getWorld(plugin.getGameMap().getName()), 0, 100, 0));
 
         this.addDeath();
@@ -129,16 +156,12 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
         this.scoreboard.updateLines();
 
         this.game.sendMessageToAll(killMessage);
-        this.game.getPlayers().forEach(hyriGamePlayer -> {
-            Player p = hyriGamePlayer.getPlayer();
-            p.getWorld().strikeLightningEffect(p.getLocation());
-        });
 
         HyriLanguageMessage deathTitle = new HyriLanguageMessage("title.death")
                 .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + Symbols.ROTATED_SQUARE + " " + "MORT" + " " + Symbols.ROTATED_SQUARE)
                 .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + Symbols.ROTATED_SQUARE + " " + "DEAD" + " " + Symbols.ROTATED_SQUARE);
 
-        Title.sendTitle(player, deathTitle.getForPlayer(player), null, 1, 3*20, 1);
+        Title.sendTitle(player, deathTitle.getForPlayer(player), null, 1, 3 * 20, 1);
         this.eliminated = true;
         this.spectator = true;
         this.setDead(true);
@@ -183,5 +206,12 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
         this.arrived = arrived;
     }
 
+    public HyriRunnerChallenge getChallenge() {
+        return challenge;
+    }
+
+    public void setChallenge(HyriRunnerChallenge challenge) {
+        this.challenge = challenge;
+    }
 }
 

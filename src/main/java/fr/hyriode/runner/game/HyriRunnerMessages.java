@@ -14,9 +14,12 @@ public enum HyriRunnerMessages {
     FIRST_PLACE_ARMOR("message.first-place-armor"),
     ARRIVED_TITLE("title.arrived"),
     ARRIVED_SUB("subtitle.arrived"),
+    CHALLENGE_FAILED("message.challenge-failed"),
+    LAST_CHALLENGE_USED("message.last-challenge-used"),
+    INIT_TELEPORTATION("message.teleportation-init")
     ;
 
-    private String key;
+    private final String key;
 
     HyriRunnerMessages(String key) {
         this.key = key;

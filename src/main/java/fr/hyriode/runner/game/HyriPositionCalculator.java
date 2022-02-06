@@ -58,7 +58,7 @@ public class HyriPositionCalculator {
 
     public static class Cage {
 
-        private Location cageCenter;
+        private final Location cageCenter;
 
         public Cage(Location cageCenter) {
             this.cageCenter = cageCenter;

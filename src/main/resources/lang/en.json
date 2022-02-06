@@ -10,6 +10,9 @@
   "subtitle.arrived": "&7You are the &b#%position%!",
   "message.kill-by-player": " was killed by ",
   "message.died": " died.",
+  "message.challenge-failed": "&cYou failed the challenge: %challenge%",
+  "message.last-challenge-used": "&3Your selected challenge is: %challenge%",
+  "message.teleportation-init": "&3The players teleportation is starting.",
 
   "scoreboard.time.display": "Time: ",
   "scoreboard.border.display": "Border: ",
@@ -29,5 +32,13 @@
   "team.darkgreen.display": "&2Jade",
   "team.orange.display": "&6Orange",
   "team.black.display": "&0Black",
-  "team.purple.display": "&5Purple"
+  "team.purple.display": "&5Purple",
+
+  "item.challenge": "&6Challenges",
+  "challenge.first.name": "&bFirst",
+  "challenge.first.lore.1": "&7Be the first to arrive at the",
+  "challenge.first.lore.2": "&7center to succeed in this challenge.",
+  "challenge.warrior.name": "&bWarrior",
+  "challenge.warrior.lore.1": "&7Do not take any arrival",
+  "challenge.warrior.lore.2": "&7&7bonus to succeed in this challenge."
 }

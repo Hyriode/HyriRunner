@@ -16,12 +16,10 @@ import java.util.TimeZone;
 public abstract class HyriRunnerScoreboard extends Scoreboard {
 
     private final HyriRunner plugin;
-    // private int timeLine;
 
     public HyriRunnerScoreboard(HyriRunner plugin, Player player) {
         super(plugin, player, "therunner", ChatColor.DARK_AQUA + "     " + ChatColor.BOLD + plugin.getGame().getDisplayName() + "     ");
         this.plugin = plugin;
-        // this.timeLine = timeLine;
 
         this.addLines();
     }
