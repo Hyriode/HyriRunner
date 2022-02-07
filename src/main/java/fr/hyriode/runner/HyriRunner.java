@@ -43,7 +43,7 @@ public class HyriRunner extends JavaPlugin {
 
         this.game = new HyriRunnerGame(this.hyrame, this);
         this.hyrame.getGameManager().registerGame(this.game);
-        HyriRunnerChallenge.registerChallenges();
+        HyriRunnerChallenge.registerChallenges(this);
 
         this.setupMapGenerator();
     }

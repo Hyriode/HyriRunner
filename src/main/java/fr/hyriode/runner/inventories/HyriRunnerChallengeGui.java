@@ -8,7 +8,6 @@ import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.challenges.HyriRunnerChallenge;
 import fr.hyriode.runner.game.HyriRunnerGamePlayer;
-import fr.hyriode.runner.game.HyriRunnerMessages;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -27,11 +26,11 @@ public class HyriRunnerChallengeGui extends HyriInventory {
             .addValue(HyriLanguage.FR, ChatColor.GREEN + "Vous avez choisi ce défi")
             .addValue(HyriLanguage.EN, ChatColor.GREEN + "You have chosen this challenge");
     private static final HyriLanguageMessage challengeSelected = new HyriLanguageMessage("message.challenge-selected")
-            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA+ "Vous avez choisi le défi: %challenge%")
-            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA+ "You choose the challenge: %challenge%");
+            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + "Vous avez choisi le défi: %challenge%")
+            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + "You choose the challenge: %challenge%");
     private static final HyriLanguageMessage challengeUnselected = new HyriLanguageMessage("message.challenge-unselected")
-            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA+ "Vous ne choisissez aucun défi.")
-            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA+ "You're choosing no challenge.");
+            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + "Vous ne choisissez aucun défi.")
+            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + "You're choosing no challenge.");
 
     public HyriRunnerChallengeGui(Player owner, HyriRunner plugin) {
         super(owner, name.getForPlayer(owner), 27);
@@ -49,6 +48,7 @@ public class HyriRunnerChallengeGui extends HyriInventory {
                                             ChatColor.GRAY + " ",
                                             loreChoose.getForPlayer(owner)
                                     )
+                                    .withAllItemFlags()
                                     .build()
                             , event -> {
                                 event.setCancelled(true);
@@ -66,6 +66,7 @@ public class HyriRunnerChallengeGui extends HyriInventory {
                                             ChatColor.GRAY + " ",
                                             loreChosen.getForPlayer(owner)
                                     )
+                                    .withAllItemFlags()
                                     .withGlow()
                                     .build()
                             , event -> {

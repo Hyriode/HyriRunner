@@ -81,6 +81,7 @@ public class HyriRunnerGameTask extends BukkitRunnable {
                     }
                     if (primeIndex == 0) {
                         game.setPvp(true);
+                        game.setPlayersPvpPhaseRemaining(game.getPlayers().size() - 1);
                         game.sendMessageToAll(player -> HyriRunnerMessages.PVP_ON.get().getForPlayer(player));
                         game.getPlayers().forEach(gamePlayer -> {
                             final Player p = gamePlayer.getPlayer();

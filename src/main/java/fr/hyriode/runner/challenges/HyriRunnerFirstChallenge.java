@@ -10,14 +10,12 @@ public class HyriRunnerFirstChallenge extends HyriRunnerChallenge {
 
     public HyriRunnerFirstChallenge(HyriRunner plugin) {
         super(
-                plugin,
                 HyriRunnerChallengeModel.FIRST,
                 "challenge.first.name",
                 new String[] {"challenge.first.lore.1", "challenge.first.lore.2"},
                 1,
                 Material.CHAINMAIL_BOOTS
         );
-
         challengesMap.put(HyriRunnerFirstChallenge.class, this);
     }
 

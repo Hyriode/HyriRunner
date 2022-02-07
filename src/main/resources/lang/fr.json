@@ -1,5 +1,5 @@
 {
-  "message.preparation": "&7Vous avez 15 secondes pour vous préparer au lancement !",
+  "message.preparation": "&3Vous avez 15 secondes pour vous préparer au lancement !",
   "message.border-shrink": "&cLa bordure commence à rétrécir ! Courez vers le centre de la carte !",
   "message.damage-on": "&cVous êtes maintenant vulnérable !",
   "message.border-end": "&cLa bordure est arrivée au centre. La pvp sera activé dans 5 secondes !",
@@ -40,5 +40,8 @@
   "challenge.first.lore.2": "&7au centre pour réussir ce défi.",
   "challenge.warrior.name": "&bGuerrier",
   "challenge.warrior.lore.1": "&7Ne prenez aucun bonus",
-  "challenge.warrior.lore.2": "&7d'arrivée pour réussir ce défi."
+  "challenge.warrior.lore.2": "&7d'arrivée pour réussir ce défi.",
+  "challenge.serial-killer.name": "&bTueur en série",
+  "challenge.serial-killer.lore.1": "&7Tuez tous les joueurs de",
+  "challenge.serial-killer.lore.2": "&7la partie pour réussir ce défi."
 }

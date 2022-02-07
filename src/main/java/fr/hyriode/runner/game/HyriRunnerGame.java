@@ -38,6 +38,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
     private boolean damage;
     private boolean canPlace = false;
     private boolean borderEnd = false;
+    private int playersPvpPhaseRemaining;
 
     private HyriRunnerGameTask gameTask;
     private HyriRunnerArrow arrow;
@@ -79,6 +80,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         final HyriRunnerGamePlayer gamePlayer = this.getPlayer(uuid);
 
         gamePlayer.setPlugin(this.plugin);
+        gamePlayer.setWarrior(false);
 
         HyriRunnerPlayer account = this.plugin.getApi().getPlayerManager().getPlayer(uuid);
 
@@ -121,6 +123,9 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
             statistics.addDeaths(gamePlayer.getDeaths());
 
             account.getCompletedChallenges().add(gamePlayer.getChallenge().getModel());
+            if(isPvp()) {
+                this.playersPvpPhaseRemaining -= 1;
+            }
         }
         if(gamePlayer.getChallenge() != null) {
             account.setLastSelectedChallenge(gamePlayer.getChallenge().getModel());
@@ -338,4 +343,11 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         return this.arrow;
     }
 
+    public int getPlayersPvpPhaseRemaining() {
+        return playersPvpPhaseRemaining;
+    }
+
+    public void setPlayersPvpPhaseRemaining(int playersPvpPhaseRemaining) {
+        this.playersPvpPhaseRemaining = playersPvpPhaseRemaining;
+    }
 }

@@ -1,5 +1,5 @@
 {
-  "message.preparation": "&7You have 15 seconds to prepare for launch!",
+  "message.preparation": "&3You have 15 seconds to prepare for launch!",
   "message.border-shrink": "&cThe border begins to shrink! Run to the center of the map!",
   "message.damage-on": "&cYou are now vulnerable!",
   "message.border-end": "&cThe border arrived to the center. The pvp will be enabled in 5 seconds!",
@@ -40,5 +40,8 @@
   "challenge.first.lore.2": "&7center to succeed in this challenge.",
   "challenge.warrior.name": "&bWarrior",
   "challenge.warrior.lore.1": "&7Do not take any arrival",
-  "challenge.warrior.lore.2": "&7&7bonus to succeed in this challenge."
+  "challenge.warrior.lore.2": "&7bonus to succeed in this challenge.",
+  "challenge.serial-killer.name": "&bSerial killer",
+  "challenge.serial-killer.lore.1": "&7Kill all the players in the",
+  "challenge.serial-killer.lore.2": "&7game to succeed in this challenge."
 }

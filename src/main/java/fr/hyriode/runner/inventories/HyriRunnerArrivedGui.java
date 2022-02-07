@@ -39,7 +39,6 @@ public class HyriRunnerArrivedGui extends HyriInventory {
             event.setCancelled(true);
             Player p = (Player) event.getWhoClicked();
             HyriRunnerGameListener.hasChosen = true;
-            plugin.getGame().getPlayer(p.getUniqueId()).setWarrior(false);
             p.closeInventory();
             p.getInventory().remove(Material.IRON_SWORD);
             p.getInventory().addItem(new ItemBuilder(Material.DIAMOND_SWORD).withEnchant(Enchantment.DAMAGE_ALL, 2).unbreakable().build());
@@ -57,7 +56,6 @@ public class HyriRunnerArrivedGui extends HyriInventory {
             event.setCancelled(true);
             Player p = (Player) event.getWhoClicked();
             HyriRunnerGameListener.hasChosen = true;
-            plugin.getGame().getPlayer(p.getUniqueId()).setWarrior(false);
             p.closeInventory();
             p.getEquipment().setHelmet(new ItemBuilder(Material.DIAMOND_HELMET).unbreakable().build());
             p.getEquipment().setLeggings(new ItemBuilder(Material.DIAMOND_LEGGINGS).unbreakable().build());
