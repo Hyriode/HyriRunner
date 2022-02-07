@@ -224,7 +224,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         if(winner != null) {
             this.gameTask.cancel();
             winner.getPlayers().forEach(player -> {
-                HyriRunnerGamePlayer hyriGamePlayer = this.getPlayer(player.getUUID());
+                HyriRunnerGamePlayer hyriGamePlayer = this.getPlayer(player.getPlayer().getUniqueId());
                 for (HyriRunnerChallengeModel value : HyriRunnerChallengeModel.values()) {
                     Optional<HyriRunnerChallenge> oChallenge = HyriRunnerChallenge.getWithModel(value);
                     oChallenge.ifPresent(challenge -> {
