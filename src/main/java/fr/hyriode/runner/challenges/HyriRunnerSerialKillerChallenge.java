@@ -13,7 +13,7 @@ public class HyriRunnerSerialKillerChallenge extends HyriRunnerChallenge {
         super(
                 HyriRunnerChallengeModel.SERIAL_KILLER,
                 "challenge.serial-killer.name",
-                new String[] {"challenge.serial-killer.lore.1", "challenge.serial-killer.lore.1"},
+                new String[] {"challenge.serial-killer.lore.1", "challenge.serial-killer.lore.2"},
                 3,
                 Material.DIAMOND_SWORD
         );
