@@ -14,7 +14,6 @@ public class HyriRunnerWarriorChallenge extends HyriRunnerChallenge {
         super(HyriRunnerChallengeModel.WARRIOR,
                 "challenge.warrior.name",
                 new String[] {"challenge.warrior.lore.1", "challenge.warrior.lore.2"},
-                2,
                 Material.IRON_AXE);
         challengesMap.put(HyriRunnerWarriorChallenge.class, this);
         this.plugin = pl;
@@ -31,6 +30,6 @@ public class HyriRunnerWarriorChallenge extends HyriRunnerChallenge {
 
     @Override
     public void getReward(HyriRunnerGamePlayer player) {
-        player.sendMessage("Challenge warrior réussi lol");
+        sendSuccessMessage(player);
     }
 }

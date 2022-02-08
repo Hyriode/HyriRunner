@@ -6,12 +6,12 @@ import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.HyriRunnerGame;
 import fr.hyriode.runner.game.HyriRunnerGamePlayer;
 import fr.hyriode.runner.inventories.HyriRunnerChallengeGui;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityStatus;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -26,7 +26,7 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
-        if(!this.plugin.getGame().isDamage()) return;
+        if (!this.plugin.getGame().isDamage()) return;
         if (this.plugin.getGame().getState() == HyriGameState.PLAYING) {
             if (event.getEntity() instanceof Player) {
                 final Player target = (Player) event.getEntity();
@@ -43,7 +43,7 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
                     }
                 }
 
-                if(target.getHealth() - event.getFinalDamage() <= 0) {
+                if (target.getHealth() - event.getFinalDamage() <= 0) {
                     target.setHealth(20);
 
                     if (!game.getDeadPlayers().contains(gamePlayer)) {
@@ -68,7 +68,7 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
                 final HyriRunnerGame game = this.plugin.getGame();
                 final HyriRunnerGamePlayer gamePlayer = game.getPlayer(player.getUniqueId());
 
-                if(player.getHealth() - event.getFinalDamage() <= 0) {
+                if (player.getHealth() - event.getFinalDamage() <= 0) {
                     player.setHealth(20);
 
                     if (!game.getDeadPlayers().contains(gamePlayer)) {
@@ -81,15 +81,25 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if(!plugin.getGame().isCanPlace()){
+        if (!plugin.getGame().isCanPlace()) {
             e.setCancelled(true);
         }
-        if(plugin.getGame().getState().equals(HyriGameState.WAITING) || plugin.getGame().getState().equals(HyriGameState.READY)) {
-            if(e.getItem() != null) {
-                if(e.getItem().getType().equals(Material.PAPER)) {
+        if (plugin.getGame().getState().equals(HyriGameState.WAITING) || plugin.getGame().getState().equals(HyriGameState.READY)) {
+            if (e.getItem() != null) {
+                if (e.getItem().getType().equals(Material.PAPER)) {
                     new HyriRunnerChallengeGui(e.getPlayer(), plugin).open();
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent e) {
+        Player player = e.getPlayer();
+        HyriRunnerGamePlayer gamePlayer = plugin.getGame().getPlayer(player.getUniqueId());
+
+        if(!plugin.getGame().isPvp()) {
+            gamePlayer.addBlockPlaced();
         }
     }
 
@@ -109,24 +119,24 @@ public class HyriRunnerPlayerListener extends HyriListener<HyriRunner> {
     public void onWeather(WeatherChangeEvent e) {
         e.setCancelled(true);
     }
-    
+
     @EventHandler
     public void onEat(FoodLevelChangeEvent e) {
-        if(plugin.getGame().getState().equals(HyriGameState.WAITING) || plugin.getGame().getState().equals(HyriGameState.READY)) {
+        if (plugin.getGame().getState().equals(HyriGameState.WAITING) || plugin.getGame().getState().equals(HyriGameState.READY)) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onPJoin(AsyncPlayerPreLoginEvent e) {
-        if(!plugin.getGame().isAccessible()) {
-            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "The game map is generating...");
+        if (!plugin.getGame().isAccessible()) {
+            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "The game map is generating... (" +plugin.getGenerator().getPercentage()+ ")");
         }
     }
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent e) {
-        if(plugin.getGame().getState().equals(HyriGameState.WAITING) || plugin.getGame().getState().equals(HyriGameState.READY)) {
+        if (plugin.getGame().getState().equals(HyriGameState.WAITING) || plugin.getGame().getState().equals(HyriGameState.READY)) {
             e.setCancelled(true);
         }
     }

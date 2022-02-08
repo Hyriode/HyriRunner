@@ -14,7 +14,6 @@ public class HyriRunnerSerialKillerChallenge extends HyriRunnerChallenge {
                 HyriRunnerChallengeModel.SERIAL_KILLER,
                 "challenge.serial-killer.name",
                 new String[] {"challenge.serial-killer.lore.1", "challenge.serial-killer.lore.2"},
-                3,
                 Material.DIAMOND_SWORD
         );
         challengesMap.put(HyriRunnerSerialKillerChallenge.class, this);
@@ -33,6 +32,6 @@ public class HyriRunnerSerialKillerChallenge extends HyriRunnerChallenge {
 
     @Override
     public void getReward(HyriRunnerGamePlayer player) {
-        player.sendMessage("Challenge serial killer réussi lol");
+        sendSuccessMessage(player);
     }
 }

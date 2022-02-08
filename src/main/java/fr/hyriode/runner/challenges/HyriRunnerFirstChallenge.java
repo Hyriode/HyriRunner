@@ -13,7 +13,6 @@ public class HyriRunnerFirstChallenge extends HyriRunnerChallenge {
                 HyriRunnerChallengeModel.FIRST,
                 "challenge.first.name",
                 new String[] {"challenge.first.lore.1", "challenge.first.lore.2"},
-                1,
                 Material.CHAINMAIL_BOOTS
         );
         challengesMap.put(HyriRunnerFirstChallenge.class, this);
@@ -26,6 +25,6 @@ public class HyriRunnerFirstChallenge extends HyriRunnerChallenge {
 
     @Override
     public void getReward(HyriRunnerGamePlayer player) {
-        player.getPlayer().sendMessage("Challenge first réussi lol");
+        sendSuccessMessage(player);
     }
 }

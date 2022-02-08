@@ -31,10 +31,6 @@ public class HyriRunnerGameTask extends BukkitRunnable {
             game.startBorderShrink();
             game.sendMessageToAll(player -> HyriRunnerMessages.BORDER_SHRINK.get().getForPlayer(player));
             game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(30)));
-            game.getPlayers().forEach(hyriRunnerGamePlayer -> {
-                Player p = hyriRunnerGamePlayer.getPlayer();
-                p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 3f, 3f);
-            });
         }
         if (index == 10) {
             game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(20)));
@@ -55,6 +51,10 @@ public class HyriRunnerGameTask extends BukkitRunnable {
         if (index == 30) {
             game.setDamage(true);
             game.sendMessageToAll(player -> HyriRunnerMessages.DAMAGE_ON.get().getForPlayer(player));
+            game.getPlayers().forEach(hyriRunnerGamePlayer -> {
+                Player p = hyriRunnerGamePlayer.getPlayer();
+                p.playSound(p.getLocation(), Sound.ENDERDRAGON_GROWL, 3f, 3f);
+            });
         }
         if (game.isBorderEnd()) {
             game.setBorderEnd(false);
@@ -90,7 +90,7 @@ public class HyriRunnerGameTask extends BukkitRunnable {
                             gamePlayer.setScoreboard(new HyriRunnerSecondPhaseScoreboard(plugin, p));
                             gamePlayer.getScoreboard().show();
 
-                            p.playSound(p.getLocation(), Sound.ENDERDRAGON_GROWL, 3f, 3f);
+                            p.playSound(p.getLocation(), Sound.WITHER_SPAWN, 3f, 3f);
                         });
                         cancel();
                     }

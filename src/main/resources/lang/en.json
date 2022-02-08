@@ -43,5 +43,14 @@
   "challenge.warrior.lore.2": "&7bonus to succeed in this challenge.",
   "challenge.serial-killer.name": "&bSerial killer",
   "challenge.serial-killer.lore.1": "&7Kill all the players in the",
-  "challenge.serial-killer.lore.2": "&7game to succeed in this challenge."
+  "challenge.serial-killer.lore.2": "&7game to succeed in this challenge.",
+  "challenge.no-block-placed.name": "&bThrifty",
+  "challenge.no-block-placed.lore.1": "&7Do not use more than 16 blocks during the",
+  "challenge.no-block-placed.lore.2": "&7running phase to succeed in this challenge.",
+  "challenge.fast-arrived.name": "&bUsain Bolt",
+  "challenge.fast-arrived.lore.1": "&7Get to the center in less than",
+  "challenge.fast-arrived.lore.2": "&73m10s to succeed in this challenge.",
+  "challenge.last.name": "&bLatecomer",
+  "challenge.last.lore.1": "&7Get to the center in last",
+  "challenge.last.lore.2": "&7position to succeed in this challenge."
 }

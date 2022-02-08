@@ -43,5 +43,14 @@
   "challenge.warrior.lore.2": "&7d'arrivée pour réussir ce défi.",
   "challenge.serial-killer.name": "&bTueur en série",
   "challenge.serial-killer.lore.1": "&7Tuez tous les joueurs de",
-  "challenge.serial-killer.lore.2": "&7la partie pour réussir ce défi."
+  "challenge.serial-killer.lore.2": "&7la partie pour réussir ce défi.",
+  "challenge.no-block-placed.name": "&bEconome",
+  "challenge.no-block-placed.lore.1": "&7N'utilisez pas plus de 16 blocs pendant",
+  "challenge.no-block-placed.lore.2": "&7la période de course pour réussir ce défi.",
+  "challenge.fast-arrived.name": "&bUsain Bolt",
+  "challenge.fast-arrived.lore.1": "&7Arrivez au centre en moins de",
+  "challenge.fast-arrived.lore.2": "&73m10s pour réussir ce défi.",
+  "challenge.last.name": "&bRetardataire",
+  "challenge.last.lore.1": "&7Arrivez au centre en dernière",
+  "challenge.last.lore.2": "&7position pour réussir ce défi."
 }

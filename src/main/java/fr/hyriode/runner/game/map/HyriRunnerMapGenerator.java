@@ -18,6 +18,7 @@ public class HyriRunnerMapGenerator {
 
     private int lastShow;
     private int numberChunk;
+    private int percentage;
 
     private CompletableFuture completableFuture;
 
@@ -49,11 +50,11 @@ public class HyriRunnerMapGenerator {
                 {
                     world.getChunkAt(world.getBlockAt(this.x, 64, this.z)).load(true);
 
-                    int percentage = numberChunk * 100 / todo;
+                    percentage = numberChunk * 100 / todo;
                     if (percentage > lastShow && percentage % 10 == 0)
                     {
                         lastShow = percentage;
-                        plugin.getLogger().info("Loading chunks (" + percentage + "%)");
+                        HyriRunner.log("Loading chunks (" + percentage + "%)");
                     }
 
                     this.z += 16;
@@ -89,5 +90,9 @@ public class HyriRunnerMapGenerator {
 
         void onFailure(World world);
 
+    }
+
+    public int getPercentage() {
+        return percentage;
     }
 }

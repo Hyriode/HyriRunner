@@ -16,10 +16,7 @@ import fr.hyriode.runner.game.scoreboard.HyriRunnerFirstPhaseScoreboard;
 import fr.hyriode.runner.game.scoreboard.HyriRunnerScoreboard;
 import fr.hyriode.runner.game.team.HyriRunnerGameTeam;
 import fr.hyriode.runner.game.team.HyriRunnerGameTeams;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -40,6 +37,8 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
     private boolean borderEnd = false;
     private int playersPvpPhaseRemaining;
 
+    private List<HyriRunnerGamePlayer> arrivedPlayers;
+
     private HyriRunnerGameTask gameTask;
     private HyriRunnerArrow arrow;
 
@@ -54,6 +53,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         this.damage = false;
         this.pvp = false;
         this.accessible = false;
+        this.arrivedPlayers = new ArrayList<>();
 
         this.registerTeams();
     }
@@ -122,7 +122,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
             statistics.addKills(gamePlayer.getKills());
             statistics.addDeaths(gamePlayer.getDeaths());
 
-            account.getCompletedChallenges().add(gamePlayer.getChallenge().getModel());
+           // account.getCompletedChallenges().add(gamePlayer.getChallenge().getModel());
             if(isPvp()) {
                 this.playersPvpPhaseRemaining -= 1;
             }
@@ -162,6 +162,9 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
                 public void run() {
                     players.forEach(gamePlayer -> gamePlayer.getPlayer().setLevel(index));
 
+                    if(index <= 3 && index != 0) {
+                        players.forEach(gamePlayer -> gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.SUCCESSFUL_HIT, 3f, 3f));
+                    }
                     if (index == 0) {
                         calculator.removeCages();
                         gameTask = new HyriRunnerGameTask(plugin);
@@ -172,6 +175,11 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
                             gamePlayer.setScoreboard(scoreboard);
 
                             scoreboard.show();
+                        });
+
+                        players.forEach(hyriRunnerGamePlayer -> {
+                            Player p = hyriRunnerGamePlayer.getPlayer();
+                            p.playSound(p.getLocation(), Sound.LEVEL_UP, 3f, 3f);
                         });
 
                         gameTask.runTaskTimer(plugin, 0, 20);
@@ -224,15 +232,24 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         if(winner != null) {
             this.gameTask.cancel();
             winner.getPlayers().forEach(player -> {
-                HyriRunnerGamePlayer hyriGamePlayer = this.getPlayer(player.getPlayer().getUniqueId());
+
+                HyriRunnerGamePlayer gamePlayer = this.getPlayer(player.getUUID());
+                HyriRunnerChallenge gamePlayerChallenge = gamePlayer.getChallenge();
+                Player p = gamePlayer.getPlayer();
+
                 for (HyriRunnerChallengeModel value : HyriRunnerChallengeModel.values()) {
+
                     Optional<HyriRunnerChallenge> oChallenge = HyriRunnerChallenge.getWithModel(value);
                     oChallenge.ifPresent(challenge -> {
-                        if(hyriGamePlayer.getChallenge() != null) {
-                            if(hyriGamePlayer.getChallenge().getCondition(hyriGamePlayer)) {
-                                hyriGamePlayer.getChallenge().getReward(hyriGamePlayer);
-                            } else hyriGamePlayer.sendMessage(HyriRunnerMessages.CHALLENGE_FAILED.get().getForPlayer(hyriGamePlayer.getPlayer())
-                                    .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(hyriGamePlayer.getChallenge().getKey()).getForPlayer(hyriGamePlayer.getPlayer())));
+                        if(gamePlayerChallenge != null) {
+                           if(gamePlayerChallenge.equals(challenge)) {
+                               if(gamePlayerChallenge.getCondition(gamePlayer)) {
+                                   gamePlayerChallenge.getReward(gamePlayer);
+                               } else {
+                                   gamePlayer.sendMessage(HyriRunnerMessages.CHALLENGE_FAILED.get().getForPlayer(p)
+                                           .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(gamePlayerChallenge.getKey()).getForPlayer(p)));
+                               }
+                           }
                         }
                     });
                 }
@@ -296,7 +313,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
     }
 
     public List<HyriRunnerGamePlayer> getArrivedPlayers() {
-        return this.players.stream().filter(HyriRunnerGamePlayer::isArrived).collect(Collectors.toList());
+        return this.arrivedPlayers;
     }
 
     public boolean isPvp() {
@@ -349,5 +366,9 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
 
     public void setPlayersPvpPhaseRemaining(int playersPvpPhaseRemaining) {
         this.playersPvpPhaseRemaining = playersPvpPhaseRemaining;
+    }
+
+    public void removePlayerPvpPhaseRemaining() {
+        this.playersPvpPhaseRemaining -= 1;
     }
 }

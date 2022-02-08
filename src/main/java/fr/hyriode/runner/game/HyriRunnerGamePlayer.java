@@ -25,8 +25,9 @@ import java.util.function.Function;
 
 public class HyriRunnerGamePlayer extends HyriGamePlayer {
 
-    private boolean arrived;
     private int position;
+    private int blocksPlaced;
+    private int arrivedTime;
 
     private HyriRunner plugin;
 
@@ -45,6 +46,7 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
 
     public HyriRunnerGamePlayer(HyriGame<?> game, Player player) {
         super(game, player);
+        this.blocksPlaced = 0;
     }
 
     public HyriRunnerPlayer getAccount() {
@@ -113,10 +115,12 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
             Optional<HyriRunnerChallenge> oChallenge = HyriRunnerChallenge.getWithModel(value);
             oChallenge.ifPresent(challenge -> {
                 if(this.getChallenge() != null) {
-                    if(this.getChallenge().getCondition(this)) {
-                        this.getChallenge().getReward(this);
-                    } else this.sendMessage(HyriRunnerMessages.CHALLENGE_FAILED.get().getForPlayer(this.player)
-                            .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(this.getChallenge().getKey()).getForPlayer(this.player)));
+                   if(this.getChallenge().equals(challenge)) {
+                       if(this.getChallenge().getCondition(this)) {
+                           this.getChallenge().getReward(this);
+                       } else this.sendMessage(HyriRunnerMessages.CHALLENGE_FAILED.get().getForPlayer(this.player)
+                               .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(this.getChallenge().getKey()).getForPlayer(this.player)));
+                   }
                 }
             });
         }
@@ -151,6 +155,7 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
 
         } else {
             killMessage = target -> formattedName + ChatColor.GRAY + languageManager.getValue(target, "message.died");
+            this.plugin.getGame().removePlayerPvpPhaseRemaining();
         }
 
         this.scoreboard.updateLines();
@@ -199,11 +204,11 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
     }
 
     public boolean isArrived() {
-        return this.arrived;
+        return this.plugin.getGame().getArrivedPlayers().contains(this);
     }
 
     public void setArrived(boolean arrived) {
-        this.arrived = arrived;
+        this.plugin.getGame().getArrivedPlayers().add(this);
     }
 
     public HyriRunnerChallenge getChallenge() {
@@ -212,6 +217,22 @@ public class HyriRunnerGamePlayer extends HyriGamePlayer {
 
     public void setChallenge(HyriRunnerChallenge challenge) {
         this.challenge = challenge;
+    }
+
+    public int getBlocksPlaced() {
+        return blocksPlaced;
+    }
+
+    public void addBlockPlaced() {
+        this.blocksPlaced += 1;
+    }
+
+    public int getArrivedTime() {
+        return arrivedTime;
+    }
+
+    public void setArrivedTime(int arrivedTime) {
+        this.arrivedTime = arrivedTime;
     }
 }
 

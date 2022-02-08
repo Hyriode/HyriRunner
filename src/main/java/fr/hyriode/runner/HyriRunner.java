@@ -30,6 +30,8 @@ public class HyriRunner extends JavaPlugin {
     private HyriRunnerApi api;
     private HyriRunnerConfig configuration;
 
+    private HyriRunnerMapGenerator generator;
+
     @Override
     public void onEnable() {
         this.hyrame = HyrameLoader.load(new HyriRunnerProvider(this));
@@ -63,9 +65,9 @@ public class HyriRunner extends JavaPlugin {
             }
         };
 
-        new HyriRunnerMapGenerator(Bukkit.getWorld(this.gameMap.getName()), this)
-                .setFuture(completableFuture)
-                .generate(1000, true);
+        this.generator = new HyriRunnerMapGenerator(Bukkit.getWorld(this.gameMap.getName()), this);
+        this.generator.setFuture(completableFuture);
+        this.generator.generate(1000, true);
     }
 
     @Override
@@ -117,4 +119,7 @@ public class HyriRunner extends JavaPlugin {
         return configuration;
     }
 
+    public HyriRunnerMapGenerator getGenerator() {
+        return generator;
+    }
 }
