@@ -1,7 +1,8 @@
 package fr.hyriode.runner.game.scoreboard;
 
-import fr.hyriode.hyrame.scoreboard.Scoreboard;
+import fr.hyriode.hyrame.game.scoreboard.HyriGameScoreboard;
 import fr.hyriode.runner.HyriRunner;
+import fr.hyriode.runner.game.HyriRunnerGame;
 import fr.hyriode.runner.game.HyriRunnerGamePlayer;
 import fr.hyriode.runner.listeners.HyriRunnerGameListener;
 import org.bukkit.Bukkit;
@@ -13,26 +14,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public abstract class HyriRunnerScoreboard extends Scoreboard {
+public abstract class HyriRunnerScoreboard extends HyriGameScoreboard<HyriRunnerGame> {
 
     private final HyriRunner plugin;
 
     public HyriRunnerScoreboard(HyriRunner plugin, Player player) {
-        super(plugin, player, "therunner", ChatColor.DARK_AQUA + "     " + ChatColor.BOLD + plugin.getGame().getDisplayName() + "     ");
+        super(plugin, plugin.getGame(),player, plugin.getGame().getDisplayName());
         this.plugin = plugin;
 
         this.addLines();
     }
 
     public abstract void addLines();
+    public abstract void addTimeLine();
 
     public void update() {
         this.addLines();
 
         this.updateLines();
     }
-
-    public abstract void addTimeLine();
 
     protected String getKillsLine() {
         return getLinePrefix("kills") + ChatColor.AQUA + this.getGamePlayer().getKills();
@@ -64,6 +64,10 @@ public abstract class HyriRunnerScoreboard extends Scoreboard {
         return prefix + ChatColor.AQUA + distance + "m";
     }
 
+    protected String getDateLine() {
+        return ChatColor.GRAY + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
+    }
+
     protected String getTimeLine() {
         final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 
@@ -72,10 +76,6 @@ public abstract class HyriRunnerScoreboard extends Scoreboard {
         final String line = format.format(this.plugin.getGame().getGameTask().getIndex() * 1000);
 
         return this.getLinePrefix("time") + ChatColor.AQUA + (line.startsWith("00:") ? line.substring(3) : line);
-    }
-
-    protected String getDateLine() {
-        return ChatColor.GRAY + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
     }
 
     protected String getLinePrefix(String prefix) {

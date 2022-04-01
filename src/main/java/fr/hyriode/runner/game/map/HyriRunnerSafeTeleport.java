@@ -4,7 +4,7 @@ import fr.hyriode.hyrame.actionbar.ActionBar;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.hyrame.utils.PacketUtil;
-import fr.hyriode.hyriapi.settings.HyriLanguage;
+import fr.hyriode.api.settings.HyriLanguage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.HyriRunnerGamePlayer;
 import net.minecraft.server.v1_8_R3.EntityPlayer;

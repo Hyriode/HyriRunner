@@ -3,7 +3,7 @@ package fr.hyriode.runner;
 import fr.hyriode.hyrame.HyrameLoader;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.language.IHyriLanguageManager;
-import fr.hyriode.hyriapi.HyriAPI;
+import fr.hyriode.api.HyriAPI;
 import fr.hyriode.runner.api.HyriRunnerApi;
 import fr.hyriode.runner.challenges.HyriRunnerChallenge;
 import fr.hyriode.runner.config.HyriRunnerConfig;
@@ -44,7 +44,7 @@ public class HyriRunner extends JavaPlugin {
         HyriRunnerGameType.setWithName(this.configuration.getGameType());
 
         this.game = new HyriRunnerGame(this.hyrame, this);
-        this.hyrame.getGameManager().registerGame(this.game);
+        this.hyrame.getGameManager().registerGame(() -> this.game);
         HyriRunnerChallenge.registerChallenges(this);
 
         this.setupMapGenerator();

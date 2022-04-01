@@ -1,7 +1,7 @@
 package fr.hyriode.runner.challenges;
 
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
-import fr.hyriode.hyriapi.settings.HyriLanguage;
+import fr.hyriode.api.settings.HyriLanguage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.game.HyriRunnerGamePlayer;

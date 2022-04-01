@@ -4,7 +4,7 @@ import fr.hyriode.hyrame.inventory.HyriInventory;
 import fr.hyriode.hyrame.item.ItemBuilder;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.title.Title;
-import fr.hyriode.hyriapi.settings.HyriLanguage;
+import fr.hyriode.api.settings.HyriLanguage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.HyriRunnerMessages;
 import fr.hyriode.runner.listeners.HyriRunnerGameListener;

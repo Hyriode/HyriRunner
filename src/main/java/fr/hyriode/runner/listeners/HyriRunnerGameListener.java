@@ -4,7 +4,7 @@ import fr.hyriode.hyrame.game.HyriGameState;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.hyrame.title.Title;
-import fr.hyriode.hyriapi.settings.HyriLanguage;
+import fr.hyriode.api.settings.HyriLanguage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.HyriRunnerGame;
 import fr.hyriode.runner.game.HyriRunnerGamePlayer;
@@ -39,11 +39,17 @@ public class HyriRunnerGameListener extends HyriListener<HyriRunner> {
         final HyriRunnerGame game = this.plugin.getGame();
         final HyriRunnerGamePlayer gamePlayer = game.getPlayer(player.getUniqueId());
 
+        if(game.getState() == HyriGameState.WAITING || game.getState() == HyriGameState.READY) {
+            if(player.getLocation().getY() <= 120) {
+                player.teleport(plugin.getConfiguration().getSpawn());
+            }
+        }
+
         if(area.contains(player.getLocation())) {
             if(!gamePlayer.isDead()) {
                 if(!gamePlayer.isArrived()) {
                     gamePlayer.setPosition(i);
-                    gamePlayer.setArrivedTime(plugin.getGame().getGameTask().getIndex());
+                    gamePlayer.setArrivedTime(plugin.getGame().getTimer().getCurrentTime());
                     i += 1;
                     if(game.getArrivedPlayers().isEmpty()) {
                         gamePlayer.setArrived(true);
@@ -72,14 +78,9 @@ public class HyriRunnerGameListener extends HyriListener<HyriRunner> {
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
         if(e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
             if(!plugin.getGame().getState().equals(HyriGameState.PLAYING) || !plugin.getGame().isDamage()) {
-
+                e.setDamage(0);
                 e.setCancelled(true);
-
-                if(e.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
-                    p.teleport(plugin.getConfiguration().getSpawn());
-                }
             }
         }
     }
@@ -87,6 +88,7 @@ public class HyriRunnerGameListener extends HyriListener<HyriRunner> {
     @EventHandler
     public void onPvp(EntityDamageByEntityEvent e) {
         if(!plugin.getGame().isPvp()) {
+            e.setDamage(0);
             e.setCancelled(true);
         }
     }

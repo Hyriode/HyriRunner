@@ -35,7 +35,7 @@ repositories {
 
 dependencies {
     implementation group: 'org.spigotmc', name: 'spigot', version: '1.8.8-R0.1-SNAPSHOT'
-    implementation 'fr.hyriode:hyrame:1.1.5'
+    implementation 'fr.hyriode:hyrame:1.1.7'
 }
 
 processResources {

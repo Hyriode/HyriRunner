@@ -3,9 +3,13 @@ package fr.hyriode.runner.game;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.HyriGameState;
+import fr.hyriode.hyrame.game.protocol.HyriDeathProtocol;
+import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
+import fr.hyriode.hyrame.game.protocol.HyriWaitingProtocol;
 import fr.hyriode.hyrame.game.team.HyriGameTeam;
 import fr.hyriode.hyrame.game.util.HyriGameItems;
 import fr.hyriode.hyrame.item.ItemBuilder;
+import fr.hyriode.hyrame.utils.PlayerUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.api.player.HyriRunnerPlayer;
@@ -16,6 +20,7 @@ import fr.hyriode.runner.game.scoreboard.HyriRunnerFirstPhaseScoreboard;
 import fr.hyriode.runner.game.scoreboard.HyriRunnerScoreboard;
 import fr.hyriode.runner.game.team.HyriRunnerGameTeam;
 import fr.hyriode.runner.game.team.HyriRunnerGameTeams;
+import fr.hyriode.runner.inventories.HyriRunnerChooseChallengeItem;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -67,14 +72,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
     @Override
     public void handleLogin(Player player) {
         super.handleLogin(player);
-        player.getInventory().setArmorContents(null);
-        player.getInventory().clear();
         player.setGameMode(GameMode.ADVENTURE);
-        player.setFoodLevel(20);
-        player.setHealth(20);
-        player.setLevel(0);
-        player.setExp(0.0F);
-        player.setCanPickupItems(false);
 
         final UUID uuid = player.getUniqueId();
         final HyriRunnerGamePlayer gamePlayer = this.getPlayer(uuid);
@@ -97,14 +95,16 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
                     .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(gamePlayer.getChallenge().getKey()).getForPlayer(player)));
         });
 
-        HyriGameItems.TEAM_CHOOSER.give(this.hyrame, player, 0);
-        player.getInventory().setItem(4, new ItemBuilder(Material.PAPER)
-                .withName(HyriRunner.getLanguageManager().getMessage("item.challenge")
-                        .getForPlayer(player))
-                .build());
-        HyriGameItems.LEAVE_ITEM.give(this.hyrame, player, 8);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> this.hyrame.getItemManager().giveItem(player, 4, HyriRunnerChooseChallengeItem.class), 1);
 
         player.teleport(plugin.getConfiguration().getSpawn());
+    }
+
+    @Override
+    public void postRegistration() {
+        super.postRegistration();
+
+        this.protocolManager.getProtocol(HyriWaitingProtocol.class).withTeamSelector(true);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         final HyriRunnerPlayer account = gamePlayer.getAccount();
         final HyriRunnerStatistics statistics = account.getStatistics();
 
-        if (this.state != HyriGameState.READY && this.state != HyriGameState.WAITING) {
+        if (this.getState() != HyriGameState.READY && this.getState() != HyriGameState.WAITING) {
             gamePlayer.getScoreboard().hide();
 
             statistics.setPlayedTime(gamePlayer.getPlayedTime());
@@ -127,6 +127,7 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
                 this.playersPvpPhaseRemaining -= 1;
             }
         }
+
         if(gamePlayer.getChallenge() != null) {
             account.setLastSelectedChallenge(gamePlayer.getChallenge().getModel());
         }
@@ -140,6 +141,12 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
 
         this.initBorder();
 
+        this.protocolManager.enableProtocol(new HyriLastHitterProtocol(this.hyrame, this.plugin, 15 * 20L));
+        this.protocolManager.enableProtocol(new HyriDeathProtocol(this.hyrame, this.plugin, gamePlayer -> {
+            this.getPlayer(gamePlayer.getUUID()).kill();
+            return false;
+        }));
+
         final HyriPositionCalculator calculator = new HyriPositionCalculator(plugin);
 
         new HyriPositionCalculator.Cage(calculator.getCuboidCenter()).setCage();
@@ -149,52 +156,48 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
                 this.arrow = new HyriRunnerArrow(hyriRunnerGamePlayer.getPlayer());
                 this.arrow.runTaskTimer(plugin, 0, 5);
             });
-
-            this.players.forEach(gamePlayer -> this.setupInventory(gamePlayer.getPlayer()));
-
+            this.players.forEach(HyriRunnerGamePlayer::startGame);
             this.sendMessageToAll(player -> HyriRunnerMessages.PREPARATION.get().getForPlayer(player));
 
-            new BukkitRunnable() {
-
-                private int index = 15;
-
-                @Override
-                public void run() {
-                    players.forEach(gamePlayer -> gamePlayer.getPlayer().setLevel(index));
-
-                    if(index <= 3 && index != 0) {
-                        players.forEach(gamePlayer -> gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.SUCCESSFUL_HIT, 3f, 3f));
-                    }
-                    if (index == 0) {
-                        calculator.removeCages();
-                        gameTask = new HyriRunnerGameTask(plugin);
-
-                        players.forEach(gamePlayer -> {
-                            final HyriRunnerScoreboard scoreboard = new HyriRunnerFirstPhaseScoreboard(plugin, gamePlayer.getPlayer());
-
-                            gamePlayer.setScoreboard(scoreboard);
-
-                            scoreboard.show();
-                        });
-
-                        players.forEach(hyriRunnerGamePlayer -> {
-                            Player p = hyriRunnerGamePlayer.getPlayer();
-                            p.playSound(p.getLocation(), Sound.LEVEL_UP, 3f, 3f);
-                        });
-
-                        gameTask.runTaskTimer(plugin, 0, 20);
-
-                        detectBorderEnd();
-
-                        canPlace = true;
-
-                        cancel();
-                    }
-
-                    index--;
-                }
-            }.runTaskTimer(plugin, 0, 20);
+            this.getPreGameTask(calculator).runTaskTimer(plugin, 0, 20);
         });
+    }
+
+    private BukkitRunnable getPreGameTask(HyriPositionCalculator calculator) {
+        return new BukkitRunnable() {
+
+            private int index = 15;
+
+            @Override
+            public void run() {
+                players.forEach(gamePlayer -> gamePlayer.getPlayer().setLevel(index));
+
+                if(index <= 3 && index != 0) {
+                    players.forEach(gamePlayer -> gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.SUCCESSFUL_HIT, 3f, 3f));
+                }
+                if (index == 0) {
+                    calculator.removeCages();
+                    gameTask = new HyriRunnerGameTask(plugin);
+
+                    players.forEach(hyriRunnerGamePlayer -> {
+                        Player p = hyriRunnerGamePlayer.getPlayer();
+                        p.playSound(p.getLocation(), Sound.LEVEL_UP, 3f, 3f);
+                    });
+
+                    players.forEach(HyriRunnerGamePlayer::setupScoreboard);
+
+                    gameTask.runTaskTimer(plugin, 0, 20);
+
+                    detectBorderEnd();
+
+                    canPlace = true;
+
+                    cancel();
+                }
+
+                index--;
+            }
+        };
     }
 
     public List<HyriRunnerGamePlayer> getPositionLead() {
@@ -263,29 +266,6 @@ public class HyriRunnerGame extends HyriGame<HyriRunnerGamePlayer> {
         safeTeleport.setCallback(callback);
         safeTeleport.teleportPlayers(calculator.getLocation());
         sendMessageToAll(player -> HyriRunnerMessages.INIT_TELEPORTATION.get().getForPlayer(player));
-    }
-
-    private void setupInventory(Player player) {
-        ItemBuilder helmet = new ItemBuilder(Material.IRON_HELMET).unbreakable().withEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
-        ItemBuilder chestPlate = new ItemBuilder(Material.DIAMOND_CHESTPLATE).unbreakable().withEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
-        ItemBuilder leggings = new ItemBuilder(Material.IRON_LEGGINGS).unbreakable().withEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
-        ItemBuilder boots = new ItemBuilder(Material.DIAMOND_BOOTS).unbreakable().withEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
-        ItemBuilder sword = new ItemBuilder(Material.IRON_SWORD).unbreakable().withEnchant(Enchantment.DAMAGE_ALL, 2);
-        ItemBuilder steaks = new ItemBuilder(Material.COOKED_BEEF, 64);
-        ItemBuilder cobWebs = new ItemBuilder(Material.WEB, 1);
-        ItemBuilder gaps = new ItemBuilder(Material.GOLDEN_APPLE, 5);
-        ItemStack bucket = new ItemBuilder(Material.WATER_BUCKET).build();
-        ItemStack blocks = new ItemBuilder(Material.STONE, 64).build();
-        ItemStack wood = new ItemBuilder(Material.WOOD, 64).build();
-        ItemStack pick = new ItemBuilder(Material.IRON_PICKAXE).unbreakable().build();
-
-        player.getEquipment().setHelmet(helmet.build());
-        player.getEquipment().setChestplate(chestPlate.build());
-        player.getEquipment().setLeggings(leggings.build());
-        player.getEquipment().setBoots(boots.build());
-        player.getInventory().addItem(sword.build(), steaks.build(), cobWebs.build(), gaps.build(), bucket, bucket, blocks, blocks, wood, pick);
-        player.setGameMode(GameMode.SURVIVAL);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 30, 15, false));
     }
 
     public void initBorder() {

@@ -1,7 +1,7 @@
 package fr.hyriode.runner.game;
 
+import fr.hyriode.api.settings.HyriLanguage;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
-import fr.hyriode.hyriapi.settings.HyriLanguage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.scoreboard.HyriRunnerSecondPhaseScoreboard;
 import org.bukkit.ChatColor;
@@ -11,7 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class HyriRunnerGameTask extends BukkitRunnable {
 
-    private int index;
+    private float index;
 
     private final HyriRunner plugin;
 
@@ -29,19 +29,24 @@ public class HyriRunnerGameTask extends BukkitRunnable {
 
         if (index == 0) {
             game.startBorderShrink();
+            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f));
             game.sendMessageToAll(player -> HyriRunnerMessages.BORDER_SHRINK.get().getForPlayer(player));
             game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(30)));
         }
         if (index == 10) {
+            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
             game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(20)));
         }
         if (index == 27) {
+            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
             game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(3)));
         }
         if (index == 28) {
+            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
             game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(2)));
         }
         if (index == 29) {
+            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
             game.sendMessageToAll(player -> message.getForPlayer(player)
                     .replace("%seconds%", String.valueOf(1))
                     .replace("secondes", "seconde")
@@ -53,7 +58,7 @@ public class HyriRunnerGameTask extends BukkitRunnable {
             game.sendMessageToAll(player -> HyriRunnerMessages.DAMAGE_ON.get().getForPlayer(player));
             game.getPlayers().forEach(hyriRunnerGamePlayer -> {
                 Player p = hyriRunnerGamePlayer.getPlayer();
-                p.playSound(p.getLocation(), Sound.ENDERDRAGON_GROWL, 3f, 3f);
+                p.playSound(p.getLocation(), Sound.NOTE_PLING, 3f, 3f);
             });
         }
         if (game.isBorderEnd()) {
@@ -70,14 +75,18 @@ public class HyriRunnerGameTask extends BukkitRunnable {
 
                 @Override
                 public void run() {
-                    if (primeIndex > 1) {
-                        game.sendMessageToAll(player -> pvpMessage.getForPlayer(player).replace("%index%", String.valueOf(primeIndex)));
-                    }
-                    if (primeIndex == 1) {
-                        game.sendMessageToAll(player -> pvpMessage.getForPlayer(player)
-                                .replace("%index%", String.valueOf(primeIndex))
-                                .replace("secondes", "seconde")
-                                .replace("seconds", "second"));
+                    if(primeIndex > 0) {
+                        game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
+
+                        if (primeIndex > 1) {
+                            game.sendMessageToAll(player -> pvpMessage.getForPlayer(player).replace("%index%", String.valueOf(primeIndex)));
+                        }
+                        if (primeIndex == 1) {
+                            game.sendMessageToAll(player -> pvpMessage.getForPlayer(player)
+                                    .replace("%index%", String.valueOf(primeIndex))
+                                    .replace("secondes", "seconde")
+                                    .replace("seconds", "second"));
+                        }
                     }
                     if (primeIndex == 0) {
                         game.setPvp(true);
@@ -90,7 +99,7 @@ public class HyriRunnerGameTask extends BukkitRunnable {
                             gamePlayer.setScoreboard(new HyriRunnerSecondPhaseScoreboard(plugin, p));
                             gamePlayer.getScoreboard().show();
 
-                            p.playSound(p.getLocation(), Sound.WITHER_SPAWN, 3f, 3f);
+                            p.playSound(p.getLocation(), Sound.WOLF_GROWL, 3f, 3f);
                         });
                         cancel();
                     }
@@ -110,7 +119,7 @@ public class HyriRunnerGameTask extends BukkitRunnable {
         });
     }
 
-    public int getIndex() {
-        return index;
+    public float getIndex() {
+        return this.index;
     }
 }

@@ -1,8 +1,8 @@
 package fr.hyriode.runner.game;
 
+import fr.hyriode.api.settings.HyriLanguage;
 import fr.hyriode.hyrame.actionbar.ActionBar;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
-import fr.hyriode.hyriapi.settings.HyriLanguage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;

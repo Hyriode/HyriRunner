@@ -13,13 +13,14 @@ public class HyriRunnerSecondPhaseScoreboard extends HyriRunnerScoreboard{
     @Override
     public void addLines() {
         this.setLine(0, this.getDateLine());
-        this.setLine(1, "§a");
+        this.addBlankLine(1);
         this.setLine(2, this.getKillsLine(), scoreboardLine -> scoreboardLine.setValue(this.getKillsLine()), 2);
         this.setLine(3, this.getAliveLine(), scoreboardLine -> scoreboardLine.setValue(this.getAliveLine()), 2);
-        this.setLine(4, "§b");
-        // Line 5 in addTimeLine()
-        this.setLine(6, "§c");
-        this.setLine(7, ChatColor.DARK_AQUA + "hyriode.fr", new HyriScoreboardIpConsumer("hyriode.fr"), 2);
+        this.addBlankLine(4);
+        // 5 time line
+        this.addBlankLine(6);
+
+        this.addHostnameLine();
     }
 
     @Override
