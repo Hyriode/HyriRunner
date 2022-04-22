@@ -7,7 +7,7 @@
   "message.first-place-sword": "%player% &7a atteint le centre en premier! Il obtient alors une&c épée en diamant&7 !",
   "message.first-place-armor": "%player% &7a atteint le centre en premier! Il obtient alors une&c armure en diamant&7 !",
   "title.arrived": "&3&lBelle course !",
-  "subtitle.arrived": "&7Vous êtes le &b#%position% !",
+  "subtitle.arrived": "&7Vous êtes le &b#%position%&7 !",
   "message.kill-by-player": " a été tué par ",
   "message.died": " est mort.",
   "message.challenge-failed": "&cVous avez raté le défi : %challenge%",
@@ -18,7 +18,7 @@
   "scoreboard.border.display": "Bordure : ",
   "scoreboard.alive.display": "Joueurs : ",
   "scoreboard.centre.display": "Centre : ",
-  "scoreboard.kills.display": "Eliminations : ",
+  "scoreboard.kills.display": "Kills : ",
   "scoreboard.position.display": "Position : ",
 
   "team.blue.display": "&9Bleu",

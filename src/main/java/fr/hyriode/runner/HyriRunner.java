@@ -1,19 +1,19 @@
 package fr.hyriode.runner;
 
+import fr.hyriode.api.server.IHyriServer;
 import fr.hyriode.hyrame.HyrameLoader;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.language.IHyriLanguageManager;
 import fr.hyriode.api.HyriAPI;
+import fr.hyriode.hyrame.world.HyriWorldSettings;
+import fr.hyriode.hyrame.world.generator.HyriWorldGenerator;
 import fr.hyriode.runner.api.HyriRunnerApi;
-import fr.hyriode.runner.challenges.HyriRunnerChallenge;
-import fr.hyriode.runner.config.HyriRunnerConfig;
-import fr.hyriode.runner.game.HyriRunnerGame;
-import fr.hyriode.runner.game.HyriRunnerGameType;
-import fr.hyriode.runner.game.map.HyriRunnerMap;
-import fr.hyriode.runner.game.map.HyriRunnerMapGenerator;
+import fr.hyriode.runner.challenges.RunnerChallenge;
+import fr.hyriode.runner.config.RunnerConfig;
+import fr.hyriode.runner.game.RunnerGame;
+import fr.hyriode.runner.game.RunnerGameType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -21,53 +21,38 @@ import java.util.logging.Level;
 public class HyriRunner extends JavaPlugin {
 
     public static final String NAME = "TheRunner";
+    public static final String GAME_MAP = "map";
 
     private static IHyriLanguageManager languageManager;
 
     private IHyrame hyrame;
-    private HyriRunnerGame game;
-    private HyriRunnerMap gameMap;
-    private HyriRunnerApi api;
-    private HyriRunnerConfig configuration;
 
-    private HyriRunnerMapGenerator generator;
+    private RunnerGame game;
+    private HyriRunnerApi api;
+    private RunnerConfig configuration;
 
     @Override
     public void onEnable() {
         this.hyrame = HyrameLoader.load(new HyriRunnerProvider(this));
+
         languageManager = this.hyrame.getLanguageManager();
+        IHyriLanguageManager.Provider.registerInstance(() -> this.hyrame.getLanguageManager());
+
         this.api = new HyriRunnerApi(HyriAPI.get().getRedisConnection().getPool());
         this.api.start();
-        this.gameMap = new HyriRunnerMap("map");
-        this.configuration = new HyriRunnerConfig(this);
+        this.configuration = new RunnerConfig(this);
 
-        HyriRunnerGameType.setWithName(this.configuration.getGameType());
+        RunnerGameType.setWithName(this.configuration.getGameType());
 
-        this.game = new HyriRunnerGame(this.hyrame, this);
+        this.game = new RunnerGame(this.hyrame, this);
         this.hyrame.getGameManager().registerGame(() -> this.game);
-        HyriRunnerChallenge.registerChallenges(this);
+        RunnerChallenge.registerChallenges(this);
 
-        this.setupMapGenerator();
-    }
-
-    private void setupMapGenerator() {
-        final HyriRunnerMapGenerator.CompletableFuture completableFuture = new HyriRunnerMapGenerator.CompletableFuture() {
-
-            @Override
-            public void onComplete(World world) {
-                getGame().setAccessible(true);
-            }
-
-            @Override
-            public void onFailure(World world) {
-                log(Level.SEVERE, "Error during generation of the game map. Shutdown server.");
-                Bukkit.getServer().shutdown();
-            }
-        };
-
-        this.generator = new HyriRunnerMapGenerator(Bukkit.getWorld(this.gameMap.getName()), this);
-        this.generator.setFuture(completableFuture);
-        this.generator.generate(1000, true);
+        HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> {
+            HyriAPI.get().getServer().setState(IHyriServer.State.READY);
+        });
+        HyriWorldGenerator.COMMON_PATCHED_BIOMES.forEach(worldGenerator::patchBiomes);
+        worldGenerator.start();
     }
 
     @Override
@@ -99,12 +84,8 @@ public class HyriRunner extends JavaPlugin {
         return this.hyrame;
     }
 
-    public HyriRunnerGame getGame() {
+    public RunnerGame getGame() {
         return this.game;
-    }
-
-    public HyriRunnerMap getGameMap() {
-        return gameMap;
     }
 
     public static IHyriLanguageManager getLanguageManager() {
@@ -115,11 +96,8 @@ public class HyriRunner extends JavaPlugin {
         return api;
     }
 
-    public HyriRunnerConfig getConfiguration() {
+    public RunnerConfig getConfiguration() {
         return configuration;
     }
 
-    public HyriRunnerMapGenerator getGenerator() {
-        return generator;
-    }
 }
