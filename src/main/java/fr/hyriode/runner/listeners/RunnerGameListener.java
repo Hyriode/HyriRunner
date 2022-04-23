@@ -5,10 +5,10 @@ import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.hyrame.title.Title;
 import fr.hyriode.api.settings.HyriLanguage;
+import fr.hyriode.hyrame.utils.Cuboid;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGame;
 import fr.hyriode.runner.game.RunnerGamePlayer;
-import fr.hyriode.runner.utils.Cuboid;
 import fr.hyriode.runner.game.RunnerMessage;
 import fr.hyriode.runner.inventories.RunnerArrivedGui;
 import org.bukkit.*;
@@ -37,8 +37,8 @@ public class RunnerGameListener extends HyriListener<HyriRunner> {
         final RunnerGamePlayer gamePlayer = game.getPlayer(player.getUniqueId());
 
         if(game.getState() == HyriGameState.WAITING || game.getState() == HyriGameState.READY) {
-            if(player.getLocation().getY() <= 120) {
-                player.teleport(plugin.getConfiguration().getSpawn());
+            if(player.getLocation().getY() <= this.plugin.getConfiguration().getSpawn().getY() - 10) {
+                player.teleport(this.plugin.getConfiguration().getSpawn().asBukkit());
             }
         }
 

@@ -9,8 +9,8 @@ public class RunnerGameTeam extends HyriGameTeam {
 
     private final HyriRunner plugin;
 
-    public RunnerGameTeam(HyriRunner plugin, RunnerGameTeams gameTeam) {
-        super(plugin.getGame(), gameTeam.getName(), gameTeam.getDisplayName(), gameTeam.getColor(), false, HyriScoreboardTeam.NameTagVisibility.ALWAYS, RunnerGameType.getCurrentType().getTeamSize());
+    public RunnerGameTeam(HyriRunner plugin, RunnerGameTeams gameTeam, int size) {
+        super(plugin.getGame(), gameTeam.getName(), gameTeam.getDisplayName(), gameTeam.getColor(), false, HyriScoreboardTeam.NameTagVisibility.ALWAYS, size);
         this.plugin = plugin;
     }
 

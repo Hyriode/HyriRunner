@@ -1,8 +1,11 @@
 package fr.hyriode.runner.game;
 
+import fr.hyriode.api.HyriAPI;
+import fr.hyriode.api.game.IHyriGameInfo;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.HyriGameState;
+import fr.hyriode.hyrame.game.HyriGameType;
 import fr.hyriode.hyrame.game.protocol.HyriDeathProtocol;
 import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
 import fr.hyriode.hyrame.game.protocol.HyriWaitingProtocol;
@@ -20,12 +23,17 @@ import fr.hyriode.runner.inventories.RunnerChooseChallengeItem;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
 
 public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
+    private Scoreboard scoreboard;
     private WorldBorder wb;
+
     private boolean accessible;
     private boolean pvp;
     private boolean damage;
@@ -41,22 +49,23 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     private final HyriRunner plugin;
 
     public RunnerGame(IHyrame hyrame, HyriRunner plugin) {
-        super(hyrame, plugin, "therunner", "TheRunner", RunnerGamePlayer.class);
+        super(hyrame, plugin, HyriAPI.get().getGameManager().getGameInfo("therunner"), RunnerGamePlayer.class, HyriGameType.getFromData(RunnerGameType.values()));
+       // DEV super(hyrame, plugin, HyriAPI.get().getGameManager().getGameInfo("therunner"), RunnerGamePlayer.class, RunnerGameType.SOLO);
         this.plugin = plugin;
-        this.maxPlayers = RunnerGameType.getByName(plugin.getConfiguration().getGameType()).orElse(RunnerGameType.SOLO).getTeamSize() * 12;
-        this.minPlayers = this.maxPlayers / 3;
 
         this.damage = false;
         this.pvp = false;
         this.accessible = false;
         this.arrivedPlayers = new ArrayList<>();
 
+        this.scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+
         this.registerTeams();
     }
 
     private void registerTeams() {
         for (RunnerGameTeams value : RunnerGameTeams.values()) {
-            this.registerTeam(new RunnerGameTeam(plugin, value));
+            this.registerTeam(new RunnerGameTeam(plugin, value, this.getType().getTeamSize()));
         }
     }
 
@@ -88,7 +97,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> this.hyrame.getItemManager().giveItem(player, 4, RunnerChooseChallengeItem.class), 1);
 
-        player.teleport(plugin.getConfiguration().getSpawn());
+        player.teleport(plugin.getConfiguration().getSpawn().asBukkit());
     }
 
     @Override
@@ -143,9 +152,20 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         new RunnerPositionCalculator.Cage(calculator.getCuboidCenter()).setCage();
 
         this.teleportPlayers(calculator, () -> {
+
+            Objective displayNameLife = scoreboard.registerNewObjective("vie", "health");
+            Objective playerListLife = scoreboard.registerNewObjective("vieb", "health");
+
+            displayNameLife.setDisplayName(ChatColor.RED + "❤");
+            displayNameLife.setDisplaySlot(DisplaySlot.BELOW_NAME);
+            playerListLife.setDisplayName(ChatColor.RED + "❤");
+            playerListLife.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+
             players.forEach(hyriRunnerGamePlayer -> {
                 this.arrow = new RunnerArrow(hyriRunnerGamePlayer.getPlayer());
                 this.arrow.runTaskTimer(plugin, 0, 5);
+                displayNameLife.getScore(hyriRunnerGamePlayer.getPlayer().getName()).setScore((int) hyriRunnerGamePlayer.getPlayer().getHealth());
+                playerListLife.getScore(hyriRunnerGamePlayer.getPlayer().getName()).setScore((int) hyriRunnerGamePlayer.getPlayer().getHealth());
             });
             this.players.forEach(RunnerGamePlayer::startGame);
             this.sendMessageToAll(player -> RunnerMessage.PREPARATION.get().getForPlayer(player));
@@ -341,5 +361,10 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
     public void removePlayerPvpPhaseRemaining() {
         this.playersPvpPhaseRemaining -= 1;
+    }
+
+    @Override
+    public RunnerGameType getType() {
+        return (RunnerGameType) super.getType();
     }
 }

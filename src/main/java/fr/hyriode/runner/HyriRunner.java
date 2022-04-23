@@ -3,8 +3,10 @@ package fr.hyriode.runner;
 import fr.hyriode.api.server.IHyriServer;
 import fr.hyriode.hyrame.HyrameLoader;
 import fr.hyriode.hyrame.IHyrame;
+import fr.hyriode.hyrame.game.HyriGameType;
 import fr.hyriode.hyrame.language.IHyriLanguageManager;
 import fr.hyriode.api.HyriAPI;
+import fr.hyriode.hyrame.utils.LocationWrapper;
 import fr.hyriode.hyrame.world.HyriWorldSettings;
 import fr.hyriode.hyrame.world.generator.HyriWorldGenerator;
 import fr.hyriode.runner.api.HyriRunnerApi;
@@ -14,8 +16,10 @@ import fr.hyriode.runner.game.RunnerGame;
 import fr.hyriode.runner.game.RunnerGameType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class HyriRunner extends JavaPlugin {
@@ -36,18 +40,20 @@ public class HyriRunner extends JavaPlugin {
         this.hyrame = HyrameLoader.load(new HyriRunnerProvider(this));
 
         languageManager = this.hyrame.getLanguageManager();
-        IHyriLanguageManager.Provider.registerInstance(() -> this.hyrame.getLanguageManager());
 
         this.api = new HyriRunnerApi(HyriAPI.get().getRedisConnection().getPool());
         this.api.start();
-        this.configuration = new RunnerConfig(this);
 
-        RunnerGameType.setWithName(this.configuration.getGameType());
+        // PROD
+        this.configuration = HyriAPI.get().getServer().getConfig(RunnerConfig.class);
+
+        // DEV
+    //     this.configuration = new RunnerConfig(new LocationWrapper(new Location(IHyrame.WORLD.get(), 150.5, 131.0, 60.5, -90.0F, 0.0F)));
 
         this.game = new RunnerGame(this.hyrame, this);
         this.hyrame.getGameManager().registerGame(() -> this.game);
-        RunnerChallenge.registerChallenges(this);
 
+        RunnerChallenge.registerChallenges(this);
         HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> {
             HyriAPI.get().getServer().setState(IHyriServer.State.READY);
         });

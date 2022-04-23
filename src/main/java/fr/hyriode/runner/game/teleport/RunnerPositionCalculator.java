@@ -1,7 +1,7 @@
 package fr.hyriode.runner.game.teleport;
 
+import fr.hyriode.hyrame.utils.Cuboid;
 import fr.hyriode.runner.HyriRunner;
-import fr.hyriode.runner.utils.Cuboid;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

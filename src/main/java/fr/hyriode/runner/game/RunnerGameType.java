@@ -7,42 +7,43 @@ import java.util.Optional;
 
 public enum RunnerGameType implements HyriGameType {
 
-    SOLO("solo", 1),
-    DOUBLES("doubles", 2),
+    SOLO("Solo", 1, 8, 12),
+    DOUBLES("Doubles", 2, 16, 24),
     ;
 
-    private final String name;
+    private final String displayName;
     private final int teamSize;
-    private static RunnerGameType currentType;
+    private final int minPlayers;
+    private final int maxPlayers;
 
-    RunnerGameType(String name, int teamSize) {
-        this.name = name;
+    RunnerGameType(String displayName, int teamSize, int minPlayers, int maxPlayers) {
+        this.displayName = displayName;
         this.teamSize = teamSize;
-    }
-
-    public static void setCurrentType(RunnerGameType type) {
-        currentType = type;
-    }
-
-    public static RunnerGameType getCurrentType() {
-        return currentType;
-    }
-
-    public static Optional<RunnerGameType> getByName(String name) {
-        return Arrays.stream(values()).filter(hyriRunnerGameType -> hyriRunnerGameType.getName().equalsIgnoreCase(name)).findFirst();
-    }
-
-    public static void setWithName(String name) {
-        Optional<RunnerGameType> gameType = getByName(name);
-        gameType.ifPresent(RunnerGameType::setCurrentType);
-    }
-
-    public int getTeamSize() {
-        return teamSize;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
     }
 
     @Override
     public String getName() {
-        return this.name;
+        return this.name();
+    }
+
+    @Override
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    @Override
+    public int getMinPlayers() {
+        return this.minPlayers;
+    }
+
+    @Override
+    public int getMaxPlayers() {
+        return this.maxPlayers;
+    }
+
+    public int getTeamSize() {
+        return this.teamSize;
     }
 }
