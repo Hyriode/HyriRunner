@@ -4,6 +4,7 @@ import fr.hyriode.hyrame.game.scoreboard.HyriGameScoreboard;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGame;
 import fr.hyriode.runner.game.RunnerGamePlayer;
+import fr.hyriode.runner.game.RunnerGameTask;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -62,18 +63,16 @@ public abstract class RunnerScoreboard extends HyriGameScoreboard<RunnerGame> {
         return prefix + ChatColor.AQUA + distance + "m";
     }
 
-    protected String getDateLine() {
-        return ChatColor.GRAY + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
-    }
-
     protected String getTimeLine() {
+        final RunnerGameTask task = this.plugin.getGame().getGameTask();
+        final int index = task == null ? 0 : task.getIndex();
         final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        final String line = format.format(this.plugin.getGame().getGameTask().getIndex() * 1000);
+        final String line = format.format(index * 1000);
 
-        return this.getLinePrefix("time") + ChatColor.AQUA + (line.startsWith("00:") ? line.substring(3) : line);
+        return this.getLinePrefix("time") + ChatColor.AQUA + (index == 0 ? "00:00" : (line.startsWith("00:") ? line.substring(3) : line));
     }
 
     protected String getLinePrefix(String prefix) {

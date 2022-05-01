@@ -5,6 +5,9 @@ import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.game.RunnerGamePlayer;
 import org.bukkit.Material;
 
+import java.util.List;
+import java.util.UUID;
+
 public class RunnerLastChallenge extends RunnerChallenge {
 
     private final HyriRunner plugin;
@@ -23,7 +26,12 @@ public class RunnerLastChallenge extends RunnerChallenge {
 
     @Override
     public boolean getCondition(RunnerGamePlayer player) {
-        return plugin.getGame().getArrivedPlayers().get(plugin.getGame().getArrivedPlayers().size() - 1).equals(player);
+        final List<RunnerGamePlayer> arrivedPlayers = this.plugin.getGame().getArrivedPlayers();
+
+        if (arrivedPlayers.size() > 0) {
+            return arrivedPlayers.get(arrivedPlayers.size() - 1).equals(player);
+        }
+        return false;
     }
 
     @Override

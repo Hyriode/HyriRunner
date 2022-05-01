@@ -14,6 +14,14 @@
   "message.last-challenge-used": "&3Votre défi sélectionné est : %challenge%",
   "message.teleportation-init": "&3La téléportation des joueurs est en train de commencer.",
 
+  "message.game.end.1": "&61er",
+  "message.game.end.2": "&62ème",
+  "message.game.end.3": "&63ème",
+  "message.game.end.nobody": "&7Personne",
+  "message.game.end.position": "%position% &7- %player% &7- %time%",
+
+  "message.runner.description": "&fCourrez vers le centre de la carte le plus vite possible. Mais\n&fnattention, la bordure vous poursuit. Arrivez en premier\n&fpour obtenir un bonus et éliminer tous les survivants.",
+
   "scoreboard.time.display": "Temps : ",
   "scoreboard.border.display": "Bordure : ",
   "scoreboard.alive.display": "Joueurs : ",
@@ -28,10 +36,10 @@
   "team.aqua.display": "&bAqua",
   "team.pink.display": "&dRose",
   "team.white.display": "&fBlanc",
-  "team.gray.display": "&8Gris",
+  "team.gray.display": "&7Gris",
   "team.darkgreen.display": "&2Jade",
   "team.orange.display": "&6Orange",
-  "team.black.display": "&0Noir",
+  "team.black.display": "&8Noir",
   "team.purple.display": "&5Violet",
 
   "item.challenge": "&6Défis",

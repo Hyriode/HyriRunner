@@ -18,7 +18,6 @@ public class RunnerChallengeGui extends HyriInventory {
     private static final HyriLanguageMessage name = new HyriLanguageMessage("challenge.gui.name")
             .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + "Choisissez votre défi")
             .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + "Choose your challenge");
-
     private static final HyriLanguageMessage loreChoose = new HyriLanguageMessage("challenge.gui.choose")
             .addValue(HyriLanguage.FR, ChatColor.RED + "Cliquez pour choisir ce défi")
             .addValue(HyriLanguage.EN, ChatColor.RED + "Click to choose your challenge");
@@ -60,7 +59,8 @@ public class RunnerChallengeGui extends HyriInventory {
                                 player.setChallenge(challenge);
                                 player.getAccount().setLastSelectedChallenge(challenge.getModel());
                                 player.sendMessage(challengeSelected.getForPlayer(player.getPlayer()).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(challenge.getKey()).getForPlayer(player.getPlayer())));
-                                new RunnerChallengeGui(owner, plugin).open();
+
+                                new RunnerChallengeGui(this.owner, plugin).open();
                             });
                 } else {
                     this.addItem(new ItemBuilder(challenge.getIcon())
@@ -81,6 +81,8 @@ public class RunnerChallengeGui extends HyriInventory {
                                 player.setChallenge(null);
                                 player.getAccount().setLastSelectedChallenge(null);
                                 player.sendMessage(challengeUnselected.getForPlayer(player.getPlayer()));
+
+                                new RunnerChallengeGui(this.owner, plugin).open();
                             });
                 }
             });

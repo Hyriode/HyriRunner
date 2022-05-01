@@ -7,10 +7,18 @@
   "message.first-place-sword": "%player% &7reached the center first! He just got a&c diamond sword&7 !",
   "message.first-place-armor": "%player% &7reached the center first! He just got a&c diamond armor&7 !",
   "title.arrived": "&3&lGood run!",
-  "subtitle.arrived": "&7You are the &b#%position%&7!",
   "message.challenge-failed": "&cYou failed the challenge: %challenge%",
+  "subtitle.arrived": "&7You are the &b#%position%&7!",
   "message.last-challenge-used": "&3Your selected challenge is: %challenge%",
   "message.teleportation-init": "&3The players teleportation is starting.",
+
+  "message.game.end.1": "&61st",
+  "message.game.end.2": "&62nd",
+  "message.game.end.3": "&63rd",
+  "message.game.end.nobody": "&7Nobody",
+  "message.game.end.position": "%position% &7- %player% &7- %time%",
+
+  "message.runner.description": "&fRun to the center of the map as fas as you can. But beware,\n&fThe border is chasing you. Get there first to get a\n&fbonus and kill all the survivors.",
 
   "scoreboard.time.display": "Time: ",
   "scoreboard.border.display": "Border: ",
@@ -26,10 +34,10 @@
   "team.aqua.display": "&bAqua",
   "team.pink.display": "&dPink",
   "team.white.display": "&fWhite",
-  "team.gray.display": "&8Gray",
+  "team.gray.display": "&7Gray",
   "team.darkgreen.display": "&2Jade",
   "team.orange.display": "&6Orange",
-  "team.black.display": "&0Black",
+  "team.black.display": "&8Black",
   "team.purple.display": "&5Purple",
 
   "item.challenge": "&6Challenges",

@@ -1,6 +1,6 @@
 package fr.hyriode.runner.game.teleport;
 
-import fr.hyriode.hyrame.utils.Cuboid;
+import fr.hyriode.hyrame.utils.block.Cuboid;
 import fr.hyriode.runner.HyriRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,14 +13,11 @@ import java.util.Random;
 
 public class RunnerPositionCalculator {
 
-    private static List<Cage> CAGES = new ArrayList<>();
+    private static final List<Cage> CAGES = new ArrayList<>();
 
-    private Location location;
-    private HyriRunner plugin;
-    private Random random = new Random();
+    private final Location location;
 
-    public RunnerPositionCalculator(HyriRunner plugin) {
-        this.plugin = plugin;
+    public RunnerPositionCalculator() {
         int y = 150;
         int max;
         int min;
@@ -30,6 +27,7 @@ public class RunnerPositionCalculator {
         int xI = min + (int) (Math.random() * ((max - min) + 1));
         int zI = min + (int) (Math.random() * ((max - min) + 1));
 
+        Random random = new Random();
         int varI = random.nextInt(2);
         if (varI == 1) {
             xI = xI * -1;
@@ -66,7 +64,6 @@ public class RunnerPositionCalculator {
         }
 
         public void setCage() {
-
             Location pos1 = cageCenter.clone().add(3, 0, -3);
             Location pos2 = cageCenter.clone().add(-3, 4, 3);
             Location littlePos1 = cageCenter.clone().add(2, 1, -2);

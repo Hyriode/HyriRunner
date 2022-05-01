@@ -20,8 +20,6 @@ repositories {
     mavenCentral()
     mavenLocal()
 
-    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
-
     maven {
         name = 'Hyrame_maven'
         url = 'https://maven.pkg.github.com/Hyriode/Hyrame/'
@@ -34,8 +32,8 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'org.spigotmc', name: 'spigot', version: '1.8.8-R0.1-SNAPSHOT'
-    implementation 'fr.hyriode:hyrame:1.2.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'fr.hyriode:hyrame:1.2.2'
 }
 
 processResources {

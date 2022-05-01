@@ -7,7 +7,6 @@ public enum HyriRunnerChallengeModel {
     SERIAL_KILLER,
     NO_BLOCK_PLACED,
     FAST_ARRIVED,
-    LAST,
-    ;
+    LAST
 
 }

@@ -46,10 +46,13 @@ public class RunnerSafeTeleport implements Listener {
         this.totalPlayers = this.players.size();
         this.teleportedPlayers = 0;
         this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
+        System.out.println("Total: " + this.totalPlayers);
+        System.out.println("Teleported: " + this.teleportedPlayers);
     }
 
     public void teleportPlayers(Location location) {
         if (this.teleportedPlayers == this.totalPlayers) {
+            System.out.println("Finished");
             this.finished();
             return;
         }
@@ -70,6 +73,7 @@ public class RunnerSafeTeleport implements Listener {
             bar.send(p.getPlayer());
         });
         player.teleport(location);
+
         player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
 
         this.teleportedPlayers++;

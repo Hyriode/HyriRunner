@@ -1,5 +1,7 @@
 package fr.hyriode.runner.game;
 
+import fr.hyriode.api.HyriAPI;
+import fr.hyriode.api.player.IHyriPlayer;
 import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.HyriGamePlayer;
 import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
@@ -19,6 +21,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -27,7 +30,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     private int position;
     private int blocksPlaced;
-    private float arrivedTime;
+    private long arrivedTime;
 
     private HyriRunner plugin;
 
@@ -35,7 +38,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     private HyriRunnerPlayer account;
 
-    private long kills;
+    private int kills;
     private long deaths;
 
     private RunnerChallenge challenge;
@@ -49,10 +52,12 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         this.blocksPlaced = 0;
 
         this.giveInventory();
+        this.setupScoreboard();
     }
 
     public void setupScoreboard() {
         this.scoreboard = new RunnerFirstPhaseScoreboard(this.plugin, this.player);
+        this.scoreboard.addTimeLine();
         this.scoreboard.show();
     }
 
@@ -69,14 +74,19 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         ItemStack blocks = new ItemBuilder(Material.STONE, 64).build();
         ItemStack wood = new ItemBuilder(Material.WOOD, 64).build();
         ItemStack pick = new ItemBuilder(Material.IRON_PICKAXE).unbreakable().build();
+        ItemStack axe = new ItemBuilder(Material.IRON_AXE).unbreakable().build();
 
         this.player.getEquipment().setHelmet(helmet.build());
         this.player.getEquipment().setChestplate(chestPlate.build());
         this.player.getEquipment().setLeggings(leggings.build());
         this.player.getEquipment().setBoots(boots.build());
-        this.player.getInventory().addItem(sword.build(), steaks.build(), cobWebs.build(), gaps.build(), bucket, bucket, blocks, blocks, wood, pick);
+        this.player.getInventory().addItem(sword.build(), steaks.build(), cobWebs.build(), gaps.build(), bucket, bucket, blocks, blocks, wood, pick, axe);
         this.player.setGameMode(GameMode.SURVIVAL);
         this.player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 30, 15, false));
+    }
+
+    public IHyriPlayer asHyriode() {
+        return HyriAPI.get().getPlayerManager().getPlayer(this.player.getUniqueId());
     }
 
     public HyriRunnerPlayer getAccount() {
@@ -168,7 +178,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         this.kills += 1;
     }
 
-    public long getKills() {
+    public int getKills() {
         return this.kills;
     }
 
@@ -188,7 +198,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         return this.plugin.getGame().getArrivedPlayers().contains(this);
     }
 
-    public void setArrived(boolean arrived) {
+    public void setArrived() {
         this.plugin.getGame().getArrivedPlayers().add(this);
     }
 
@@ -208,11 +218,11 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         this.blocksPlaced += 1;
     }
 
-    public float getArrivedTime() {
+    public long getArrivedTime() {
         return arrivedTime;
     }
 
-    public void setArrivedTime(float arrivedTime) {
+    public void setArrivedTime(long arrivedTime) {
         this.arrivedTime = arrivedTime;
     }
 }

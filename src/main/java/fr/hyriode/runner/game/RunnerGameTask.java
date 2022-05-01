@@ -11,7 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class RunnerGameTask extends BukkitRunnable {
 
-    private float index;
+    private int index;
 
     private final HyriRunner plugin;
 
@@ -61,6 +61,12 @@ public class RunnerGameTask extends BukkitRunnable {
                 p.playSound(p.getLocation(), Sound.NOTE_PLING, 3f, 3f);
             });
         }
+
+        // Stop au bout de 10 minutes
+        if (index == 60 * 10) {
+            game.win(game.getBestTeam());
+        }
+
         if (game.isBorderEnd()) {
             game.setBorderEnd(false);
             game.sendMessageToAll(player -> RunnerMessage.BORDER_END.get().getForPlayer(player));
@@ -108,18 +114,13 @@ public class RunnerGameTask extends BukkitRunnable {
             }.runTaskTimer(plugin, 0, 20);
         }
 
-        index++;
+        game.getPlayers().forEach(gamePlayer -> gamePlayer.getScoreboard().addTimeLine());
 
-        game.getPlayers().forEach(player -> {
-            if (player != null) {
-                if (player.getScoreboard() != null) {
-                    player.getScoreboard().addTimeLine();
-                }
-            }
-        });
+        index++;
     }
 
-    public float getIndex() {
+    public int getIndex() {
         return this.index;
     }
+
 }
