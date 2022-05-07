@@ -1,6 +1,10 @@
 package fr.hyriode.runner.listeners;
 
+import fr.hyriode.api.HyriAPI;
+import fr.hyriode.api.event.HyriEventHandler;
 import fr.hyriode.hyrame.game.HyriGameState;
+import fr.hyriode.hyrame.game.event.player.HyriGameDeathEvent;
+import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGamePlayer;
@@ -17,6 +21,8 @@ public class RunnerPlayerListener extends HyriListener<HyriRunner> {
 
     public RunnerPlayerListener(HyriRunner plugin) {
         super(plugin);
+
+        HyriAPI.get().getEventBus().register(this);
     }
 
     @EventHandler

@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public enum RunnerGameType implements HyriGameType {
 
-    SOLO("Solo", 1, 8, 12),
-    DOUBLES("Doubles", 2, 16, 24),
+    SOLO("Solo", 1, 6, 12),
+    DOUBLES("Doubles", 2, 8, 24),
     ;
 
     private final String displayName;

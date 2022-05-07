@@ -3,7 +3,7 @@ package fr.hyriode.runner.game.teleport;
 import fr.hyriode.api.settings.HyriLanguage;
 import fr.hyriode.hyrame.actionbar.ActionBar;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
-import fr.hyriode.hyrame.utils.PacketUtil;
+import fr.hyriode.hyrame.packet.PacketUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGamePlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;

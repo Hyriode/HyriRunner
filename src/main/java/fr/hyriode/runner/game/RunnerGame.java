@@ -112,7 +112,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         final HyriRunnerPlayer account = gamePlayer.getAccount();
         final HyriRunnerStatistics statistics = account.getStatistics();
 
-        if (this.getState() != HyriGameState.READY && this.getState() != HyriGameState.WAITING) {
+        if (!this.getState().isAccessible()) {
             gamePlayer.getScoreboard().hide();
 
             statistics.setPlayedTime(statistics.getPlayedTime() + gamePlayer.getPlayedTime());
@@ -132,6 +132,10 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         this.plugin.getApi().getPlayerManager().sendPlayer(account);
 
         super.handleLogout(player);
+
+        if (this.getState() == HyriGameState.PLAYING) {
+            this.win(this.getWinner());
+        }
     }
 
     @Override
@@ -277,7 +281,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     public void win(HyriGameTeam winner) {
         super.win(winner);
 
-        if (winner == null) {
+        if (winner == null || this.getState() != HyriGameState.ENDED) {
             return;
         }
 
@@ -311,8 +315,9 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                 format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
                 final String time = format.format(endPlayer.getArrivedTime() * 1000);
+                final IHyriPlayer account = HyriAPI.get().getPlayerManager().getPlayer(endPlayer.getUUID());
 
-                position.add(line.replace("%player%", HyriAPI.get().getPlayerManager().getPlayer(endPlayer.getUUID()).getNameWithRank())
+                position.add(line.replace("%player%", account.getNameWithRank(true))
                         .replace("%time%", time.startsWith("00:") ? time.substring(3) : time));
             }
 
@@ -325,7 +330,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
             final IHyriPlayer account = gamePlayer.asHyriode();
 
-            account.getHyris().add(hyris, false);
+            account.getHyris().add(hyris).withMessage(false).exec();
             account.getNetworkLeveling().addExperience(xp);
             account.update();
 
