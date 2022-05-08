@@ -48,7 +48,8 @@ public class RunnerGameListener extends HyriListener<HyriRunner> {
             if(!gamePlayer.isDead()) {
                 if(!gamePlayer.isArrived()) {
                     gamePlayer.setPosition(i);
-                    gamePlayer.setArrivedTime(plugin.getGame().getTimer().getCurrentTime());
+                    gamePlayer.setArrivedTime(plugin.getGame().getGameTask().getIndex());
+
                     i += 1;
                     if(game.getArrivedPlayers().isEmpty()) {
                         gamePlayer.setArrived();

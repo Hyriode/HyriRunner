@@ -93,7 +93,6 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         }
 
         gamePlayer.setAccount(account);
-        gamePlayer.setConnectionTime();
 
         RunnerChallenge.getWithModel(account.getLastSelectedChallenge()).ifPresent(challenge -> {
             gamePlayer.setChallenge(challenge);
