@@ -37,7 +37,7 @@ public class RunnerPlayerListener extends HyriListener<HyriRunner> {
         Player player = e.getPlayer();
         RunnerGamePlayer gamePlayer = plugin.getGame().getPlayer(player.getUniqueId());
 
-        if(!plugin.getGame().isPvp()) {
+        if(gamePlayer != null && !plugin.getGame().isPvp()) {
             gamePlayer.addBlockPlaced();
         }
     }

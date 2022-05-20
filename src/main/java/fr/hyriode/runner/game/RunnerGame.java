@@ -145,7 +145,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         this.protocolManager.enableProtocol(new HyriLastHitterProtocol(this.hyrame, this.plugin, 15 * 20L));
         this.protocolManager.enableProtocol(new HyriDeathProtocol(this.hyrame, this.plugin, gamePlayer -> {
-            this.getPlayer(gamePlayer.getUUID()).kill();
+            ((RunnerGamePlayer) gamePlayer).kill();
             return false;
         }));
 
@@ -194,8 +194,9 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                     calculator.removeCages();
                     gameTask = new RunnerGameTask(plugin);
 
-                    players.forEach(hyriRunnerGamePlayer -> {
-                        Player p = hyriRunnerGamePlayer.getPlayer();
+                    players.forEach(gamePlayer -> {
+                        final Player p = gamePlayer.getPlayer();
+
                         p.playSound(p.getLocation(), Sound.LEVEL_UP, 3f, 3f);
                     });
 

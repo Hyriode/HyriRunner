@@ -46,18 +46,20 @@ public class RunnerSafeTeleport implements Listener {
         this.totalPlayers = this.players.size();
         this.teleportedPlayers = 0;
         this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
-        System.out.println("Total: " + this.totalPlayers);
-        System.out.println("Teleported: " + this.teleportedPlayers);
     }
 
     public void teleportPlayers(Location location) {
         if (this.teleportedPlayers == this.totalPlayers) {
-            System.out.println("Finished");
             this.finished();
             return;
         }
 
         final RunnerGamePlayer gamePlayer = this.players.get(this.teleportedPlayers);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
         final Player player = gamePlayer.getPlayer();
         final List<RunnerMapChunk> chunks = this.getChunksAround(location.getChunk(), Bukkit.getViewDistance());
 

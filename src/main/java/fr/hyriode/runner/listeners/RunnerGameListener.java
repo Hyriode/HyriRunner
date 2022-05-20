@@ -38,6 +38,10 @@ public class RunnerGameListener extends HyriListener<HyriRunner> {
         final RunnerGame game = this.plugin.getGame();
         final RunnerGamePlayer gamePlayer = game.getPlayer(player.getUniqueId());
 
+        if (gamePlayer == null) {
+            return;
+        }
+
         if(game.getState() == HyriGameState.WAITING || game.getState() == HyriGameState.READY) {
             if(player.getLocation().getY() <= this.plugin.getConfiguration().getSpawn().getY() - 10) {
                 player.teleport(this.plugin.getConfiguration().getSpawn().asBukkit());
