@@ -43,6 +43,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     private RunnerChallenge challenge;
     private boolean warrior;
+    private boolean damagesTaken;
 
     public RunnerGamePlayer(HyriGame<?> game, Player player) {
         super(game, player);
@@ -50,6 +51,8 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     public void startGame() {
         this.blocksPlaced = 0;
+        this.warrior = false;
+        this.damagesTaken = false;
 
         this.giveInventory();
         this.setupScoreboard();
@@ -137,7 +140,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
                    if(this.getChallenge().equals(challenge)) {
                        if(this.getChallenge().getCondition(this)) {
                            this.getChallenge().getReward(this);
-                       } else this.sendMessage(RunnerMessage.CHALLENGE_FAILED.get().getForPlayer(this.player)
+                       } else this.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(this.player)
                                .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(this.getChallenge().getKey()).getForPlayer(this.player)));
                    }
                 }
@@ -224,6 +227,14 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     public void setArrivedTime(long arrivedTime) {
         this.arrivedTime = arrivedTime;
+    }
+
+    public boolean isDamagesTaken() {
+        return damagesTaken;
+    }
+
+    public void setDamagesTaken(boolean damagesTaken) {
+        this.damagesTaken = damagesTaken;
     }
 }
 

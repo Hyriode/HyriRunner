@@ -27,7 +27,7 @@ public class HyriRunner extends JavaPlugin {
     public static final String NAME = "TheRunner";
     public static final String GAME_MAP = "map";
 
-    private static IHyriLanguageManager languageManager;
+    private IHyriLanguageManager languageManager;
 
     private IHyrame hyrame;
 
@@ -39,7 +39,7 @@ public class HyriRunner extends JavaPlugin {
     public void onEnable() {
         this.hyrame = HyrameLoader.load(new HyriRunnerProvider(this));
 
-        languageManager = this.hyrame.getLanguageManager();
+        this.languageManager = this.hyrame.getLanguageManager();
 
         this.api = new HyriRunnerApi(HyriAPI.get().getRedisConnection().getPool());
         this.api.start();
@@ -94,8 +94,8 @@ public class HyriRunner extends JavaPlugin {
         return this.game;
     }
 
-    public static IHyriLanguageManager getLanguageManager() {
-        return languageManager;
+    public IHyriLanguageManager getLanguageManager() {
+        return this.languageManager;
     }
 
     public HyriRunnerApi getApi() {

@@ -15,7 +15,7 @@ public class RunnerWarriorChallenge extends RunnerChallenge {
                 "challenge.warrior.name",
                 new String[] {"challenge.warrior.lore.1", "challenge.warrior.lore.2"},
                 Material.IRON_AXE,
-                3
+                2
         );
         challengesMap.put(RunnerWarriorChallenge.class, this);
         this.plugin = pl;

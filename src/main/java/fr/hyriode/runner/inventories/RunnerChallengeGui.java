@@ -4,90 +4,80 @@ import fr.hyriode.hyrame.inventory.HyriInventory;
 import fr.hyriode.hyrame.item.ItemBuilder;
 import fr.hyriode.hyrame.language.HyriLanguageMessage;
 import fr.hyriode.api.settings.HyriLanguage;
+import fr.hyriode.hyrame.utils.Symbols;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.challenges.RunnerChallenge;
+import fr.hyriode.runner.challenges.RunnerChallengeDifficulty;
 import fr.hyriode.runner.game.RunnerGamePlayer;
+import fr.hyriode.runner.game.RunnerMessage;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class RunnerChallengeGui extends HyriInventory {
 
-    private static final HyriLanguageMessage name = new HyriLanguageMessage("challenge.gui.name")
-            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + "Choisissez votre défi")
-            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + "Choose your challenge");
-    private static final HyriLanguageMessage loreChoose = new HyriLanguageMessage("challenge.gui.choose")
-            .addValue(HyriLanguage.FR, ChatColor.RED + "Cliquez pour choisir ce défi")
-            .addValue(HyriLanguage.EN, ChatColor.RED + "Click to choose your challenge");
-    private static final HyriLanguageMessage loreChosen = new HyriLanguageMessage("challenge.gui.chosen")
-            .addValue(HyriLanguage.FR, ChatColor.GREEN + "Vous avez choisi ce défi")
-            .addValue(HyriLanguage.EN, ChatColor.GREEN + "You have chosen this challenge");
-    private static final HyriLanguageMessage challengeSelected = new HyriLanguageMessage("message.challenge-selected")
-            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + "Vous avez choisi le défi: %challenge%")
-            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + "You choose the challenge: %challenge%");
-    private static final HyriLanguageMessage challengeUnselected = new HyriLanguageMessage("message.challenge-unselected")
-            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + "Vous ne choisissez aucun défi.")
-            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + "You're choosing no challenge.");
-    private static final HyriLanguageMessage difficulty = new HyriLanguageMessage("challenge.gui.difficulty")
-            .addValue(HyriLanguage.FR, ChatColor.WHITE + "Difficulté : %difficulty%")
-            .addValue(HyriLanguage.EN, ChatColor.WHITE + "Difficulty: %difficulty%");
-
     public RunnerChallengeGui(Player owner, HyriRunner plugin) {
-        super(owner, name.getForPlayer(owner), 27);
-        RunnerGamePlayer player = plugin.getGame().getPlayer(owner.getUniqueId());
+        super(owner, plugin.getLanguageManager().getValue(owner, "gui.challenge.name"), 54);
+    }
 
-        for (HyriRunnerChallengeModel value : HyriRunnerChallengeModel.values()) {
-            Optional<RunnerChallenge> oChallenge = RunnerChallenge.getWithModel(value);
-            oChallenge.ifPresent(challenge -> {
-                if (player.getChallenge() == null || !player.getAccount().getLastSelectedChallenge().equals(challenge.getModel())) {
-                    this.addItem(new ItemBuilder(challenge.getIcon())
-                                    .withName(HyriRunner.getLanguageManager().getMessage(challenge.getKey()).getForPlayer(owner))
-                                    .withLore(
-                                            HyriRunner.getLanguageManager().getMessage(challenge.getLore()[0]).getForPlayer(owner),
-                                            HyriRunner.getLanguageManager().getMessage(challenge.getLore()[1]).getForPlayer(owner),
-                                            ChatColor.GRAY + " ",
-                                            difficulty.getForPlayer(owner).replace("%difficulty%", challenge.getDifficultyAsString()),
-                                            ChatColor.GRAY + " ",
-                                            loreChoose.getForPlayer(owner)
-                                    )
-                                    .withAllItemFlags()
-                                    .build()
-                            , event -> {
-                                event.setCancelled(true);
-                                player.setChallenge(challenge);
-                                player.getAccount().setLastSelectedChallenge(challenge.getModel());
-                                player.sendMessage(challengeSelected.getForPlayer(player.getPlayer()).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(challenge.getKey()).getForPlayer(player.getPlayer())));
+    private void addCategoryItems() {
+        final String headTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzg4MWNjMjc0N2JhNzJjYmNiMDZjM2NjMzMxNzQyY2Q5ZGUyNzFhNWJiZmZkMGVjYjE0ZjFjNmE4YjY5YmM5ZSJ9fX0=";
+        final ItemStack random = ItemBuilder.asHead()
+                .withHeadTexture(headTexture)
+                // ADD NAME AND LORE
+                .build();
+        final ItemStack favorites = new ItemBuilder(Material.NETHER_STAR)
+                // ADD NAME AND LORE
+                .build();
 
-                                new RunnerChallengeGui(this.owner, plugin).open();
-                            });
-                } else {
-                    this.addItem(new ItemBuilder(challenge.getIcon())
-                                    .withName(HyriRunner.getLanguageManager().getMessage(challenge.getKey()).getForPlayer(owner))
-                                    .withLore(
-                                            HyriRunner.getLanguageManager().getMessage(challenge.getLore()[0]).getForPlayer(owner),
-                                            HyriRunner.getLanguageManager().getMessage(challenge.getLore()[1]).getForPlayer(owner),
-                                            ChatColor.GRAY + " ",
-                                            difficulty.getForPlayer(owner).replace("%difficulty%", challenge.getDifficultyAsString()),
-                                            ChatColor.GRAY + " ",
-                                            loreChosen.getForPlayer(owner)
-                                    )
-                                    .withAllItemFlags()
-                                    .withGlow()
-                                    .build()
-                            , event -> {
-                                event.setCancelled(true);
-                                player.setChallenge(null);
-                                player.getAccount().setLastSelectedChallenge(null);
-                                player.sendMessage(challengeUnselected.getForPlayer(player.getPlayer()));
+        this.addDifficultyItems();
+    }
 
-                                new RunnerChallengeGui(this.owner, plugin).open();
-                            });
-                }
-            });
+    private void addDifficultyItems() {
+        for (int i = 2; i <= 6; i++) {
+            for (RunnerChallengeDifficulty value : RunnerChallengeDifficulty.values()) {
+                this.setItem(
+                        i,
+                        new ItemBuilder(Material.INK_SACK, 1, value.getColor().getDyeData())
+                                .withName(RunnerMessage.GUI_CHALLENGE_DIFFICULTY + value.getAsString(this.owner))
+                                //TODO: Add lore
+                                .build()
+                );
+                break;
+            }
         }
     }
 
+    private ItemStack getChallengeItem(final RunnerChallenge challenge, final boolean selected) {
+        final ItemBuilder itemBuilder = new ItemBuilder(challenge.getIcon()).withAllItemFlags();
+        final List<String> lore = new ArrayList<>();
 
+        lore.add(RunnerMessage.GUI_CHALLENGE_DIFFICULTY.asString(this.owner) + challenge.getDifficulty().getAsString(this.owner));
+        lore.add(" ");
+        lore.addAll(2, challenge.getLore(this.owner));
+        lore.add(" ");
+
+        if(selected) {
+            lore.add(RunnerMessage.GUI_CHALLENGE_SELECTED.asString(this.owner));
+            itemBuilder.withGlow();
+        } else {
+            lore.add(RunnerMessage.GUI_CHALLENGE_SELECT.asString(this.owner));
+        }
+
+        return itemBuilder
+                .withName(challenge.getName(this.owner))
+                .withLore(lore)
+                .build();
+    }
+
+
+    public static enum RunnerChallengeGuiCategories{
+
+    }
 }

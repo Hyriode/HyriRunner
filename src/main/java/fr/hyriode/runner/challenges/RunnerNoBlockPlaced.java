@@ -12,14 +12,14 @@ public class RunnerNoBlockPlaced extends RunnerChallenge {
                 "challenge.no-block-placed.name",
                 new String[]{"challenge.no-block-placed.lore.1", "challenge.no-block-placed.lore.2"},
                 Material.STONE,
-                2
+                4
         );
         challengesMap.put(RunnerNoBlockPlaced.class, this);
     }
 
     @Override
     public boolean getCondition(RunnerGamePlayer player) {
-        return player.isArrived() && player.getBlocksPlaced() <= 16;
+        return player.isArrived() && player.getBlocksPlaced() <= 32;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class RunnerLastChallenge extends RunnerChallenge {
                 "challenge.last.name",
                 new String[] {"challenge.last.lore.1", "challenge.last.lore.2"},
                 Material.MINECART,
-                3
+                1
         );
         challengesMap.put(RunnerLastChallenge.class, this);
         this.plugin = pl;

@@ -8,6 +8,7 @@ import fr.hyriode.hyrame.game.HyriGamePlayer;
 import fr.hyriode.hyrame.game.HyriGameState;
 import fr.hyriode.hyrame.game.HyriGameType;
 import fr.hyriode.hyrame.game.protocol.HyriDeathProtocol;
+import fr.hyriode.hyrame.game.protocol.HyriHealthDisplayProtocol;
 import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
 import fr.hyriode.hyrame.game.team.HyriGameTeam;
 import fr.hyriode.hyrame.game.util.HyriGameMessages;
@@ -62,7 +63,6 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         this.accessible = false;
         this.arrivedPlayers = new ArrayList<>();
 
-        this.scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         this.description = HyriLanguageMessage.get("message.runner.description");
 
         this.registerTeams();
@@ -96,7 +96,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         RunnerChallenge.getWithModel(account.getLastSelectedChallenge()).ifPresent(challenge -> {
             gamePlayer.setChallenge(challenge);
-            gamePlayer.sendMessage(RunnerMessage.LAST_CHALLENGE_USED.get().getForPlayer(player).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(gamePlayer.getChallenge().getKey()).getForPlayer(player)));
+            gamePlayer.sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(gamePlayer.getChallenge().getKey()).getForPlayer(player)));
         });
 
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.hyrame.getItemManager().giveItem(player, 4, RunnerChooseChallengeItem.class), 1);
@@ -148,31 +148,21 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
             ((RunnerGamePlayer) gamePlayer).kill();
             return false;
         }));
+        this.protocolManager.enableProtocol(new HyriHealthDisplayProtocol(this.hyrame, new HyriHealthDisplayProtocol.Options(true, true)));
 
         final RunnerPositionCalculator calculator = new RunnerPositionCalculator();
 
         new RunnerPositionCalculator.Cage(calculator.getCuboidCenter()).setCage();
 
         this.teleportPlayers(calculator, () -> {
-            final Objective displayNameLife = scoreboard.registerNewObjective("vie", "health");
-            final Objective playerListLife = scoreboard.registerNewObjective("vieb", "health");
-
-            displayNameLife.setDisplayName(ChatColor.RED + "❤");
-            displayNameLife.setDisplaySlot(DisplaySlot.BELOW_NAME);
-            playerListLife.setDisplayName(ChatColor.RED + "❤");
-            playerListLife.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-
             players.forEach(gamePlayer -> {
                 this.arrow = new RunnerArrow(gamePlayer.getPlayer());
                 this.arrow.runTaskTimer(plugin, 0, 5);
 
-                displayNameLife.getScore(gamePlayer.getPlayer().getName()).setScore((int) gamePlayer.getPlayer().getHealth());
-                playerListLife.getScore(gamePlayer.getPlayer().getName()).setScore((int) gamePlayer.getPlayer().getHealth());
-
                 gamePlayer.startGame();
             });
 
-            this.sendMessageToAll(player -> RunnerMessage.PREPARATION.get().getForPlayer(player));
+            this.sendMessageToAll(RunnerMessage.PREPARATION::asString);
 
             this.getPreGameTask(calculator).runTaskTimer(plugin, 0, 20);
         });
@@ -342,7 +332,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                         if( challenge.getCondition(gamePlayer)) {
                             challenge.getReward(gamePlayer);
                         } else {
-                            gamePlayer.sendMessage(RunnerMessage.CHALLENGE_FAILED.get().getForPlayer(p).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(challenge.getKey()).getForPlayer(p)));
+                            gamePlayer.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(p).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(challenge.getKey()).getForPlayer(p)));
                         }
                     }
                 });
@@ -356,7 +346,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         safeTeleport.setCallback(callback);
         safeTeleport.teleportPlayers(calculator.getLocation());
 
-        this.sendMessageToAll(player -> RunnerMessage.INIT_TELEPORTATION.get().getForPlayer(player));
+        this.sendMessageToAll(RunnerMessage.INIT_TELEPORTATION::asString);
     }
 
     public void initBorder() {

@@ -13,7 +13,7 @@ public class RunnerArrivedChallenge extends RunnerChallenge {
                 "challenge.fast-arrived.name",
                 new String[]{"challenge.fast-arrived.lore.1", "challenge.fast-arrived.lore.2"},
                 Material.WATCH,
-                2
+                3
         );
         challengesMap.put(RunnerArrivedChallenge.class, this);
     }

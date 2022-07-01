@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class RunnerChooseChallengeItem extends HyriItem<HyriRunner> {
 
     public RunnerChooseChallengeItem(HyriRunner plugin) {
-        super(plugin, "choose_challenge", () -> HyriRunner.getLanguageManager().getMessage("item.challenge"), Material.PAPER);
+        super(plugin, "choose_challenge", () -> plugin.getLanguageManager().getMessage("item.challenge"), Material.PAPER);
     }
 
     @Override

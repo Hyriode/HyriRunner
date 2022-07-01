@@ -70,7 +70,7 @@ public class RunnerGameListener extends HyriListener<HyriRunner> {
                     } else {
                         gamePlayer.setArrived();
 
-                        Title.sendTitle(player, RunnerMessage.ARRIVED_TITLE.get().getForPlayer(player), RunnerMessage.ARRIVED_SUB.get().getForPlayer(player)
+                        Title.sendTitle(player, RunnerMessage.ARRIVED_TITLE.asString(player), RunnerMessage.ARRIVED_SUB.asString(player)
                                         .replace("%position%", String.valueOf(plugin.getGame().getPlayer(player.getUniqueId()).getPosition())), 1, 4 * 20, 1
                         );
                     }
@@ -85,6 +85,19 @@ public class RunnerGameListener extends HyriListener<HyriRunner> {
             if(!this.plugin.getGame().getState().equals(HyriGameState.PLAYING) || !this.plugin.getGame().isDamage()) {
                 e.setDamage(0);
                 e.setCancelled(true);
+            }
+
+            if(this.plugin.getGame().getState().equals(HyriGameState.PLAYING)) {
+                final Player player = (Player) e.getEntity();
+                final RunnerGamePlayer gamePlayer = this.plugin.getGame().getPlayer(player.getUniqueId());
+
+                if(gamePlayer == null) {
+                    return;
+                }
+
+                if(!gamePlayer.isArrived() && !gamePlayer.isDamagesTaken()) {
+                    gamePlayer.setDamagesTaken(true);
+                }
             }
         }
     }

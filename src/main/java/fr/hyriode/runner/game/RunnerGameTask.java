@@ -30,7 +30,7 @@ public class RunnerGameTask extends BukkitRunnable {
         if (index == 0) {
             game.startBorderShrink();
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f));
-            game.sendMessageToAll(player -> RunnerMessage.BORDER_SHRINK.get().getForPlayer(player));
+            game.sendMessageToAll(RunnerMessage.BORDER_SHRINK::asString);
             game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(30)));
         }
         if (index == 10) {
@@ -55,7 +55,7 @@ public class RunnerGameTask extends BukkitRunnable {
         }
         if (index == 30) {
             game.setDamage(true);
-            game.sendMessageToAll(player -> RunnerMessage.DAMAGE_ON.get().getForPlayer(player));
+            game.sendMessageToAll(RunnerMessage.DAMAGE_ON::asString);
             game.getPlayers().forEach(hyriRunnerGamePlayer -> {
                 Player p = hyriRunnerGamePlayer.getPlayer();
                 p.playSound(p.getLocation(), Sound.NOTE_PLING, 3f, 3f);
@@ -69,7 +69,7 @@ public class RunnerGameTask extends BukkitRunnable {
 
         if (game.isBorderEnd()) {
             game.setBorderEnd(false);
-            game.sendMessageToAll(player -> RunnerMessage.BORDER_END.get().getForPlayer(player));
+            game.sendMessageToAll(RunnerMessage.BORDER_END::asString);
             game.getArrow().cancel();
 
             new BukkitRunnable() {
@@ -97,7 +97,7 @@ public class RunnerGameTask extends BukkitRunnable {
                     if (primeIndex == 0) {
                         game.setPvp(true);
                         game.setPlayersPvpPhaseRemaining(game.getPlayers().size() - 1);
-                        game.sendMessageToAll(player -> RunnerMessage.PVP_ON.get().getForPlayer(player));
+                        game.sendMessageToAll(RunnerMessage.PVP_ON::asString);
                         game.getPlayers().forEach(gamePlayer -> {
                             final Player p = gamePlayer.getPlayer();
 

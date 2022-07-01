@@ -17,7 +17,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 public class RunnerArrivedGui extends HyriInventory {
 
     private final HyriRunner plugin;
-
     HyriLanguageMessage swordName = new HyriLanguageMessage("arrived.gui.sword")
             .addValue(HyriLanguage.FR, ChatColor.AQUA + "Amélioration d'épée")
             .addValue(HyriLanguage.EN, ChatColor.AQUA + "Sword upgrade");
