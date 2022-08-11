@@ -1,15 +1,16 @@
 package fr.hyriode.runner.game;
 
 import fr.hyriode.api.HyriAPI;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.api.player.IHyriPlayer;
 import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.HyriGamePlayer;
 import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
 import fr.hyriode.hyrame.item.ItemBuilder;
-import fr.hyriode.hyrame.language.IHyriLanguageManager;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.api.player.HyriRunnerPlayer;
+import fr.hyriode.runner.api.statistics.HyriRunnerStatistics;
 import fr.hyriode.runner.challenges.RunnerChallenge;
 import fr.hyriode.runner.game.scoreboard.RunnerFirstPhaseScoreboard;
 import fr.hyriode.runner.game.scoreboard.RunnerScoreboard;
@@ -141,7 +142,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
                        if(this.getChallenge().getCondition(this)) {
                            this.getChallenge().getReward(this);
                        } else this.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(this.player)
-                               .replace("%challenge%", HyriRunner.getLanguageManager().getMessage(this.getChallenge().getKey()).getForPlayer(this.player)));
+                               .replace("%challenge%", this.getChallenge().getName(this.player)));
                    }
                 }
             });
@@ -235,6 +236,10 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     public void setDamagesTaken(boolean damagesTaken) {
         this.damagesTaken = damagesTaken;
+    }
+
+    public HyriRunnerStatistics getStatistics() {
+        return this.account.getStatistics();
     }
 }
 

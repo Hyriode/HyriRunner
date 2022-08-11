@@ -13,7 +13,7 @@ import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
 import fr.hyriode.hyrame.game.team.HyriGameTeam;
 import fr.hyriode.hyrame.game.util.HyriGameMessages;
 import fr.hyriode.hyrame.game.util.HyriRewardAlgorithm;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.api.player.HyriRunnerPlayer;
@@ -47,6 +47,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     private int playersPvpPhaseRemaining;
 
     private final List<RunnerGamePlayer> arrivedPlayers;
+    private RunnerWaitingRoom waitingRoom;
 
     private RunnerGameTask gameTask;
     private RunnerArrow arrow;
@@ -62,6 +63,8 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         this.pvp = false;
         this.accessible = false;
         this.arrivedPlayers = new ArrayList<>();
+
+
 
         this.description = HyriLanguageMessage.get("message.runner.description");
 
@@ -96,7 +99,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         RunnerChallenge.getWithModel(account.getLastSelectedChallenge()).ifPresent(challenge -> {
             gamePlayer.setChallenge(challenge);
-            gamePlayer.sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(gamePlayer.getChallenge().getKey()).getForPlayer(player)));
+            gamePlayer.sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
         });
 
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.hyrame.getItemManager().giveItem(player, 4, RunnerChooseChallengeItem.class), 1);
@@ -110,14 +113,19 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         final RunnerGamePlayer gamePlayer = this.getPlayer(uuid);
         final HyriRunnerPlayer account = gamePlayer.getAccount();
         final HyriRunnerStatistics statistics = account.getStatistics();
+        final HyriRunnerStatistics.Data data = account.getStatistics().getData(this.getType());
 
         if (!this.getState().isAccessible()) {
             gamePlayer.getScoreboard().hide();
 
-            statistics.setPlayedTime(statistics.getPlayedTime() + gamePlayer.getPlayedTime());
-            statistics.addGamesPlayed(1);
-            statistics.addKills(gamePlayer.getKills());
-            statistics.addDeaths(gamePlayer.getDeaths());
+            data.setPlayedTime(data.getPlayedTime() + gamePlayer.getPlayedTime());
+            data.addGamesPlayed(1);
+            data.addKills(gamePlayer.getKills());
+            data.addDeaths(gamePlayer.getDeaths());
+
+            if(this.arrivedPlayers.contains(gamePlayer)) {
+                data.addSuccessfulRun(1);
+            }
 
             if(isPvp()) {
                 this.playersPvpPhaseRemaining -= 1;
@@ -278,12 +286,12 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         this.gameTask.cancel();
 
         this.players.forEach(player -> {
-            final RunnerGamePlayer gamePlayer = this.getPlayer(player.getUUID());
+            final RunnerGamePlayer gamePlayer = this.getPlayer(player.getUniqueId());
             final boolean isWinner = winner.contains(gamePlayer);
 
 
             if (isWinner) {
-                gamePlayer.getAccount().getStatistics().addVictories(1);
+                gamePlayer.getAccount().getStatistics().getData(this.getType()).addVictories(1);
             }
 
             final RunnerChallenge challenge = gamePlayer.getChallenge();
@@ -292,10 +300,10 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
             for (int i = 0; i <= 2; i++) {
                 final RunnerGamePlayer endPlayer = this.arrivedPlayers.size() > i ? this.arrivedPlayers.get(i) : null;
-                final String line = HyriLanguageMessage.get("message.game.end.position").getForPlayer(p).replace("%position%", HyriLanguageMessage.get("message.game.end." + (i + 1)).getForPlayer(p));
+                final String line = HyriLanguageMessage.get("message.game.end.position").getValue(p).replace("%position%", HyriLanguageMessage.get("message.game.end." + (i + 1)).getValue(p));
 
                 if (endPlayer == null) {
-                    position.add(line.replace("%player%", HyriLanguageMessage.get("message.game.end.nobody").getForPlayer(p))
+                    position.add(line.replace("%player%", HyriLanguageMessage.get("message.game.end.nobody").getValue(p))
                             .replace("%time%", "00:00"));
                     continue;
                 }
@@ -305,7 +313,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                 format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
                 final String time = format.format(endPlayer.getArrivedTime() * 1000);
-                final IHyriPlayer account = HyriAPI.get().getPlayerManager().getPlayer(endPlayer.getUUID());
+                final IHyriPlayer account = HyriAPI.get().getPlayerManager().getPlayer(endPlayer.getUniqueId());
 
                 position.add(line.replace("%player%", account.getNameWithRank(true))
                         .replace("%time%", time.startsWith("00:") ? time.substring(3) : time));
@@ -332,7 +340,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                         if( challenge.getCondition(gamePlayer)) {
                             challenge.getReward(gamePlayer);
                         } else {
-                            gamePlayer.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(p).replace("%challenge%", HyriRunner.getLanguageManager().getMessage(challenge.getKey()).getForPlayer(p)));
+                            gamePlayer.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(p).replace("%challenge%", gamePlayer.getChallenge().getName(p)));
                         }
                     }
                 });
@@ -431,5 +439,10 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     @Override
     public RunnerGameType getType() {
         return (RunnerGameType) super.getType();
+    }
+
+    @Override
+    public RunnerWaitingRoom getWaitingRoom() {
+        return this.waitingRoom;
     }
 }

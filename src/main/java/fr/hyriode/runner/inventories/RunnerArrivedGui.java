@@ -2,9 +2,9 @@ package fr.hyriode.runner.inventories;
 
 import fr.hyriode.hyrame.inventory.HyriInventory;
 import fr.hyriode.hyrame.item.ItemBuilder;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.title.Title;
-import fr.hyriode.api.settings.HyriLanguage;
+
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerMessage;
 import fr.hyriode.runner.listeners.RunnerGameListener;
@@ -27,9 +27,9 @@ public class RunnerArrivedGui extends HyriInventory {
             .addValue(HyriLanguage.FR, ChatColor.RED + "Aucune amélioration")
             .addValue(HyriLanguage.EN, ChatColor.RED + "No upgrade");
 
-    ItemBuilder sword = new ItemBuilder(Material.DIAMOND_SWORD).withName(swordName.getForPlayer(getOwner().getPlayer()));
-    ItemBuilder armor = new ItemBuilder(Material.DIAMOND_CHESTPLATE).withName(armorName.getForPlayer(getOwner().getPlayer()));
-    ItemBuilder nothing = new ItemBuilder(Material.BARRIER).withName(nothingName.getForPlayer(getOwner().getPlayer()));
+    ItemBuilder sword = new ItemBuilder(Material.DIAMOND_SWORD).withName(swordName.getValue(getOwner().getPlayer()));
+    ItemBuilder armor = new ItemBuilder(Material.DIAMOND_CHESTPLATE).withName(armorName.getValue(getOwner().getPlayer()));
+    ItemBuilder nothing = new ItemBuilder(Material.BARRIER).withName(nothingName.getValue(getOwner().getPlayer()));
 
     public RunnerArrivedGui(Player owner, String name, HyriRunner plugin) {
         super(owner, name, 9);
@@ -41,7 +41,7 @@ public class RunnerArrivedGui extends HyriInventory {
             p.closeInventory();
             p.getInventory().remove(Material.IRON_SWORD);
             p.getInventory().addItem(new ItemBuilder(Material.DIAMOND_SWORD).withEnchant(Enchantment.DAMAGE_ALL, 2).unbreakable().build());
-            plugin.getGame().sendMessageToAll(player -> RunnerMessage.FIRST_PLACE_SWORD.get().getForPlayer(player)
+            plugin.getGame().sendMessageToAll(player -> RunnerMessage.FIRST_PLACE_SWORD.get().getValue(player)
                     .replace("%player%", plugin.getGame().getPlayer(owner.getUniqueId()).getTeam().getColor().getChatColor() + owner.getName()));
         });
         this.setItem(4, nothing.build(), event -> {
@@ -60,7 +60,7 @@ public class RunnerArrivedGui extends HyriInventory {
             p.getEquipment().setLeggings(new ItemBuilder(Material.DIAMOND_LEGGINGS).unbreakable().build());
             p.getEquipment().setChestplate(new ItemBuilder(Material.DIAMOND_CHESTPLATE).unbreakable().build());
             p.getEquipment().setBoots(new ItemBuilder(Material.DIAMOND_BOOTS).unbreakable().build());
-            plugin.getGame().sendMessageToAll(player -> RunnerMessage.FIRST_PLACE_ARMOR.get().getForPlayer(player)
+            plugin.getGame().sendMessageToAll(player -> RunnerMessage.FIRST_PLACE_ARMOR.get().getValue(player)
                     .replace("%player%", plugin.getGame().getPlayer(owner.getUniqueId()).getTeam().getColor().getChatColor() + owner.getName()));
         });
     }
@@ -71,6 +71,6 @@ public class RunnerArrivedGui extends HyriInventory {
             new RunnerArrivedGui(this.owner, this.name, this.plugin).open();
         }
 
-        Title.sendTitle(this.owner, RunnerMessage.ARRIVED_TITLE.get().getForPlayer(this.owner), RunnerMessage.ARRIVED_SUB.get().getForPlayer(this.owner).replace("%position%", String.valueOf(plugin.getGame().getPlayer(this.owner.getUniqueId()).getPosition())), 1, 4 * 20, 1);
+        Title.sendTitle(this.owner, RunnerMessage.ARRIVED_TITLE.get().getValue(this.owner), RunnerMessage.ARRIVED_SUB.get().getValue(this.owner).replace("%position%", String.valueOf(plugin.getGame().getPlayer(this.owner.getUniqueId()).getPosition())), 1, 4 * 20, 1);
     }
 }

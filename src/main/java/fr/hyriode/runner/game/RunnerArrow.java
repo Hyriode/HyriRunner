@@ -1,8 +1,8 @@
 package fr.hyriode.runner.game;
 
-import fr.hyriode.api.settings.HyriLanguage;
+
 import fr.hyriode.hyrame.actionbar.ActionBar;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -75,7 +75,7 @@ public class RunnerArrow extends BukkitRunnable {
             }
         }
         sb.append(c);
-        ActionBar bar = new ActionBar(barMessage.getForPlayer(player)
+        ActionBar bar = new ActionBar(barMessage.getValue(player)
                 .replace("%arrow%", sb.toString()));
         bar.send(this.player);
     }

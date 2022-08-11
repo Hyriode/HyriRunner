@@ -1,6 +1,6 @@
 package fr.hyriode.runner.game;
 
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.runner.HyriRunner;
 import org.bukkit.entity.Player;
 
@@ -39,6 +39,6 @@ public enum RunnerMessage {
     }
 
     public String asString(Player player) {
-        return this.asLang().getForPlayer(player);
+        return this.asLang().getValue(player);
     }
 }

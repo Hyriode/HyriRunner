@@ -1,8 +1,8 @@
 package fr.hyriode.runner.game.teleport;
 
-import fr.hyriode.api.settings.HyriLanguage;
+
 import fr.hyriode.hyrame.actionbar.ActionBar;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.packet.PacketUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGamePlayer;
@@ -68,7 +68,7 @@ public class RunnerSafeTeleport implements Listener {
         }
 
         plugin.getGame().getPlayers().forEach(p -> {
-            final ActionBar bar = new ActionBar(TELEPORT_MESSAGE.getForPlayer(p.getPlayer())
+            final ActionBar bar = new ActionBar(TELEPORT_MESSAGE.getValue(p.getPlayer())
                     .replace("%already%", String.valueOf(teleportedPlayers))
                     .replace("%total%", String.valueOf(totalPlayers))
             );

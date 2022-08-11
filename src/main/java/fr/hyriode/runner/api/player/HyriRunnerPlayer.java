@@ -1,5 +1,6 @@
 package fr.hyriode.runner.api.player;
 
+import fr.hyriode.api.player.HyriPlayerData;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.api.statistics.HyriRunnerStatistics;
 
@@ -7,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class HyriRunnerPlayer {
+public class HyriRunnerPlayer extends HyriPlayerData {
 
     private final UUID uniqueId;
     private HyriRunnerStatistics statistics;

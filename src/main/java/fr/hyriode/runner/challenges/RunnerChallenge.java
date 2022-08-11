@@ -1,7 +1,7 @@
 package fr.hyriode.runner.challenges;
 
-import fr.hyriode.api.settings.HyriLanguage;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
 import fr.hyriode.runner.game.RunnerGamePlayer;
@@ -73,10 +73,10 @@ public abstract class RunnerChallenge {
     }
 
     public String getName(final Player player) {
-        return this.name.getForPlayer(player);
+        return this.name.getValue(player);
     }
     public List<String> getLore(final Player player) {
-        final String str = this.lore.getForPlayer(player);
+        final String str = this.lore.getValue(player);
         final String[] splitLore = str.split("\n");
 
         return new ArrayList<>(Arrays.asList(splitLore));

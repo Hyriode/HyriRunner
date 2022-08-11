@@ -1,8 +1,8 @@
 package fr.hyriode.runner.listeners;
 
-import fr.hyriode.api.settings.HyriLanguage;
+
 import fr.hyriode.hyrame.game.HyriGameState;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.hyrame.title.Title;
 import fr.hyriode.hyrame.utils.block.Cuboid;
@@ -62,7 +62,7 @@ public class RunnerGameListener extends HyriListener<HyriRunner> {
                                 .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA+ "Bonus d'arrivée")
                                 .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA+ "Arrival bonus");
 
-                        final RunnerArrivedGui gui = new RunnerArrivedGui(player, guiName.getForPlayer(player), plugin);
+                        final RunnerArrivedGui gui = new RunnerArrivedGui(player, guiName.getValue(player), plugin);
 
                         gui.open();
 

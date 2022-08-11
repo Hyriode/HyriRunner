@@ -1,7 +1,7 @@
 package fr.hyriode.runner.game;
 
-import fr.hyriode.api.settings.HyriLanguage;
-import fr.hyriode.hyrame.language.HyriLanguageMessage;
+
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.scoreboard.RunnerSecondPhaseScoreboard;
 import org.bukkit.ChatColor;
@@ -31,23 +31,23 @@ public class RunnerGameTask extends BukkitRunnable {
             game.startBorderShrink();
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f));
             game.sendMessageToAll(RunnerMessage.BORDER_SHRINK::asString);
-            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(30)));
+            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(30)));
         }
         if (index == 10) {
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(20)));
+            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(20)));
         }
         if (index == 27) {
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(3)));
+            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(3)));
         }
         if (index == 28) {
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getForPlayer(player).replace("%seconds%", String.valueOf(2)));
+            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(2)));
         }
         if (index == 29) {
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getForPlayer(player)
+            game.sendMessageToAll(player -> message.getValue(player)
                     .replace("%seconds%", String.valueOf(1))
                     .replace("secondes", "seconde")
                     .replace("seconds", "second")
@@ -85,10 +85,10 @@ public class RunnerGameTask extends BukkitRunnable {
                         game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
 
                         if (primeIndex > 1) {
-                            game.sendMessageToAll(player -> pvpMessage.getForPlayer(player).replace("%index%", String.valueOf(primeIndex)));
+                            game.sendMessageToAll(player -> pvpMessage.getValue(player).replace("%index%", String.valueOf(primeIndex)));
                         }
                         if (primeIndex == 1) {
-                            game.sendMessageToAll(player -> pvpMessage.getForPlayer(player)
+                            game.sendMessageToAll(player -> pvpMessage.getValue(player)
                                     .replace("%index%", String.valueOf(primeIndex))
                                     .replace("secondes", "seconde")
                                     .replace("seconds", "second"));
