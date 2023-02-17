@@ -4,7 +4,7 @@ import fr.hyriode.hyrame.game.HyriGameType;
 
 public enum RunnerGameType implements HyriGameType {
 
-    SOLO("Solo", 1, 6, 12),
+    SOLO("Solo", 1, 2, 12),
     DOUBLES("Doubles", 2, 8, 24),
     ;
 

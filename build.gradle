@@ -18,26 +18,37 @@ compileJava {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
 
     maven {
         name = 'Hyrame_maven'
         url = 'https://maven.pkg.github.com/Hyriode/Hyrame/'
 
         credentials {
-            username System.getenv('GITHUB_USERNAME')
-            password System.getenv('GITHUB_TOKEN')
+            username System.getenv('USERNAME')
+            password System.getenv('TOKEN')
         }
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'fr.hyriode:hyrame:1.3.3'
+    implementation 'fr.hyriode:hyrame:1.3.6'
 }
 
 processResources {
     filter {
         it.replace('@version@', project.version)
+    }
+}
+
+task deploy(dependsOn: build) {
+    doLast {
+        copy {
+            from "H:/Dev/dev Mc/DevPlug/hyriode/HyriRunner/build/libs/HyriRunner-1.0.0.jar"
+            into "H:/Dev/dev Mc/Serveurs/hyriode/HyriRunner/plugins"
+        }
     }
 }

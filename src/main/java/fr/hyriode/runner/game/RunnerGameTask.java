@@ -1,6 +1,7 @@
 package fr.hyriode.runner.game;
 
 
+import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.phase.RunnerPhase;
 import fr.hyriode.runner.game.scoreboard.RunnerScoreboard;
@@ -33,22 +34,22 @@ public class RunnerGameTask extends BukkitRunnable {
             Bukkit.getScheduler().runTaskLater(this.plugin, () ->  {
                 game.startBorderShrink();
                 game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f));
-                game.sendMessageToAll(RunnerMessage.BORDER_SHRINK::asString);
+                BroadcastUtil.broadcast(RunnerMessage.BORDER_SHRINK::asString);
             }, RunnerValues.BORDER_TIME.get() * 20L);
 
             if (!invincibility) {
-                game.sendMessageToAll(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30)));
+                BroadcastUtil.broadcast(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30)));
             }
         } else if (this.index == 10 || this.index == 27 || this.index == 28 || this.index == 29) {
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
 
             if (!invincibility) {
-                game.sendMessageToAll(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30 - this.index)));
+                BroadcastUtil.broadcast(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30 - this.index)));
             }
         } else if (this.index == 30 && !invincibility) {
             game.triggerPhase(RunnerPhase.DAMAGE);
 
-            game.sendMessageToAll(RunnerMessage.DAMAGE_ON::asString);
+            BroadcastUtil.broadcast(RunnerMessage.DAMAGE_ON::asString);
             game.getPlayers().forEach(gamePlayer -> {
                 final Player player = gamePlayer.getPlayer();
 
@@ -68,7 +69,7 @@ public class RunnerGameTask extends BukkitRunnable {
 
             this.borderTriggered = true;
 
-            game.sendMessageToAll(RunnerMessage.BORDER_END::asString);
+            BroadcastUtil.broadcast(RunnerMessage.BORDER_END::asString);
             game.getArrow().cancel();
 
             new BukkitRunnable() {
@@ -79,12 +80,12 @@ public class RunnerGameTask extends BukkitRunnable {
                 public void run() {
                     if (this.index > 0) {
                         game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-                        game.sendMessageToAll(player -> RunnerMessage.PVP_INCOMING.asString(player).replace("%seconds%", String.valueOf(this.index)));
+                        BroadcastUtil.broadcast(player -> RunnerMessage.PVP_INCOMING.asString(player).replace("%seconds%", String.valueOf(this.index)));
                     }
 
                     if (this.index == 0) {
                         game.triggerPhase(RunnerPhase.PVP);
-                        game.sendMessageToAll(RunnerMessage.PVP_ON::asString);
+                        BroadcastUtil.broadcast(RunnerMessage.PVP_ON::asString);
                         game.getPlayers().forEach(gamePlayer -> {
                             final Player player = gamePlayer.getPlayer();
                             final RunnerScoreboard scoreboard = new RunnerSecondPhaseScoreboard(plugin, player);

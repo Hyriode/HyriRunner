@@ -3,6 +3,7 @@ package fr.hyriode.runner.bonus;
 import fr.hyriode.api.HyriAPI;
 import fr.hyriode.hyrame.inventory.HyriInventory;
 import fr.hyriode.hyrame.item.ItemBuilder;
+import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGame;
 import fr.hyriode.runner.util.RunnerMessage;
@@ -38,7 +39,7 @@ public class RunnerBonusGUI extends HyriInventory {
                     return;
                 }
 
-                game.sendMessageToAll(player -> RunnerMessage.BONUS_SELECTED.asString(player)
+                BroadcastUtil.broadcast(player -> RunnerMessage.BONUS_SELECTED.asString(player)
                         .replace("%player%", game.getPlayer(this.owner).formatNameWithTeam())
                         .replace("%bonus%", bonus.getDisplayName().getValue(player)));
             });

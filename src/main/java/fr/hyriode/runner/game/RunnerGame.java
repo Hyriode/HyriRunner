@@ -3,6 +3,7 @@ package fr.hyriode.runner.game;
 import fr.hyriode.api.HyriAPI;
 import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.api.player.IHyriPlayer;
+import fr.hyriode.hyggdrasil.api.server.HyggServer;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.HyriGamePlayer;
@@ -15,6 +16,7 @@ import fr.hyriode.hyrame.game.team.HyriGameTeam;
 import fr.hyriode.hyrame.game.util.HyriGameMessages;
 import fr.hyriode.hyrame.game.util.HyriRewardAlgorithm;
 import fr.hyriode.hyrame.scoreboard.team.HyriScoreboardTeam;
+import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.RunnerPlayer;
 import fr.hyriode.runner.api.RunnerStatistics;
@@ -52,7 +54,10 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     private final HyriRunner plugin;
 
     public RunnerGame(IHyrame hyrame, HyriRunner plugin) {
-        super(hyrame, plugin, HyriAPI.get().getGameManager().getGameInfo("therunner"), RunnerGamePlayer.class, HyriGameType.getFromData(RunnerGameType.values()));
+        super(hyrame, plugin,
+                HyriAPI.get().getConfig().isDevEnvironment() ? HyriAPI.get().getGameManager().createGameInfo("therunner", "The Runner") : HyriAPI.get().getGameManager().getGameInfo("therunner"),
+                RunnerGamePlayer.class,
+                HyriAPI.get().getConfig().isDevEnvironment() ? RunnerGameType.SOLO : HyriGameType.getFromData(RunnerGameType.values()));
         this.plugin = plugin;
         this.phases = new HashSet<>();
         this.arrivedPlayers = new ArrayList<>();
@@ -65,7 +70,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
     private void registerTeams() {
         for (RunnerGameTeam value : RunnerGameTeam.values()) {
-            this.registerTeam(new HyriGameTeam(plugin.getGame(), value.getName(), value.getDisplayName(), value.getColor(), false, HyriScoreboardTeam.NameTagVisibility.ALWAYS, this.getType().getTeamSize()));
+            this.registerTeam(new HyriGameTeam(value.getName(), value.getDisplayName(), value.getColor(), false, HyriScoreboardTeam.NameTagVisibility.ALWAYS, this.getType().getTeamSize()));
         }
     }
 
@@ -82,10 +87,10 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         gamePlayer.setAccount(account);
         gamePlayer.setStatistics(statistics);
 
-        if (!HyriAPI.get().getServer().isHost()) {
+        if (!HyriAPI.get().getServer().getAccessibility().equals(HyggServer.Accessibility.HOST)) {
             RunnerChallenge.getWithModel(account.getLastSelectedChallenge()).ifPresent(challenge -> {
                 gamePlayer.setChallenge(challenge);
-                gamePlayer.sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
+                gamePlayer.getPlayer().sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
             });
 
             this.hyrame.getItemManager().giveItem(player, 4, RunnerChallengeSelectorItem.class);
@@ -109,7 +114,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                 scoreboard.hide();
             }
 
-            data.setPlayedTime(data.getPlayedTime() + gamePlayer.getPlayedTime());
+            data.setPlayedTime(data.getPlayedTime() + gamePlayer.getPlayTime());
             data.addGamesPlayed(1);
             data.addKills(gamePlayer.getKills());
             data.addDeaths(gamePlayer.getDeaths());
@@ -165,7 +170,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
             this.protocolManager.enableProtocol(new HyriHealthDisplayProtocol(this.hyrame, new HyriHealthDisplayProtocol.Options(true, true)));
 
-            this.sendMessageToAll(RunnerMessage.PREPARATION::asString);
+            BroadcastUtil.broadcast(RunnerMessage.PREPARATION::asString);
 
             this.createPreGameTask(cage).runTaskTimer(this.plugin, 0, 20);
         });
@@ -222,7 +227,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         safeTeleport.setCallback(callback);
         safeTeleport.teleportPlayers(location);
 
-        this.sendMessageToAll(RunnerMessage.INIT_TELEPORTATION::asString);
+        BroadcastUtil.broadcast(RunnerMessage.INIT_TELEPORTATION::asString);
     }
 
     public void initBorder() {
@@ -270,8 +275,8 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
             final RunnerChallenge challenge = gamePlayer.getChallenge();
             final IHyriPlayer account = gamePlayer.asHyriPlayer();
-            final long hyris = HyriRewardAlgorithm.getHyris(gamePlayer.getKills(), gamePlayer.getPlayedTime(), isWinner);
-            final long xp = HyriRewardAlgorithm.getXP(gamePlayer.getKills(), gamePlayer.getPlayedTime(), isWinner);
+            final long hyris = HyriRewardAlgorithm.getHyris(gamePlayer.getKills(), gamePlayer.getPlayTime(), isWinner);
+            final double xp = HyriRewardAlgorithm.getXP(gamePlayer.getKills(), gamePlayer.getPlayTime(), isWinner);
             final List<String> rewards = new ArrayList<>();
 
             rewards.add(ChatColor.LIGHT_PURPLE + String.valueOf(account.getHyris().add(hyris).withMessage(false).exec()) + " Hyris");
@@ -299,7 +304,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
                     final String time = format.format(endPlayer.getArrivedTime() * 1000);
 
-                    position.add(line.replace("%player%", endPlayer.asHyriPlayer().getNameWithRank(true))
+                    position.add(line.replace("%player%", endPlayer.asHyriPlayer().getNameWithRank())
                             .replace("%time%", time.startsWith("00:") ? time.substring(3) : time));
                 }
 
@@ -313,7 +318,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
             if (challenge.isValid(gamePlayer)) {
                 challenge.rewardPlayer(gamePlayer);
             } else {
-                gamePlayer.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
+                gamePlayer.getPlayer().sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
             }
         });
     }

@@ -41,8 +41,8 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     private RunnerChallenge challenge;
 
-    public RunnerGamePlayer(HyriGame<?> game, Player player) {
-        super(game, player);
+    public RunnerGamePlayer(Player player) {
+        super(player);
     }
 
     public void startGame() {
@@ -71,7 +71,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
                 if (this.challenge.isValid(this)) {
                     this.challenge.rewardPlayer(this);
                 } else {
-                    this.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(this.player).replace("%challenge%", this.challenge.getName(this.player)));
+                    this.getPlayer().sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(this.player).replace("%challenge%", this.challenge.getName(this.player)));
                 }
             }
         }
@@ -134,7 +134,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
     }
 
     public Player getLastHitter() {
-        final List<HyriLastHitterProtocol.LastHitter> lastHitters = this.game.getProtocolManager().getProtocol(HyriLastHitterProtocol.class).getLastHitters(this.player);
+        final List<HyriLastHitterProtocol.LastHitter> lastHitters = this.plugin.getGame().getProtocolManager().getProtocol(HyriLastHitterProtocol.class).getLastHitters(this.player);
 
         if (lastHitters != null) {
             return lastHitters.get(0).asPlayer();
@@ -188,7 +188,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         final List<RunnerGamePlayer> players = this.plugin.getGame().getPlayers();
 
         if (players.size() == 1 && players.contains(this)) {
-            this.game.win(this.team);
+            this.plugin.getGame().win(this.getTeam());
         }
     }
 

@@ -2,6 +2,7 @@ package fr.hyriode.runner;
 
 import fr.hyriode.api.HyriAPI;
 import fr.hyriode.api.server.IHyriServer;
+import fr.hyriode.hyggdrasil.api.server.HyggServer;
 import fr.hyriode.hyrame.HyrameLoader;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.world.generator.HyriWorldGenerator;
@@ -35,11 +36,11 @@ public class HyriRunner extends JavaPlugin {
 
         RunnerChallenge.registerChallenges(this);
 
-        if (HyriAPI.get().getServer().isHost()) {
+        if (HyriAPI.get().getServer().getAccessibility().equals(HyggServer.Accessibility.HOST)) {
             this.hyrame.getHostController().addCategory(25, new RunnerHostMainCategory());
         }
 
-        HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> HyriAPI.get().getServer().setState(IHyriServer.State.READY));
+        HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> HyriAPI.get().getServer().setState(HyggServer.State.READY));
         HyriWorldGenerator.COMMON_PATCHED_BIOMES.forEach(worldGenerator::patchBiomes);
 
         worldGenerator.start();

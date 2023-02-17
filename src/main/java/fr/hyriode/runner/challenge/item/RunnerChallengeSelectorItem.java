@@ -8,6 +8,7 @@ import fr.hyriode.runner.challenge.RunnerChallengeDifficulty;
 import fr.hyriode.runner.challenge.gui.RunnerChallengeGUI;
 import org.bukkit.Material;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Project: HyriRunner
@@ -17,7 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class RunnerChallengeSelectorItem extends HyriItem<HyriRunner> {
 
     public RunnerChallengeSelectorItem(HyriRunner plugin) {
-        super(plugin, "challenge_selector", () -> HyriLanguageMessage.get("item.challenge"), Material.PAPER);
+        super(plugin, "challenge_selector", () -> HyriLanguageMessage.get("item.challenge"), () -> HyriLanguageMessage.get("item.challenge"), Material.PAPER);
     }
 
     @Override
