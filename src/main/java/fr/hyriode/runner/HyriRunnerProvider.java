@@ -5,8 +5,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class HyriRunnerProvider implements IPluginProvider {
 
+    private static final String PACKAGE = "fr.hyriode.runner";
+
     private final JavaPlugin plugin;
-    private final String PACKAGE = "fr.hyriode.runner";
 
     public HyriRunnerProvider(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -19,7 +20,7 @@ public class HyriRunnerProvider implements IPluginProvider {
 
     @Override
     public String getId() {
-        return "hyrirunner";
+        return "therunner";
     }
 
     @Override
@@ -41,4 +42,5 @@ public class HyriRunnerProvider implements IPluginProvider {
     public String getLanguagesPath() {
         return "/lang/";
     }
+
 }

@@ -1,23 +1,24 @@
 package fr.hyriode.runner.game;
 
 
-import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.runner.HyriRunner;
+import fr.hyriode.runner.game.phase.RunnerPhase;
+import fr.hyriode.runner.game.scoreboard.RunnerScoreboard;
 import fr.hyriode.runner.game.scoreboard.RunnerSecondPhaseScoreboard;
-import org.bukkit.ChatColor;
+import fr.hyriode.runner.util.RunnerMessage;
+import fr.hyriode.runner.util.RunnerValues;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RunnerGameTask extends BukkitRunnable {
 
+    private boolean borderTriggered;
+
     private int index;
 
     private final HyriRunner plugin;
-
-    private final HyriLanguageMessage message = new HyriLanguageMessage("message.invincibility")
-            .addValue(HyriLanguage.FR, ChatColor.RED + "Vous serez vulnérable dans %seconds% secondes !")
-            .addValue(HyriLanguage.EN, ChatColor.RED + "You are going to be vulnerable in %seconds% seconds!");
 
     public RunnerGameTask(HyriRunner plugin) {
         this.plugin = plugin;
@@ -26,97 +27,85 @@ public class RunnerGameTask extends BukkitRunnable {
     @Override
     public void run() {
         final RunnerGame game = this.plugin.getGame();
+        final boolean invincibility = RunnerValues.INVINCIBILITY.get();
 
-        if (index == 0) {
-            game.startBorderShrink();
-            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f));
-            game.sendMessageToAll(RunnerMessage.BORDER_SHRINK::asString);
-            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(30)));
-        }
-        if (index == 10) {
+        if (this.index == 0) {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () ->  {
+                game.startBorderShrink();
+                game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f));
+                game.sendMessageToAll(RunnerMessage.BORDER_SHRINK::asString);
+            }, RunnerValues.BORDER_TIME.get() * 20L);
+
+            if (!invincibility) {
+                game.sendMessageToAll(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30)));
+            }
+        } else if (this.index == 10 || this.index == 27 || this.index == 28 || this.index == 29) {
             game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(20)));
-        }
-        if (index == 27) {
-            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(3)));
-        }
-        if (index == 28) {
-            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getValue(player).replace("%seconds%", String.valueOf(2)));
-        }
-        if (index == 29) {
-            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-            game.sendMessageToAll(player -> message.getValue(player)
-                    .replace("%seconds%", String.valueOf(1))
-                    .replace("secondes", "seconde")
-                    .replace("seconds", "second")
-            );
-        }
-        if (index == 30) {
-            game.setDamage(true);
+
+            if (!invincibility) {
+                game.sendMessageToAll(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30 - this.index)));
+            }
+        } else if (this.index == 30 && !invincibility) {
+            game.triggerPhase(RunnerPhase.DAMAGE);
+
             game.sendMessageToAll(RunnerMessage.DAMAGE_ON::asString);
-            game.getPlayers().forEach(hyriRunnerGamePlayer -> {
-                Player p = hyriRunnerGamePlayer.getPlayer();
-                p.playSound(p.getLocation(), Sound.NOTE_PLING, 3f, 3f);
+            game.getPlayers().forEach(gamePlayer -> {
+                final Player player = gamePlayer.getPlayer();
+
+                player.playSound(player.getLocation(), Sound.NOTE_PLING, 3f, 3f);
             });
         }
 
         // Stop au bout de 10 minutes
-        if (index == 60 * 10) {
+        if (this.index == RunnerValues.GAME_TIME.get()) {
             game.win(game.getBestTeam());
         }
 
-        if (game.isBorderEnd()) {
-            game.setBorderEnd(false);
+        if (game.isPhase(RunnerPhase.BORDER_END) && !this.borderTriggered) {
+            if (!invincibility) {
+                game.triggerPhase(RunnerPhase.DAMAGE);
+            }
+
+            this.borderTriggered = true;
+
             game.sendMessageToAll(RunnerMessage.BORDER_END::asString);
             game.getArrow().cancel();
 
             new BukkitRunnable() {
-                private int primeIndex = 5;
 
-                final HyriLanguageMessage pvpMessage = new HyriLanguageMessage("message.pvp-incoming")
-                        .addValue(HyriLanguage.FR, ChatColor.RED + "Le pvp va s'activer dans %index% secondes !")
-                        .addValue(HyriLanguage.EN, ChatColor.RED + "Le pvp will be enabled in %index% seconds!");
+                private int index = 5;
 
                 @Override
                 public void run() {
-                    if(primeIndex > 0) {
+                    if (this.index > 0) {
                         game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
-
-                        if (primeIndex > 1) {
-                            game.sendMessageToAll(player -> pvpMessage.getValue(player).replace("%index%", String.valueOf(primeIndex)));
-                        }
-                        if (primeIndex == 1) {
-                            game.sendMessageToAll(player -> pvpMessage.getValue(player)
-                                    .replace("%index%", String.valueOf(primeIndex))
-                                    .replace("secondes", "seconde")
-                                    .replace("seconds", "second"));
-                        }
+                        game.sendMessageToAll(player -> RunnerMessage.PVP_INCOMING.asString(player).replace("%seconds%", String.valueOf(this.index)));
                     }
-                    if (primeIndex == 0) {
-                        game.setPvp(true);
-                        game.setPlayersPvpPhaseRemaining(game.getPlayers().size() - 1);
+
+                    if (this.index == 0) {
+                        game.triggerPhase(RunnerPhase.PVP);
                         game.sendMessageToAll(RunnerMessage.PVP_ON::asString);
                         game.getPlayers().forEach(gamePlayer -> {
-                            final Player p = gamePlayer.getPlayer();
+                            final Player player = gamePlayer.getPlayer();
+                            final RunnerScoreboard scoreboard = new RunnerSecondPhaseScoreboard(plugin, player);
 
                             gamePlayer.getScoreboard().hide();
-                            gamePlayer.setScoreboard(new RunnerSecondPhaseScoreboard(plugin, p));
-                            gamePlayer.getScoreboard().show();
+                            gamePlayer.setScoreboard(scoreboard);
+                            scoreboard.show();
 
-                            p.playSound(p.getLocation(), Sound.WOLF_GROWL, 3f, 3f);
+                            player.playSound(player.getLocation(), Sound.WOLF_GROWL, 3f, 3f);
                         });
-                        cancel();
+
+                        this.cancel();
                     }
-                    primeIndex--;
+                    this.index--;
                 }
             }.runTaskTimer(plugin, 0, 20);
         }
 
         game.getPlayers().forEach(gamePlayer -> gamePlayer.getScoreboard().addTimeLine());
 
-        index++;
+        this.index++;
     }
 
     public int getIndex() {

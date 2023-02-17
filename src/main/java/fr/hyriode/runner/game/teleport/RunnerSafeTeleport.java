@@ -1,11 +1,13 @@
 package fr.hyriode.runner.game.teleport;
 
 
-import fr.hyriode.hyrame.actionbar.ActionBar;
+import fr.hyriode.api.language.HyriLanguage;
 import fr.hyriode.api.language.HyriLanguageMessage;
+import fr.hyriode.hyrame.actionbar.ActionBar;
 import fr.hyriode.hyrame.packet.PacketUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGamePlayer;
+import fr.hyriode.runner.util.RunnerMessage;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,12 +28,8 @@ import java.util.List;
 
 public class RunnerSafeTeleport implements Listener {
 
-    private static final HyriLanguageMessage TELEPORT_MESSAGE = new HyriLanguageMessage("actionbar.teleport")
-            .addValue(HyriLanguage.FR, ChatColor.DARK_AQUA + "Téléportation en cours : " + ChatColor.AQUA + "%already%/%total%")
-            .addValue(HyriLanguage.EN, ChatColor.DARK_AQUA + "Teleport in progress: " + ChatColor.AQUA + "%already%/%total%");
-
     private Instant before;
-    private Callback callback;
+    private Runnable callback;
 
     private final int totalPlayers;
     private int teleportedPlayers;
@@ -67,16 +65,20 @@ public class RunnerSafeTeleport implements Listener {
             PacketUtil.sendPacket(player, new PacketPlayOutMapChunk(((CraftChunk) location.getWorld().getChunkAt(chunk.getX(), chunk.getZ())).getHandle(), true, 20));
         }
 
-        plugin.getGame().getPlayers().forEach(p -> {
-            final ActionBar bar = new ActionBar(TELEPORT_MESSAGE.getValue(p.getPlayer())
-                    .replace("%already%", String.valueOf(teleportedPlayers))
-                    .replace("%total%", String.valueOf(totalPlayers))
-            );
-            bar.send(p.getPlayer());
-        });
-        player.teleport(location);
+        plugin.getGame().getPlayers().forEach(target -> {
+            if (!target.isOnline()) {
+                return;
+            }
 
-        player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
+            final ActionBar bar = new ActionBar(RunnerMessage.TELEPORTATION_BAR.asString(target.getPlayer())
+                    .replace("%already%", String.valueOf(this.teleportedPlayers))
+                    .replace("%total%", String.valueOf(this.totalPlayers)));
+
+            bar.send(target.getPlayer());
+        });
+
+        player.setFallDistance(0.0F);
+        player.teleport(location);
 
         this.teleportedPlayers++;
 
@@ -90,14 +92,14 @@ public class RunnerSafeTeleport implements Listener {
                     cancel();
                 }
             }
-        }.runTaskTimer(this.plugin, 0, 1);
+        }.runTaskTimer(this.plugin, 0L, 1L);
     }
 
     public void finished() {
         HandlerList.unregisterAll(this);
 
         if (this.callback != null) {
-            this.callback.onComplete();
+            this.callback.run();
         }
     }
 
@@ -123,14 +125,8 @@ public class RunnerSafeTeleport implements Listener {
         return chunks;
     }
 
-    public void setCallback(Callback callback) {
+    public void setCallback(Runnable callback) {
         this.callback = callback;
-    }
-
-    public interface Callback {
-
-        void onComplete();
-
     }
 
 }

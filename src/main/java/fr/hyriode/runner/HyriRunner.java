@@ -1,25 +1,19 @@
 package fr.hyriode.runner;
 
+import fr.hyriode.api.HyriAPI;
 import fr.hyriode.api.server.IHyriServer;
 import fr.hyriode.hyrame.HyrameLoader;
 import fr.hyriode.hyrame.IHyrame;
-import fr.hyriode.hyrame.game.HyriGameType;
-import fr.hyriode.hyrame.language.IHyriLanguageManager;
-import fr.hyriode.api.HyriAPI;
-import fr.hyriode.hyrame.utils.LocationWrapper;
-import fr.hyriode.hyrame.world.HyriWorldSettings;
 import fr.hyriode.hyrame.world.generator.HyriWorldGenerator;
-import fr.hyriode.runner.api.HyriRunnerApi;
-import fr.hyriode.runner.challenges.RunnerChallenge;
+import fr.hyriode.hyrame.world.generator.HyriWorldSettings;
+import fr.hyriode.runner.challenge.RunnerChallenge;
 import fr.hyriode.runner.config.RunnerConfig;
 import fr.hyriode.runner.game.RunnerGame;
-import fr.hyriode.runner.game.RunnerGameType;
+import fr.hyriode.runner.game.host.category.RunnerHostMainCategory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class HyriRunner extends JavaPlugin {
@@ -27,37 +21,27 @@ public class HyriRunner extends JavaPlugin {
     public static final String NAME = "TheRunner";
     public static final String GAME_MAP = "map";
 
-    private IHyriLanguageManager languageManager;
-
     private IHyrame hyrame;
 
     private RunnerGame game;
-    private HyriRunnerApi api;
     private RunnerConfig configuration;
 
     @Override
     public void onEnable() {
         this.hyrame = HyrameLoader.load(new HyriRunnerProvider(this));
-
-        this.languageManager = this.hyrame.getLanguageManager();
-
-        this.api = new HyriRunnerApi(HyriAPI.get().getRedisConnection().getPool());
-        this.api.start();
-
-        // PROD
         this.configuration = HyriAPI.get().getServer().getConfig(RunnerConfig.class);
-
-        // DEV
-    //     this.configuration = new RunnerConfig(new LocationWrapper(new Location(IHyrame.WORLD.get(), 150.5, 131.0, 60.5, -90.0F, 0.0F)));
-
         this.game = new RunnerGame(this.hyrame, this);
         this.hyrame.getGameManager().registerGame(() -> this.game);
 
         RunnerChallenge.registerChallenges(this);
-        HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> {
-            HyriAPI.get().getServer().setState(IHyriServer.State.READY);
-        });
+
+        if (HyriAPI.get().getServer().isHost()) {
+            this.hyrame.getHostController().addCategory(25, new RunnerHostMainCategory());
+        }
+
+        HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> HyriAPI.get().getServer().setState(IHyriServer.State.READY));
         HyriWorldGenerator.COMMON_PATCHED_BIOMES.forEach(worldGenerator::patchBiomes);
+
         worldGenerator.start();
     }
 
@@ -66,7 +50,6 @@ public class HyriRunner extends JavaPlugin {
         log("Stopping " + NAME + "...");
 
         this.hyrame.getGameManager().unregisterGame(game);
-        this.api.stop();
     }
 
     public static void log(Level level, String message) {
@@ -79,6 +62,7 @@ public class HyriRunner extends JavaPlugin {
         } else {
             prefix += ChatColor.RESET;
         }
+
         Bukkit.getConsoleSender().sendMessage(prefix + message);
     }
 
@@ -92,14 +76,6 @@ public class HyriRunner extends JavaPlugin {
 
     public RunnerGame getGame() {
         return this.game;
-    }
-
-    public IHyriLanguageManager getLanguageManager() {
-        return this.languageManager;
-    }
-
-    public HyriRunnerApi getApi() {
-        return api;
     }
 
     public RunnerConfig getConfiguration() {

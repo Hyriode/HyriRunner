@@ -25,16 +25,15 @@ repositories {
         url = 'https://maven.pkg.github.com/Hyriode/Hyrame/'
 
         credentials {
-            username System.getenv('USERNAME')
-            password System.getenv('TOKEN')
+            username System.getenv('GITHUB_USERNAME')
+            password System.getenv('GITHUB_TOKEN')
         }
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'fr.hyriode:hyrame:1.3.0'
-    implementation 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
+    implementation 'fr.hyriode:hyrame:1.3.3'
 }
 
 processResources {

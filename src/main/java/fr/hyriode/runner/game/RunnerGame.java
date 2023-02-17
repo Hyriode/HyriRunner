@@ -1,6 +1,7 @@
 package fr.hyriode.runner.game;
 
 import fr.hyriode.api.HyriAPI;
+import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.api.player.IHyriPlayer;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGame;
@@ -13,41 +14,37 @@ import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
 import fr.hyriode.hyrame.game.team.HyriGameTeam;
 import fr.hyriode.hyrame.game.util.HyriGameMessages;
 import fr.hyriode.hyrame.game.util.HyriRewardAlgorithm;
-import fr.hyriode.api.language.HyriLanguageMessage;
+import fr.hyriode.hyrame.scoreboard.team.HyriScoreboardTeam;
 import fr.hyriode.runner.HyriRunner;
-import fr.hyriode.runner.api.challenges.HyriRunnerChallengeModel;
-import fr.hyriode.runner.api.player.HyriRunnerPlayer;
-import fr.hyriode.runner.api.statistics.HyriRunnerStatistics;
-import fr.hyriode.runner.challenges.RunnerChallenge;
-import fr.hyriode.runner.game.teleport.RunnerSafeTeleport;
+import fr.hyriode.runner.api.RunnerPlayer;
+import fr.hyriode.runner.api.RunnerStatistics;
+import fr.hyriode.runner.challenge.RunnerChallenge;
+import fr.hyriode.runner.challenge.item.RunnerChallengeSelectorItem;
+import fr.hyriode.runner.game.phase.RunnerPhase;
+import fr.hyriode.runner.game.phase.RunnerPhaseTriggeredEvent;
+import fr.hyriode.runner.game.scoreboard.RunnerScoreboard;
 import fr.hyriode.runner.game.team.RunnerGameTeam;
-import fr.hyriode.runner.game.team.RunnerGameTeams;
-import fr.hyriode.runner.game.teleport.RunnerPositionCalculator;
-import fr.hyriode.runner.inventories.RunnerChooseChallengeItem;
-import org.bukkit.*;
+import fr.hyriode.runner.game.teleport.RunnerCage;
+import fr.hyriode.runner.game.teleport.RunnerSafeTeleport;
+import fr.hyriode.runner.util.RunnerMessage;
+import fr.hyriode.runner.util.RunnerValues;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
-    private Scoreboard scoreboard;
-    private WorldBorder wb;
+    private WorldBorder border;
 
-    private boolean accessible;
-    private boolean pvp;
-    private boolean damage;
-    private boolean canPlace = false;
-    private boolean borderEnd = false;
-    private int playersPvpPhaseRemaining;
+    private final Set<RunnerPhase> phases;
 
     private final List<RunnerGamePlayer> arrivedPlayers;
-    private RunnerWaitingRoom waitingRoom;
 
     private RunnerGameTask gameTask;
     private RunnerArrow arrow;
@@ -56,24 +53,19 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
     public RunnerGame(IHyrame hyrame, HyriRunner plugin) {
         super(hyrame, plugin, HyriAPI.get().getGameManager().getGameInfo("therunner"), RunnerGamePlayer.class, HyriGameType.getFromData(RunnerGameType.values()));
-       // DEV super(hyrame, plugin, HyriAPI.get().getGameManager().getGameInfo("therunner"), RunnerGamePlayer.class, RunnerGameType.SOLO);
         this.plugin = plugin;
-
-        this.damage = false;
-        this.pvp = false;
-        this.accessible = false;
+        this.phases = new HashSet<>();
         this.arrivedPlayers = new ArrayList<>();
-
-
-
+        this.waitingRoom = new RunnerWaitingRoom(this);
         this.description = HyriLanguageMessage.get("message.runner.description");
+        this.reconnectionTime = 60;
 
         this.registerTeams();
     }
 
     private void registerTeams() {
-        for (RunnerGameTeams value : RunnerGameTeams.values()) {
-            this.registerTeam(new RunnerGameTeam(plugin, value, this.getType().getTeamSize()));
+        for (RunnerGameTeam value : RunnerGameTeam.values()) {
+            this.registerTeam(new HyriGameTeam(plugin.getGame(), value.getName(), value.getDisplayName(), value.getColor(), false, HyriScoreboardTeam.NameTagVisibility.ALWAYS, this.getType().getTeamSize()));
         }
     }
 
@@ -81,66 +73,66 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     public void handleLogin(Player player) {
         super.handleLogin(player);
 
-        player.setGameMode(GameMode.ADVENTURE);
-
         final UUID uuid = player.getUniqueId();
         final RunnerGamePlayer gamePlayer = this.getPlayer(uuid);
+        final RunnerPlayer account = RunnerPlayer.get(uuid);
+        final RunnerStatistics statistics = RunnerStatistics.get(uuid);
 
         gamePlayer.setPlugin(this.plugin);
-        gamePlayer.setWarrior(false);
-
-        HyriRunnerPlayer account = this.plugin.getApi().getPlayerManager().getPlayer(uuid);
-
-        if (account == null) {
-            account = new HyriRunnerPlayer(uuid);
-        }
-
         gamePlayer.setAccount(account);
+        gamePlayer.setStatistics(statistics);
 
-        RunnerChallenge.getWithModel(account.getLastSelectedChallenge()).ifPresent(challenge -> {
-            gamePlayer.setChallenge(challenge);
-            gamePlayer.sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
-        });
+        if (!HyriAPI.get().getServer().isHost()) {
+            RunnerChallenge.getWithModel(account.getLastSelectedChallenge()).ifPresent(challenge -> {
+                gamePlayer.setChallenge(challenge);
+                gamePlayer.sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
+            });
 
-        Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.hyrame.getItemManager().giveItem(player, 4, RunnerChooseChallengeItem.class), 1);
-
-        player.teleport(this.plugin.getConfiguration().getSpawn().asBukkit());
+            this.hyrame.getItemManager().giveItem(player, 4, RunnerChallengeSelectorItem.class);
+        }
     }
 
     @Override
     public void handleLogout(Player player) {
         final UUID uuid = player.getUniqueId();
         final RunnerGamePlayer gamePlayer = this.getPlayer(uuid);
-        final HyriRunnerPlayer account = gamePlayer.getAccount();
-        final HyriRunnerStatistics statistics = account.getStatistics();
-        final HyriRunnerStatistics.Data data = account.getStatistics().getData(this.getType());
+        final IHyriPlayer account = gamePlayer.asHyriPlayer();
+        final RunnerPlayer runnerAccount = gamePlayer.getAccount();
+        final RunnerStatistics statistics = gamePlayer.getStatistics();
+        final RunnerStatistics.Data data = statistics.getData(this.getType());
+        final RunnerChallenge challenge = gamePlayer.getChallenge();
 
         if (!this.getState().isAccessible()) {
-            gamePlayer.getScoreboard().hide();
+            final RunnerScoreboard scoreboard = gamePlayer.getScoreboard();
+
+            if (scoreboard != null) {
+                scoreboard.hide();
+            }
 
             data.setPlayedTime(data.getPlayedTime() + gamePlayer.getPlayedTime());
             data.addGamesPlayed(1);
             data.addKills(gamePlayer.getKills());
             data.addDeaths(gamePlayer.getDeaths());
 
-            if(this.arrivedPlayers.contains(gamePlayer)) {
+            if (this.arrivedPlayers.contains(gamePlayer)) {
                 data.addSuccessfulRun(1);
             }
-
-            if(isPvp()) {
-                this.playersPvpPhaseRemaining -= 1;
-            }
         }
 
-        if(gamePlayer.getChallenge() != null) {
-            account.setLastSelectedChallenge(gamePlayer.getChallenge().getModel());
+        if (challenge != null) {
+            runnerAccount.setLastSelectedChallenge(challenge.getModel());
         }
 
-        this.plugin.getApi().getPlayerManager().sendPlayer(account);
+        statistics.update(account);
+        runnerAccount.update(account);
 
         super.handleLogout(player);
 
         if (this.getState() == HyriGameState.PLAYING) {
+            if (this.players.isEmpty() || (this.players.size() == 1 && this.players.contains(gamePlayer))) {
+                this.win(gamePlayer.getTeam());
+            }
+
             this.win(this.getWinner());
         }
     }
@@ -149,34 +141,37 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     public void start() {
         super.start();
 
+        this.hyrame.getWorldProvider().setCurrentWorld(HyriRunner.GAME_MAP);
+
         this.initBorder();
 
-        this.protocolManager.enableProtocol(new HyriLastHitterProtocol(this.hyrame, this.plugin, 15 * 20L));
+        this.protocolManager.enableProtocol(new HyriLastHitterProtocol(this.hyrame, this.plugin, 10 * 20L));
         this.protocolManager.enableProtocol(new HyriDeathProtocol(this.hyrame, this.plugin, gamePlayer -> {
             ((RunnerGamePlayer) gamePlayer).kill();
             return false;
         }));
-        this.protocolManager.enableProtocol(new HyriHealthDisplayProtocol(this.hyrame, new HyriHealthDisplayProtocol.Options(true, true)));
 
-        final RunnerPositionCalculator calculator = new RunnerPositionCalculator();
+        final RunnerCage cage = new RunnerCage();
 
-        new RunnerPositionCalculator.Cage(calculator.getCuboidCenter()).setCage();
+        cage.create();
 
-        this.teleportPlayers(calculator, () -> {
-            players.forEach(gamePlayer -> {
-                this.arrow = new RunnerArrow(gamePlayer.getPlayer());
-                this.arrow.runTaskTimer(plugin, 0, 5);
+        this.teleportPlayers(cage.getLocation(), () -> {
+            for (RunnerGamePlayer gamePlayer : this.players) {
+                this.arrow = new RunnerArrow(gamePlayer);
+                this.arrow.runTaskTimer(this.plugin, 0, 5);
 
                 gamePlayer.startGame();
-            });
+            }
+
+            this.protocolManager.enableProtocol(new HyriHealthDisplayProtocol(this.hyrame, new HyriHealthDisplayProtocol.Options(true, true)));
 
             this.sendMessageToAll(RunnerMessage.PREPARATION::asString);
 
-            this.getPreGameTask(calculator).runTaskTimer(plugin, 0, 20);
+            this.createPreGameTask(cage).runTaskTimer(this.plugin, 0, 20);
         });
     }
 
-    private BukkitRunnable getPreGameTask(RunnerPositionCalculator calculator) {
+    private BukkitRunnable createPreGameTask(RunnerCage cage) {
         return new BukkitRunnable() {
 
             private int index = 15;
@@ -185,26 +180,35 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
             public void run() {
                 players.forEach(gamePlayer -> gamePlayer.getPlayer().setLevel(index));
 
-                if(index <= 3 && index != 0) {
-                    players.forEach(gamePlayer -> gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.SUCCESSFUL_HIT, 3f, 3f));
+                if (index <= 3 && index != 0) {
+                    players.forEach(gamePlayer -> {
+                        if (!gamePlayer.isOnline()) {
+                            return;
+                        }
+
+                        gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.SUCCESSFUL_HIT, 3f, 3f);
+                    });
                 }
                 if (index == 0) {
-                    calculator.removeCages();
+                    this.cancel();
+
+                    cage.remove();
+
                     gameTask = new RunnerGameTask(plugin);
-
-                    players.forEach(gamePlayer -> {
-                        final Player p = gamePlayer.getPlayer();
-
-                        p.playSound(p.getLocation(), Sound.LEVEL_UP, 3f, 3f);
-                    });
-
                     gameTask.runTaskTimer(plugin, 0, 20);
 
+                    players.forEach(gamePlayer -> {
+                        if (!gamePlayer.isOnline()) {
+                            return;
+                        }
+
+                        final Player player = gamePlayer.getPlayer();
+
+                        player.playSound(player.getLocation(), Sound.LEVEL_UP, 3f, 3f);
+                    });
+
+                    triggerPhase(RunnerPhase.PLACE);
                     detectBorderEnd();
-
-                    canPlace = true;
-
-                    cancel();
                 }
 
                 index--;
@@ -212,18 +216,118 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         };
     }
 
-    public List<RunnerGamePlayer> getPositionLead() {
-        List<RunnerGamePlayer> list = new ArrayList<>();
+    private void teleportPlayers(Location location, Runnable callback) {
+        final RunnerSafeTeleport safeTeleport = new RunnerSafeTeleport(plugin);
+
+        safeTeleport.setCallback(callback);
+        safeTeleport.teleportPlayers(location);
+
+        this.sendMessageToAll(RunnerMessage.INIT_TELEPORTATION::asString);
+    }
+
+    public void initBorder() {
+        this.border = IHyrame.WORLD.get().getWorldBorder();
+        this.border.setCenter(0, 0);
+        this.border.setSize(RunnerValues.BORDER_INITIAL_SIZE.get() * 2);
+        this.border.setWarningDistance(25);
+    }
+
+    public void startBorderShrink() {
+        this.border.setSize(RunnerValues.BORDER_FINAL_SIZE.get(), (long) Math.floor((RunnerValues.BORDER_INITIAL_SIZE.get() - RunnerValues.BORDER_FINAL_SIZE.get()) / RunnerValues.BORDER_SPEED.get()));
+    }
+
+    public void detectBorderEnd() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (border.getSize() <= RunnerValues.BORDER_FINAL_SIZE.get() + 1) {
+                    reconnectionTime = -1;
+
+                    triggerPhase(RunnerPhase.BORDER_END);
+                    cancel();
+                }
+            }
+        }.runTaskTimerAsynchronously(plugin, 0, 20);
+    }
+
+    @Override
+    public void win(HyriGameTeam winner) {
+        super.win(winner);
+
+        if (winner == null || this.getState() != HyriGameState.ENDED) {
+            return;
+        }
+
+        this.gameTask.cancel();
+
+        this.players.forEach(gamePlayer -> {
+            final Player player = gamePlayer.getPlayer();
+            final boolean isWinner = winner.contains(gamePlayer);
+
+            if (isWinner) {
+                gamePlayer.getStatistics().getData(this.getType()).addVictories(1);
+            }
+
+            final RunnerChallenge challenge = gamePlayer.getChallenge();
+            final IHyriPlayer account = gamePlayer.asHyriPlayer();
+            final long hyris = HyriRewardAlgorithm.getHyris(gamePlayer.getKills(), gamePlayer.getPlayedTime(), isWinner);
+            final long xp = HyriRewardAlgorithm.getXP(gamePlayer.getKills(), gamePlayer.getPlayedTime(), isWinner);
+            final List<String> rewards = new ArrayList<>();
+
+            rewards.add(ChatColor.LIGHT_PURPLE + String.valueOf(account.getHyris().add(hyris).withMessage(false).exec()) + " Hyris");
+            rewards.add(ChatColor.GREEN + String.valueOf(account.getNetworkLeveling().addExperience(xp)) + " XP");
+
+            account.update();
+
+            if (gamePlayer.isOnline()) {
+                final List<String> position = new ArrayList<>();
+
+                for (int i = 0; i <= 2; i++) {
+                    final RunnerGamePlayer endPlayer = this.arrivedPlayers.size() > i ? this.arrivedPlayers.get(i) : null;
+                    final String line = HyriLanguageMessage.get("message.game.end.position").getValue(player)
+                            .replace("%position%", HyriLanguageMessage.get("message.game.end." + (i + 1)).getValue(player));
+
+                    if (endPlayer == null) {
+                        position.add(line.replace("%player%", HyriLanguageMessage.get("message.game.end.nobody").getValue(player))
+                                .replace("%time%", "00:00"));
+                        continue;
+                    }
+
+                    final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+
+                    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+                    final String time = format.format(endPlayer.getArrivedTime() * 1000);
+
+                    position.add(line.replace("%player%", endPlayer.asHyriPlayer().getNameWithRank(true))
+                            .replace("%time%", time.startsWith("00:") ? time.substring(3) : time));
+                }
+
+                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, player, winner, position, rewards));
+            }
+
+            if (challenge == null || gamePlayer.isDead()) {
+                return;
+            }
+
+            if (challenge.isValid(gamePlayer)) {
+                challenge.rewardPlayer(gamePlayer);
+            } else {
+                gamePlayer.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
+            }
+        });
+    }
+
+    public List<RunnerGamePlayer> getPlayersLeaderboard() {
+        final List<RunnerGamePlayer> list = new ArrayList<>();
 
         players.forEach(gamePlayer -> {
             if (!gamePlayer.isSpectator()) {
                 list.add(gamePlayer);
-            } else {
-                list.remove(gamePlayer);
             }
         });
 
-        list.sort(Comparator.comparingInt(RunnerGamePlayer::getDistance));
+        list.sort(Comparator.comparingInt(RunnerGamePlayer::getCenterDistance));
 
         return list;
     }
@@ -247,7 +351,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         for (HyriGameTeam team : this.teams) {
             if (winner == null) {
                 winner = team;
-            } else if (team.getPlayersPlaying().size() < winner.getPlayers().size()) {
+            } else if (team.getPlayersPlaying().size() > winner.getPlayersPlaying().size()) {
                 winner = team;
             } else if (team.getPlayersPlaying().size() == winner.getPlayers().size()) {
                 RunnerGamePlayer bestPlayer = null;
@@ -275,165 +379,26 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         return winner;
     }
 
-    @Override
-    public void win(HyriGameTeam winner) {
-        super.win(winner);
-
-        if (winner == null || this.getState() != HyriGameState.ENDED) {
-            return;
-        }
-
-        this.gameTask.cancel();
-
-        this.players.forEach(player -> {
-            final RunnerGamePlayer gamePlayer = this.getPlayer(player.getUniqueId());
-            final boolean isWinner = winner.contains(gamePlayer);
-
-
-            if (isWinner) {
-                gamePlayer.getAccount().getStatistics().getData(this.getType()).addVictories(1);
-            }
-
-            final RunnerChallenge challenge = gamePlayer.getChallenge();
-            final Player p = gamePlayer.getPlayer();
-            final List<String> position = new ArrayList<>();
-
-            for (int i = 0; i <= 2; i++) {
-                final RunnerGamePlayer endPlayer = this.arrivedPlayers.size() > i ? this.arrivedPlayers.get(i) : null;
-                final String line = HyriLanguageMessage.get("message.game.end.position").getValue(p).replace("%position%", HyriLanguageMessage.get("message.game.end." + (i + 1)).getValue(p));
-
-                if (endPlayer == null) {
-                    position.add(line.replace("%player%", HyriLanguageMessage.get("message.game.end.nobody").getValue(p))
-                            .replace("%time%", "00:00"));
-                    continue;
-                }
-
-                final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-
-                format.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                final String time = format.format(endPlayer.getArrivedTime() * 1000);
-                final IHyriPlayer account = HyriAPI.get().getPlayerManager().getPlayer(endPlayer.getUniqueId());
-
-                position.add(line.replace("%player%", account.getNameWithRank(true))
-                        .replace("%time%", time.startsWith("00:") ? time.substring(3) : time));
-            }
-
-            final long hyris = HyriRewardAlgorithm.getHyris(gamePlayer.getKills(), gamePlayer.getPlayedTime(), isWinner);
-            final long xp = HyriRewardAlgorithm.getXP(gamePlayer.getKills(), gamePlayer.getPlayedTime(), isWinner);
-            final List<String> rewards = new ArrayList<>();
-
-            rewards.add(ChatColor.LIGHT_PURPLE + String.valueOf(hyris) + " Hyris");
-            rewards.add(ChatColor.GREEN + String.valueOf(xp) + " XP");
-
-            final IHyriPlayer account = gamePlayer.asHyriode();
-
-            account.getHyris().add(hyris).withMessage(false).exec();
-            account.getNetworkLeveling().addExperience(xp);
-            account.update();
-
-            p.spigot().sendMessage(HyriGameMessages.createWinMessage(this, p, winner, position, rewards));
-
-            for (HyriRunnerChallengeModel value : HyriRunnerChallengeModel.values()) {
-                RunnerChallenge.getWithModel(value).ifPresent(ch -> {
-                    if (challenge != null && challenge.equals(ch)) {
-                        if( challenge.getCondition(gamePlayer)) {
-                            challenge.getReward(gamePlayer);
-                        } else {
-                            gamePlayer.sendMessage(RunnerMessage.CHALLENGE_FAILED.asString(p).replace("%challenge%", gamePlayer.getChallenge().getName(p)));
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    private void teleportPlayers(RunnerPositionCalculator calculator, RunnerSafeTeleport.Callback callback) {
-        final RunnerSafeTeleport safeTeleport = new RunnerSafeTeleport(plugin);
-
-        safeTeleport.setCallback(callback);
-        safeTeleport.teleportPlayers(calculator.getLocation());
-
-        this.sendMessageToAll(RunnerMessage.INIT_TELEPORTATION::asString);
-    }
-
-    public void initBorder() {
-        wb = Bukkit.getWorld(HyriRunner.GAME_MAP).getWorldBorder();
-        wb.setCenter(0, 0);
-        wb.setSize(1500 * 2);
-        wb.setWarningDistance(25);
-    }
-
-    public void startBorderShrink() {
-        wb.setSize(50, (long) Math.floor((1500.0 - 50.0) / 6.0));
-    }
-
-    public void detectBorderEnd() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (wb.getSize() <= 51) {
-                    borderEnd = true;
-                    cancel();
-                }
-            }
-        }.runTaskTimerAsynchronously(plugin, 0, 20);
-    }
-
     public List<RunnerGamePlayer> getArrivedPlayers() {
         return this.arrivedPlayers;
     }
 
-    public boolean isPvp() {
-        return pvp;
+    public void triggerPhase(RunnerPhase phase) {
+        this.phases.add(phase);
+
+        HyriAPI.get().getEventBus().publish(new RunnerPhaseTriggeredEvent(this, phase));
     }
 
-    public void setPvp(boolean pvp) {
-        this.pvp = pvp;
-    }
-
-    public boolean isDamage() {
-        return damage;
-    }
-
-    public void setDamage(boolean damage) {
-        this.damage = damage;
-    }
-
-    public boolean isBorderEnd() {
-        return borderEnd;
-    }
-
-    public void setBorderEnd(boolean borderEnd) {
-        this.borderEnd = borderEnd;
-    }
-
-    public RunnerGameTask getGameTask() {
-        return gameTask;
-    }
-
-    public boolean isAccessible() {
-        return this.accessible;
-    }
-
-    public void setAccessible(boolean accessible) {
-        this.accessible = accessible;
-    }
-
-    public boolean isCanPlace() {
-        return canPlace;
+    public boolean isPhase(RunnerPhase phase) {
+        return this.phases.contains(phase);
     }
 
     public RunnerArrow getArrow() {
         return this.arrow;
     }
 
-    public int getPlayersPvpPhaseRemaining() {
-        return playersPvpPhaseRemaining;
-    }
-
-    public void setPlayersPvpPhaseRemaining(int playersPvpPhaseRemaining) {
-        this.playersPvpPhaseRemaining = playersPvpPhaseRemaining;
+    public RunnerGameTask getGameTask() {
+        return this.gameTask;
     }
 
     @Override
@@ -441,8 +406,4 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         return (RunnerGameType) super.getType();
     }
 
-    @Override
-    public RunnerWaitingRoom getWaitingRoom() {
-        return this.waitingRoom;
-    }
 }

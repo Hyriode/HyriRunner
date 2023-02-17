@@ -2,9 +2,6 @@ package fr.hyriode.runner.game;
 
 import fr.hyriode.hyrame.game.HyriGameType;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 public enum RunnerGameType implements HyriGameType {
 
     SOLO("Solo", 1, 6, 12),
@@ -46,4 +43,5 @@ public enum RunnerGameType implements HyriGameType {
     public int getTeamSize() {
         return this.teamSize;
     }
+
 }

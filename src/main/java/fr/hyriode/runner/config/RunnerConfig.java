@@ -1,6 +1,6 @@
 package fr.hyriode.runner.config;
 
-import fr.hyriode.hyrame.utils.LocationWrapper;
+import fr.hyriode.hyrame.game.waitingroom.HyriWaitingRoom;
 import fr.hyriode.hystia.api.config.IConfig;
 
 /**
@@ -10,13 +10,14 @@ import fr.hyriode.hystia.api.config.IConfig;
  */
 public class RunnerConfig implements IConfig {
 
-    private final LocationWrapper spawn;
+    private final HyriWaitingRoom.Config waitingRoom;
 
-    public RunnerConfig(LocationWrapper spawn) {
-        this.spawn = spawn;
+    public RunnerConfig(HyriWaitingRoom.Config waitingRoom) {
+        this.waitingRoom = waitingRoom;
     }
 
-    public LocationWrapper getSpawn() {
-        return this.spawn;
+    public HyriWaitingRoom.Config getWaitingRoom() {
+        return this.waitingRoom;
     }
+
 }
