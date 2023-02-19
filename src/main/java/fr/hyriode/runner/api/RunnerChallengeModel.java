@@ -9,5 +9,7 @@ public enum RunnerChallengeModel {
     FAST_ARRIVED,
     LAST,
     SURVIVOR,
+    LAVA,
+    ROD,
 
 }
