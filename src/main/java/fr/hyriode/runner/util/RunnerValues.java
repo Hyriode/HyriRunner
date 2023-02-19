@@ -23,7 +23,7 @@ public class RunnerValues {
     public static final ValueProvider<Integer> BORDER_INITIAL_SIZE = new ValueProvider<>(1500).addModifiers(new HostValueModifier<>(1, Integer.class, "border-initial-size"));
     public static final ValueProvider<Integer> BORDER_FINAL_SIZE = new ValueProvider<>(50).addModifiers(new HostValueModifier<>(1, Integer.class, "border-final-size"));
     public static final ValueProvider<Double> BORDER_SPEED = new ValueProvider<>(6.0D).addModifiers(new HostValueModifier<>(1, Double.class, "border-speed"));
-    public static final ValueProvider<Long> BORDER_TIME = new ValueProvider<>(1500L).addModifiers(new HostValueModifier<>(1, Long.class, "border-time"));
+    public static final ValueProvider<Long> BORDER_TIME = new ValueProvider<>(30L).addModifiers(new HostValueModifier<>(1, Long.class, "border-time"));
 
     private static ItemStack[] contents() {
         final ItemStack sword = new ItemBuilder(Material.IRON_SWORD).unbreakable().withEnchant(Enchantment.DAMAGE_ALL, 2).build();
