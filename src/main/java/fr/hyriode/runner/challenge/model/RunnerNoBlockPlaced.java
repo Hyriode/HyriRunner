@@ -29,7 +29,7 @@ public class RunnerNoBlockPlaced extends RunnerChallenge implements Listener {
 
     @Override
     public boolean isValid(RunnerGamePlayer gamePlayer) {
-        return gamePlayer.isArrived() && this.blocksPlaced.get(gamePlayer.getUniqueId()) <= 32;
+        return gamePlayer.isArrived() && this.blocksPlaced.get(gamePlayer.getUniqueId()) <= 16;
     }
 
     @EventHandler

@@ -9,6 +9,7 @@ import fr.hyriode.runner.game.scoreboard.RunnerSecondPhaseScoreboard;
 import fr.hyriode.runner.util.RunnerMessage;
 import fr.hyriode.runner.util.RunnerValues;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -104,7 +105,12 @@ public class RunnerGameTask extends BukkitRunnable {
             }.runTaskTimer(plugin, 0, 20);
         }
 
-        game.getPlayers().forEach(gamePlayer -> gamePlayer.getScoreboard().addTimeLine());
+        game.getPlayers().forEach(gamePlayer -> {
+            gamePlayer.getScoreboard().addTimeLine();
+            if (this.isOutsideBorder(gamePlayer.getPlayer().getLocation())) {
+                gamePlayer.getPlayer().damage(2.0);
+            }
+        });
 
         this.index++;
     }
@@ -113,4 +119,17 @@ public class RunnerGameTask extends BukkitRunnable {
         return this.index;
     }
 
+    private boolean isOutsideBorder(Location location) {
+        final double borderCoordinate = location.getWorld().getWorldBorder().getSize()/2;
+
+        if (location.getY() < 40 || location.getY() > 95) {
+            return true;
+        }
+
+        if (location.getX() > borderCoordinate || location.getX() < -borderCoordinate
+                || location.getZ() > borderCoordinate || location.getZ() < -borderCoordinate) {
+            return true;
+        }
+        return false;
+    }
 }

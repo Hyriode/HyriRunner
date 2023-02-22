@@ -50,5 +50,10 @@ task deploy(dependsOn: build) {
             from "H:/Dev/dev Mc/DevPlug/hyriode/HyriRunner/build/libs/HyriRunner-1.0.0.jar"
             into "H:/Dev/dev Mc/Serveurs/hyriode/HyriRunner/plugins"
         }
+
+        delete {
+            delete "H:/Dev/dev Mc/Serveurs/hyriode/HyriRunner/map"
+            delete "H:/Dev/dev Mc/Serveurs/hyriode/HyriRunner/world"
+        }
     }
 }

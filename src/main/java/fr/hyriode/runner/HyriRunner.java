@@ -40,7 +40,8 @@ public class HyriRunner extends JavaPlugin {
             this.hyrame.getHostController().addCategory(25, new RunnerHostMainCategory());
         }
 
-        HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> HyriAPI.get().getServer().setState(HyggServer.State.READY));
+        HyriWorldGenerator worldGenerator =
+                new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> HyriAPI.get().getServer().setState(HyggServer.State.READY));
         HyriWorldGenerator.COMMON_PATCHED_BIOMES.forEach(worldGenerator::patchBiomes);
 
         worldGenerator.start();

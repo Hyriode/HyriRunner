@@ -17,13 +17,14 @@ public class RunnerValues {
     public static final ValueProvider<Boolean> BONUS = new ValueProvider<>(true).addModifiers(new HostValueModifier<>(1, Boolean.class, "bonus"));
     public static final ValueProvider<Boolean> INVINCIBILITY = new ValueProvider<>(false).addModifiers(new HostValueModifier<>(1, Boolean.class, "invincibility"));
     public static final ValueProvider<Boolean> FOOD = new ValueProvider<>(false).addModifiers(new HostValueModifier<>(1, Boolean.class, "food"));
-    public static final ValueProvider<Long> GAME_TIME = new ValueProvider<>(10 * 60L).addModifiers(new HostValueModifier<>(1, Long.class, "game-time"));
+    public static final ValueProvider<Long> GAME_TIME = new ValueProvider<>(20 * 60L).addModifiers(new HostValueModifier<>(1, Long.class, "game-time"));
     public static final ValueProvider<SavablePlayerInventory> INVENTORY = new ValueProvider<>(new SavablePlayerInventory(contents(), armor())).addModifiers(new HostValueModifier<>(1, SavablePlayerInventory.class, "inventory"));
 
     public static final ValueProvider<Integer> BORDER_INITIAL_SIZE = new ValueProvider<>(1500).addModifiers(new HostValueModifier<>(1, Integer.class, "border-initial-size"));
     public static final ValueProvider<Integer> BORDER_FINAL_SIZE = new ValueProvider<>(50).addModifiers(new HostValueModifier<>(1, Integer.class, "border-final-size"));
     public static final ValueProvider<Double> BORDER_SPEED = new ValueProvider<>(6.0D).addModifiers(new HostValueModifier<>(1, Double.class, "border-speed"));
     public static final ValueProvider<Long> BORDER_TIME = new ValueProvider<>(30L).addModifiers(new HostValueModifier<>(1, Long.class, "border-time"));
+    public static final ValueProvider<Integer> VERTICAL_BORDER_SIZE = new ValueProvider<>(20).addModifiers(new HostValueModifier<>(1, Integer.class, "vertical-border-size"));
 
     private static ItemStack[] contents() {
         final ItemStack sword = new ItemBuilder(Material.IRON_SWORD).unbreakable().withEnchant(Enchantment.DAMAGE_ALL, 2).build();
