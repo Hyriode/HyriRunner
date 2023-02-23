@@ -65,22 +65,22 @@ public class RunnerPlayer implements IHyriPlayerData {
 
     @Override
     public void save(MongoDocument document) {
-        document.append("completed_challenges", this.completedChallenges.stream().map(RunnerChallengeModel::name).collect(Collectors.toList()));
-        document.append("last_selected_challenge", this.lastSelectedChallenge == null ? null : this.lastSelectedChallenge.name());
-        document.append("favorites_challenges", this.favoritesChallenges.stream().map(RunnerChallengeModel::name).collect(Collectors.toList()));
+        document.append("completedChallenges", this.completedChallenges.stream().map(RunnerChallengeModel::name).collect(Collectors.toList()));
+        document.append("lastSelectedChallenge", this.lastSelectedChallenge == null ? null : this.lastSelectedChallenge.name());
+        document.append("favoritesChallenges", this.favoritesChallenges.stream().map(RunnerChallengeModel::name).collect(Collectors.toList()));
     }
 
     @Override
     public void load(MongoDocument document) {
-        this.completedChallenges = document.getList("completed_challenges", String.class).stream()
+        this.completedChallenges = document.getList("completedChallenges", String.class).stream()
                 .map(RunnerChallengeModel::valueOf).collect(Collectors.toSet());
 
         this.lastSelectedChallenge =
-                document.getString("last_selected_challenge") == null ?
+                document.getString("lastSelectedChallenge") == null ?
                         null :
-                        RunnerChallengeModel.valueOf(document.getString("last_selected_challenge"));
+                        RunnerChallengeModel.valueOf(document.getString("lastSelectedChallenge"));
 
-        this.favoritesChallenges = document.getList("favorites_challenges", String.class).stream()
+        this.favoritesChallenges = document.getList("favoritesChallenges", String.class).stream()
                 .map(RunnerChallengeModel::valueOf).collect(Collectors.toSet());
     }
 
