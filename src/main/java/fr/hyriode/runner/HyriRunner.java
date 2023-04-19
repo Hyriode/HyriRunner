@@ -1,26 +1,34 @@
 package fr.hyriode.runner;
 
 import fr.hyriode.api.HyriAPI;
-import fr.hyriode.api.server.IHyriServer;
+import fr.hyriode.api.world.IHyriWorld;
+import fr.hyriode.api.world.generation.IWorldGenerationAPI;
+import fr.hyriode.api.world.generation.WorldGenerationType;
 import fr.hyriode.hyggdrasil.api.server.HyggServer;
 import fr.hyriode.hyrame.HyrameLoader;
 import fr.hyriode.hyrame.IHyrame;
+import fr.hyriode.hyrame.game.waitingroom.HyriWaitingRoom;
+import fr.hyriode.hyrame.utils.LocationWrapper;
 import fr.hyriode.hyrame.world.generator.HyriWorldGenerator;
 import fr.hyriode.hyrame.world.generator.HyriWorldSettings;
 import fr.hyriode.runner.challenge.RunnerChallenge;
 import fr.hyriode.runner.config.RunnerConfig;
 import fr.hyriode.runner.game.RunnerGame;
 import fr.hyriode.runner.game.host.category.RunnerHostMainCategory;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 
 public class HyriRunner extends JavaPlugin {
 
     public static final String NAME = "TheRunner";
     public static final String GAME_MAP = "map";
+
+    private static HyriRunner instance;
 
     private IHyrame hyrame;
 
@@ -29,8 +37,16 @@ public class HyriRunner extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.hyrame = HyrameLoader.load(new HyriRunnerProvider(this));
-        this.configuration = HyriAPI.get().getServer().getConfig(RunnerConfig.class);
+        instance = this;
+
+        this.hyrame = HyrameLoader.load(new RunnerProvider(this));
+        this.configuration = HyriAPI.get().getConfig().isDevEnvironment() ?
+                new RunnerConfig(new HyriWaitingRoom.Config(
+                        new LocationWrapper(0, 190, 0),
+                        new LocationWrapper(0, 0, 0),
+                        new LocationWrapper(0, 0, 0),
+                        new LocationWrapper(0, 0, 0))):
+                HyriAPI.get().getServer().getConfig(RunnerConfig.class);
         this.game = new RunnerGame(this.hyrame, this);
         this.hyrame.getGameManager().registerGame(() -> this.game);
 
@@ -40,11 +56,25 @@ public class HyriRunner extends JavaPlugin {
             this.hyrame.getHostController().addCategory(25, new RunnerHostMainCategory());
         }
 
-        HyriWorldGenerator worldGenerator =
-                new HyriWorldGenerator(this, new HyriWorldSettings("map"), 1000, world -> HyriAPI.get().getServer().setState(HyggServer.State.READY));
-        HyriWorldGenerator.COMMON_PATCHED_BIOMES.forEach(worldGenerator::patchBiomes);
+        final IWorldGenerationAPI worldGenerationAPI = HyriAPI.get().getWorldGenerationAPI();
+        final List<IHyriWorld> worlds = worldGenerationAPI.getWorlds(WorldGenerationType.THE_RUNNER);
 
-        worldGenerator.start();
+        Collections.shuffle(worlds);
+
+        if (worlds.size() == 0) {
+            HyriAPI.get().getServerManager().removeServer(HyriAPI.get().getServer().getName(), null);
+            return;
+        }
+
+        final IHyriWorld world = worlds.get(0);
+
+        world.load(new File(GAME_MAP));
+
+        new WorldCreator(GAME_MAP).createWorld();
+
+        worldGenerationAPI.removeWorld(WorldGenerationType.THE_RUNNER, world.getName());
+
+        HyriAPI.get().getServer().setState(HyggServer.State.READY);
     }
 
     @Override
@@ -70,6 +100,10 @@ public class HyriRunner extends JavaPlugin {
 
     public static void log(String msg) {
         log(Level.INFO, msg);
+    }
+
+    public static HyriRunner get() {
+        return instance;
     }
 
     public IHyrame getHyrame() {

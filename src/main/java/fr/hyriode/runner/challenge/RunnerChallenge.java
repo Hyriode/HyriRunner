@@ -44,7 +44,7 @@ public abstract class RunnerChallenge {
     public void rewardPlayer(RunnerGamePlayer gamePlayer) {
         final Player player = gamePlayer.getPlayer();
 
-        gamePlayer.getAccount().addCompletedChallenge(this.model);
+        gamePlayer.getData().addCompletedChallenge(this.model);
 
         player.sendMessage(RunnerMessage.CHALLENGE_COMPLETED.asString(player).replace("%challenge%", this.getName(player)));
     }

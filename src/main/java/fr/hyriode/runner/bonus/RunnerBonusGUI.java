@@ -7,6 +7,7 @@ import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGame;
 import fr.hyriode.runner.util.RunnerMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -49,7 +50,7 @@ public class RunnerBonusGUI extends HyriInventory {
     @Override
     public void onClose(InventoryCloseEvent event) {
         if (!this.chosen) {
-            this.open();
+            Bukkit.getScheduler().runTaskLater(HyriRunner.get(), this::open, 1L);
         }
     }
 

@@ -1,4 +1,4 @@
-package fr.hyriode.runner.game.scoreboard;
+package fr.hyriode.runner.game.ui.scoreboard;
 
 import fr.hyriode.api.language.HyriLanguageMessage;
 import fr.hyriode.hyrame.IHyrame;
@@ -64,7 +64,7 @@ public abstract class RunnerScoreboard extends HyriGameScoreboard<RunnerGame> {
     protected String getCenterLine() {
         final String distance = String.valueOf(this.getGamePlayer().getCenterDistance());
 
-        return this.getLinePrefix("centre") + ChatColor.AQUA + distance + "m";
+        return this.getLinePrefix("center") + ChatColor.AQUA + distance + "m";
     }
 
     protected String getTimeLine() {

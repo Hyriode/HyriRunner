@@ -1,4 +1,4 @@
-package fr.hyriode.runner.game.scoreboard;
+package fr.hyriode.runner.game.ui.scoreboard;
 
 import fr.hyriode.runner.HyriRunner;
 import org.bukkit.entity.Player;

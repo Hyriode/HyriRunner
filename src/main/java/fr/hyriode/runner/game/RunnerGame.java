@@ -18,13 +18,13 @@ import fr.hyriode.hyrame.game.util.HyriRewardAlgorithm;
 import fr.hyriode.hyrame.scoreboard.team.HyriScoreboardTeam;
 import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.runner.HyriRunner;
-import fr.hyriode.runner.api.RunnerPlayer;
+import fr.hyriode.runner.api.RunnerData;
 import fr.hyriode.runner.api.RunnerStatistics;
 import fr.hyriode.runner.challenge.RunnerChallenge;
 import fr.hyriode.runner.challenge.item.RunnerChallengeSelectorItem;
 import fr.hyriode.runner.game.phase.RunnerPhase;
 import fr.hyriode.runner.game.phase.RunnerPhaseTriggeredEvent;
-import fr.hyriode.runner.game.scoreboard.RunnerScoreboard;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerScoreboard;
 import fr.hyriode.runner.game.team.RunnerGameTeam;
 import fr.hyriode.runner.game.teleport.RunnerCage;
 import fr.hyriode.runner.game.teleport.RunnerSafeTeleport;
@@ -49,19 +49,18 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     private final List<RunnerGamePlayer> arrivedPlayers;
 
     private RunnerGameTask gameTask;
-    private RunnerArrow arrow;
 
     private final HyriRunner plugin;
 
     public RunnerGame(IHyrame hyrame, HyriRunner plugin) {
         super(hyrame, plugin,
-                HyriAPI.get().getConfig().isDevEnvironment() ? HyriAPI.get().getGameManager().createGameInfo("therunner", "The Runner") : HyriAPI.get().getGameManager().getGameInfo("therunner"),
+                HyriAPI.get().getConfig().isDevEnvironment() ? HyriAPI.get().getGameManager().createGameInfo("therunner", "TheRunner") : HyriAPI.get().getGameManager().getGameInfo("therunner"),
                 RunnerGamePlayer.class,
                 HyriAPI.get().getConfig().isDevEnvironment() ? RunnerGameType.SOLO : HyriGameType.getFromData(RunnerGameType.values()));
         this.plugin = plugin;
         this.phases = new HashSet<>();
         this.arrivedPlayers = new ArrayList<>();
-        this.waitingRoom = new RunnerWaitingRoom(this);
+        this.waitingRoom = new RunnerWaitingRoom(this, plugin);
         this.description = HyriLanguageMessage.get("message.runner.description");
         this.reconnectionTime = 60;
 
@@ -80,15 +79,15 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         final UUID uuid = player.getUniqueId();
         final RunnerGamePlayer gamePlayer = this.getPlayer(uuid);
-        final RunnerPlayer account = RunnerPlayer.get(uuid);
+        final RunnerData data = RunnerData.get(uuid);
         final RunnerStatistics statistics = RunnerStatistics.get(uuid);
 
         gamePlayer.setPlugin(this.plugin);
-        gamePlayer.setAccount(account);
+        gamePlayer.setData(data);
         gamePlayer.setStatistics(statistics);
 
         if (!HyriAPI.get().getServer().getAccessibility().equals(HyggServer.Accessibility.HOST)) {
-            RunnerChallenge.getWithModel(account.getLastSelectedChallenge()).ifPresent(challenge -> {
+            RunnerChallenge.getWithModel(data.getLastChallenge()).ifPresent(challenge -> {
                 gamePlayer.setChallenge(challenge);
                 gamePlayer.getPlayer().sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));
             });
@@ -102,42 +101,33 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         final UUID uuid = player.getUniqueId();
         final RunnerGamePlayer gamePlayer = this.getPlayer(uuid);
         final IHyriPlayer account = gamePlayer.asHyriPlayer();
-        final RunnerPlayer runnerAccount = gamePlayer.getAccount();
+        final RunnerData data = gamePlayer.getData();
         final RunnerStatistics statistics = gamePlayer.getStatistics();
-        final RunnerStatistics.Data data = statistics.getData(this.getType());
+        final RunnerStatistics.Data statisticsData = statistics.getData(this.getType());
         final RunnerChallenge challenge = gamePlayer.getChallenge();
 
         if (!this.getState().isAccessible()) {
-            final RunnerScoreboard scoreboard = gamePlayer.getScoreboard();
+            gamePlayer.onLogout();
 
-            if (scoreboard != null) {
-                scoreboard.hide();
-            }
-
-            data.setPlayedTime(data.getPlayedTime() + gamePlayer.getPlayTime());
-            data.addGamesPlayed(1);
-            data.addKills(gamePlayer.getKills());
-            data.addDeaths(gamePlayer.getDeaths());
+            statisticsData.addGamesPlayed(1);
+            statisticsData.addKills(gamePlayer.getKills());
+            statisticsData.addDeaths(gamePlayer.getDeaths());
 
             if (this.arrivedPlayers.contains(gamePlayer)) {
-                data.addSuccessfulRun(1);
+                statisticsData.addSuccessfulRun(1);
             }
         }
 
         if (challenge != null) {
-            runnerAccount.setLastSelectedChallenge(challenge.getModel());
+            data.setLastChallenge(challenge.getModel());
         }
 
         statistics.update(account);
-        runnerAccount.update(account);
+        data.update(account);
 
         super.handleLogout(player);
 
         if (this.getState() == HyriGameState.PLAYING) {
-            if (this.players.isEmpty() || (this.players.size() == 1 && this.players.contains(gamePlayer))) {
-                this.win(gamePlayer.getTeam());
-            }
-
             this.win(this.getWinner());
         }
     }
@@ -162,10 +152,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         this.teleportPlayers(cage.getLocation(), () -> {
             for (RunnerGamePlayer gamePlayer : this.players) {
-                this.arrow = new RunnerArrow(gamePlayer);
-                this.arrow.runTaskTimer(this.plugin, 0, 5);
-
-                gamePlayer.startGame();
+                gamePlayer.onStart();
             }
 
             this.protocolManager.enableProtocol(new HyriHealthDisplayProtocol(this.hyrame, new HyriHealthDisplayProtocol.Options(true, true)));
@@ -194,6 +181,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                         gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.SUCCESSFUL_HIT, 3f, 3f);
                     });
                 }
+
                 if (index == 0) {
                     this.cancel();
 
@@ -222,10 +210,10 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     }
 
     private void teleportPlayers(Location location, Runnable callback) {
-        final RunnerSafeTeleport safeTeleport = new RunnerSafeTeleport(plugin);
+        final RunnerSafeTeleport safeTeleport = new RunnerSafeTeleport(location);
 
         safeTeleport.setCallback(callback);
-        safeTeleport.teleportPlayers(location);
+        safeTeleport.start();
 
         BroadcastUtil.broadcast(RunnerMessage.INIT_TELEPORTATION::asString);
     }
@@ -308,7 +296,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                             .replace("%time%", time.startsWith("00:") ? time.substring(3) : time));
                 }
 
-                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, player, winner, position, rewards));
+                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, player, winner, position, "rewards"));
             }
 
             if (challenge == null || gamePlayer.isDead()) {
@@ -326,8 +314,8 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     public List<RunnerGamePlayer> getPlayersLeaderboard() {
         final List<RunnerGamePlayer> list = new ArrayList<>();
 
-        players.forEach(gamePlayer -> {
-            if (!gamePlayer.isSpectator()) {
+        this.players.forEach(gamePlayer -> {
+            if (!gamePlayer.isSpectator() && gamePlayer.isOnline()) {
                 list.add(gamePlayer);
             }
         });
@@ -396,10 +384,6 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
     public boolean isPhase(RunnerPhase phase) {
         return this.phases.contains(phase);
-    }
-
-    public RunnerArrow getArrow() {
-        return this.arrow;
     }
 
     public RunnerGameTask getGameTask() {

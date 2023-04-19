@@ -24,6 +24,7 @@
 
   "teleportation.action-bar": "&3Teleporting... &8┃ &f%already%/%total%",
   "arrow.action-bar": "&3Center &8┃ &b%arrow% &f(%meters%m)",
+  "player-tracker.action-bar": "&3Tracker &8┃ &b%player% %arrow% &f(%meters%m)",
 
   "gui.bonus.name": "&8Arrived bonus",
   "gui.challenge.name": "&8Challenge: &b%challenge%",
@@ -31,7 +32,7 @@
   "scoreboard.time.display": "Time: ",
   "scoreboard.border.display": "Border: ",
   "scoreboard.alive.display": "Players: ",
-  "scoreboard.centre.display": "Center: ",
+  "scoreboard.center.display": "Center: ",
   "scoreboard.kills.display": "Kills: ",
   "scoreboard.position.display": "Position: ",
 
@@ -49,7 +50,6 @@
   "team.purple.display": "&5Purple",
 
   "waiting-room.npc.data.kills": "Kills",
-  "waiting-room.npc.data.final-kills": "Final kills",
   "waiting-room.npc.data.deaths": "Morts",
   "waiting-room.npc.data.successful-runs": "Successful runs",
   "waiting-room.npc.data.victories": "Victories",

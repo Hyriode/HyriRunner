@@ -1,6 +1,7 @@
 package fr.hyriode.runner.listener;
 
 
+import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGameState;
 import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.hyrame.title.Title;
@@ -14,18 +15,54 @@ import fr.hyriode.runner.util.RunnerMessage;
 import fr.hyriode.runner.util.RunnerValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-public class RunnerGameListener extends HyriListener<HyriRunner> {
+public class PlayerListener extends HyriListener<HyriRunner> {
 
-    public RunnerGameListener(HyriRunner plugin) {
+    private int maxY = -1;
+
+    public PlayerListener(HyriRunner plugin) {
         super(plugin);
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (this.plugin.getGame().getState() != HyriGameState.PLAYING) {
+            return;
+        }
+
+        final Player player = event.getPlayer();
+        final RunnerGamePlayer gamePlayer = this.plugin.getGame().getPlayer(player.getUniqueId());
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        final Block block = event.getBlock();
+
+        if (this.maxY == -1) {
+            int y = 255;
+            while (y > 0) {
+                if (IHyrame.WORLD.get().getBlockAt(0, y, 0).getType() != Material.AIR) {
+                    this.maxY = y + 20;
+                    break;
+                }
+                y--;
+            }
+        }
+
+        if (block.getLocation().getY() >= this.maxY) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler

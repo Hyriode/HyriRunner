@@ -1,5 +1,9 @@
 package fr.hyriode.runner.game.teleport;
 
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+
 public class RunnerMapChunk {
 
     private int x;
@@ -24,6 +28,10 @@ public class RunnerMapChunk {
 
     public void setZ(int z) {
         this.z = z;
+    }
+
+    public Chunk asBukkit(World world) {
+        return world.getChunkAt(this.x, this.z);
     }
 
 }

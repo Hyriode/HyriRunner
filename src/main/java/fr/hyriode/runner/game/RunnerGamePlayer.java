@@ -1,23 +1,22 @@
 package fr.hyriode.runner.game;
 
 import fr.hyriode.hyrame.IHyrame;
-import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.HyriGamePlayer;
 import fr.hyriode.hyrame.game.protocol.HyriLastHitterProtocol;
-import fr.hyriode.hyrame.item.ItemBuilder;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.RunnerChallengeModel;
-import fr.hyriode.runner.api.RunnerPlayer;
+import fr.hyriode.runner.api.RunnerData;
 import fr.hyriode.runner.api.RunnerStatistics;
 import fr.hyriode.runner.challenge.RunnerChallenge;
-import fr.hyriode.runner.game.scoreboard.RunnerFirstPhaseScoreboard;
-import fr.hyriode.runner.game.scoreboard.RunnerScoreboard;
+import fr.hyriode.runner.game.ui.RunnerArrow;
+import fr.hyriode.runner.game.ui.RunnerPlayerTracker;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerFirstPhaseScoreboard;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerScoreboard;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerSecondPhaseScoreboard;
 import fr.hyriode.runner.util.RunnerMessage;
 import fr.hyriode.runner.util.RunnerValues;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -32,8 +31,10 @@ public class RunnerGamePlayer extends HyriGamePlayer {
     private HyriRunner plugin;
 
     private RunnerScoreboard scoreboard;
+    private RunnerArrow arrow;
+    private RunnerPlayerTracker playerTracker;
 
-    private RunnerPlayer account;
+    private RunnerData data;
     private RunnerStatistics statistics;
 
     private int kills;
@@ -45,23 +46,47 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         super(player);
     }
 
-    public void startGame() {
+    public void onStart() {
         this.player.setGameMode(GameMode.SURVIVAL);
         this.player.setHealth(20.0F);
 
-        this.giveInventory();
-        this.setupScoreboard();
-    }
+        this.arrow = new RunnerArrow(this);
+        this.arrow.runTaskTimer(this.plugin, 0, 5);
 
-    private void giveInventory() {
+        this.scoreboard = new RunnerFirstPhaseScoreboard(this.plugin, this.player);
+        this.scoreboard.show();
+
         final PlayerInventory inventory = this.player.getInventory();
 
         RunnerValues.INVENTORY.get().setTo(inventory);
     }
 
-    public void kill() {
-        final RunnerGame game = this.plugin.getGame();
+    public void onPvp() {
+        this.arrow.cancel();
 
+        this.scoreboard.hide();
+        this.scoreboard = new RunnerSecondPhaseScoreboard(plugin, player);
+        this.scoreboard.show();
+
+        this.playerTracker = new RunnerPlayerTracker(this);
+        this.playerTracker.runTaskTimer(this.plugin, 0, 5L);
+    }
+
+    public void onLogout() {
+        if (this.scoreboard != null) {
+            this.scoreboard.hide();
+        }
+
+        if (this.arrow != null) {
+            this.arrow.cancel();
+        }
+
+        if (this.playerTracker != null) {
+            this.playerTracker.cancel();
+        }
+    }
+
+    public void kill() {
         if (this.challenge != null) {
             for (RunnerChallengeModel value : RunnerChallengeModel.values()) {
                 if (this.challenge.getModel() != value) {
@@ -79,7 +104,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         final PlayerInventory playerInventory = this.player.getInventory();
 
         for (ItemStack content : playerInventory.getContents()) {
-            if(content != null) {
+            if (content != null) {
                 this.player.getWorld().dropItemNaturally(this.player.getLocation(), content);
             }
         }
@@ -95,7 +120,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         }
 
         for (RunnerGamePlayer gamePlayer : this.plugin.getGame().getPlayers()) {
-            gamePlayer.updateScoreboard();
+            gamePlayer.getScoreboard().update();
         }
     }
 
@@ -108,21 +133,8 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         return (int) playerLocation.distance(centerLocation);
     }
 
-    public void setupScoreboard() {
-        this.scoreboard = new RunnerFirstPhaseScoreboard(this.plugin, this.player);
-        this.scoreboard.show();
-    }
-
-    public void updateScoreboard() {
-        this.scoreboard.update();
-    }
-
     public RunnerScoreboard getScoreboard() {
         return this.scoreboard;
-    }
-
-    public void setScoreboard(RunnerScoreboard scoreboard) {
-        this.scoreboard = scoreboard;
     }
 
     public int getPosition() {
@@ -142,12 +154,12 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         return null;
     }
 
-    public RunnerPlayer getAccount() {
-        return account;
+    public RunnerData getData() {
+        return this.data;
     }
 
-    public void setAccount(RunnerPlayer account) {
-        this.account = account;
+    public void setData(RunnerData data) {
+        this.data = data;
     }
 
     public RunnerStatistics getStatistics() {
@@ -184,12 +196,6 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
     public void setArrived() {
         this.plugin.getGame().getArrivedPlayers().add(this);
-
-        final List<RunnerGamePlayer> players = this.plugin.getGame().getPlayers();
-
-        if (players.size() == 1 && players.contains(this)) {
-            this.plugin.getGame().win(this.getTeam());
-        }
     }
 
     public RunnerChallenge getChallenge() {

@@ -3,13 +3,13 @@ package fr.hyriode.runner;
 import fr.hyriode.hyrame.plugin.IPluginProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class HyriRunnerProvider implements IPluginProvider {
+public class RunnerProvider implements IPluginProvider {
 
     private static final String PACKAGE = "fr.hyriode.runner";
 
     private final JavaPlugin plugin;
 
-    public HyriRunnerProvider(JavaPlugin plugin) {
+    public RunnerProvider(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 

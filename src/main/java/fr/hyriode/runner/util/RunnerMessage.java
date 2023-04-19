@@ -27,6 +27,7 @@ public enum RunnerMessage {
 
     TELEPORTATION_BAR("teleportation.action-bar"),
     ARROW_BAR("arrow.action-bar"),
+    PLAYER_TRACKER_BAR("player-tracker.action-bar"),
 
     CHALLENGE_GUI_NAME("gui.challenge.name"),
     CHALLENGE_ITEM_LORE("challenge.item.lore"),

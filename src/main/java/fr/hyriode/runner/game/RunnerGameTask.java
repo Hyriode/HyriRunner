@@ -4,8 +4,6 @@ package fr.hyriode.runner.game;
 import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.phase.RunnerPhase;
-import fr.hyriode.runner.game.scoreboard.RunnerScoreboard;
-import fr.hyriode.runner.game.scoreboard.RunnerSecondPhaseScoreboard;
 import fr.hyriode.runner.util.RunnerMessage;
 import fr.hyriode.runner.util.RunnerValues;
 import org.bukkit.Bukkit;
@@ -51,6 +49,7 @@ public class RunnerGameTask extends BukkitRunnable {
             game.triggerPhase(RunnerPhase.DAMAGE);
 
             BroadcastUtil.broadcast(RunnerMessage.DAMAGE_ON::asString);
+
             game.getPlayers().forEach(gamePlayer -> {
                 final Player player = gamePlayer.getPlayer();
 
@@ -71,7 +70,6 @@ public class RunnerGameTask extends BukkitRunnable {
             this.borderTriggered = true;
 
             BroadcastUtil.broadcast(RunnerMessage.BORDER_END::asString);
-            game.getArrow().cancel();
 
             new BukkitRunnable() {
 
@@ -87,13 +85,11 @@ public class RunnerGameTask extends BukkitRunnable {
                     if (this.index == 0) {
                         game.triggerPhase(RunnerPhase.PVP);
                         BroadcastUtil.broadcast(RunnerMessage.PVP_ON::asString);
+
                         game.getPlayers().forEach(gamePlayer -> {
                             final Player player = gamePlayer.getPlayer();
-                            final RunnerScoreboard scoreboard = new RunnerSecondPhaseScoreboard(plugin, player);
 
-                            gamePlayer.getScoreboard().hide();
-                            gamePlayer.setScoreboard(scoreboard);
-                            scoreboard.show();
+                            gamePlayer.onPvp();
 
                             player.playSound(player.getLocation(), Sound.WOLF_GROWL, 3f, 3f);
                         });
@@ -107,7 +103,8 @@ public class RunnerGameTask extends BukkitRunnable {
 
         game.getPlayers().forEach(gamePlayer -> {
             gamePlayer.getScoreboard().addTimeLine();
-            if (this.isOutsideBorder(gamePlayer.getPlayer().getLocation())) {
+
+            if (game.isPhase(RunnerPhase.BORDER_END) && this.isOutsideBorder(gamePlayer.getPlayer().getLocation()) && !gamePlayer.isSpectator()) {
                 gamePlayer.getPlayer().damage(2.0);
             }
         });
@@ -120,16 +117,14 @@ public class RunnerGameTask extends BukkitRunnable {
     }
 
     private boolean isOutsideBorder(Location location) {
-        final double borderCoordinate = location.getWorld().getWorldBorder().getSize()/2;
+        final double borderCoordinate = location.getWorld().getWorldBorder().getSize() / 2;
 
         if (location.getY() < 40 || location.getY() > 95) {
             return true;
         }
 
-        if (location.getX() > borderCoordinate || location.getX() < -borderCoordinate
-                || location.getZ() > borderCoordinate || location.getZ() < -borderCoordinate) {
-            return true;
-        }
-        return false;
+        return location.getX() > borderCoordinate || location.getX() < -borderCoordinate
+                || location.getZ() > borderCoordinate || location.getZ() < -borderCoordinate;
     }
+
 }

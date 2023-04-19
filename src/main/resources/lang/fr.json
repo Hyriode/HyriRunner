@@ -5,13 +5,13 @@
   "message.invincibility": "&7Vous serez &cvulnérable &7dans &c%seconds% seconde(s)&7!",
   "message.border-shrink": "&7La bordure commence à &crétrécir&7! Courez vers &ble centre &7de la carte!",
   "message.damage-on": "&7Vous êtes maintenant &cvulnérable&7!",
-  "message.border-end": "&bLa bordure &7est arrivée au centre. La &cpvp &7sera activé dans &c5 secondes&7!",
+  "message.border-end": "&7La &bbordure &7est arrivée au centre. La &cpvp &7sera activé dans &c5 secondes&7!",
   "message.pvp-incoming": "&7Le &cpvp &7va s'activer dans &c%seconds% seconde(s)&7!",
   "message.pvp-on": "&7Le &cpvp &7est maintenant &aactivé&7!",
   "message.bonus-selected": "%player% &7a atteint &ble centre &7en &6premier&7! Il a choisi le bonus: &b%bonus%&7!",
   "title.arrived": "&3&lBelle course!",
   "subtitle.arrived": "&7Vous êtes le &b#%position%&7!",
-  "message.challenge-failed": "&7Vous avez &craté le défi: &b%challenge%&7.",
+  "message.challenge-failed": "&7Vous avez &craté &7le défi: &b%challenge%&7.",
   "message.challenge-completed": "&7Vous avez &aréussi &7le défi: &b%challenge%&7.",
   "message.last-challenge-used": "&7Votre défi &asélectionné &7est: &b%challenge%&7.",
   "message.teleportation-init": "&7La &btéléportation &7des joueurs est en train de commencer...",
@@ -24,6 +24,7 @@
 
   "teleportation.action-bar": "&3Téléportation... &8┃ &f%already%/%total%",
   "arrow.action-bar": "&3Centre &8┃ &b%arrow% &f(%meters%m)",
+  "player-tracker.action-bar": "&3Traqueur &8┃ &b%player% %arrow% &f(%meters%m)",
 
   "gui.bonus.name": "&8Bonus d'arrivée",
   "gui.challenge.name": "&8Défi: &b%challenge%",
@@ -31,7 +32,7 @@
   "scoreboard.time.display": "Temps: ",
   "scoreboard.border.display": "Bordure: ",
   "scoreboard.alive.display": "Joueurs: ",
-  "scoreboard.centre.display": "Centre: ",
+  "scoreboard.center.display": "Centre: ",
   "scoreboard.kills.display": "Kills: ",
   "scoreboard.position.display": "Position: ",
 
@@ -49,9 +50,8 @@
   "team.purple.display": "&5Violet",
 
   "waiting-room.npc.data.kills": "Kills",
-  "waiting-room.npc.data.final-kills": "Final kills",
   "waiting-room.npc.data.deaths": "Morts",
-  "waiting-room.npc.data.successful-runs": "Course réussies",
+  "waiting-room.npc.data.successful-runs": "Courses réussies",
   "waiting-room.npc.data.victories": "Victoires",
   "waiting-room.npc.data.games-played": "Parties jouées",
   "waiting-room.npc.data.played-time": "Temps de jeu",

@@ -9,7 +9,7 @@ import fr.hyriode.hyrame.utils.Symbols;
 import fr.hyriode.hyrame.utils.list.ListReplacer;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.RunnerChallengeModel;
-import fr.hyriode.runner.api.RunnerPlayer;
+import fr.hyriode.runner.api.RunnerData;
 import fr.hyriode.runner.challenge.RunnerChallenge;
 import fr.hyriode.runner.challenge.RunnerChallengeDifficulty;
 import fr.hyriode.runner.game.RunnerGamePlayer;
@@ -68,7 +68,7 @@ public class RunnerChallengeGUI extends PaginatedInventory {
         final Pagination<PaginatedItem> pagination = this.paginationManager.getPagination();
         final List<RunnerChallenge> challenges = this.favorites ? RunnerChallenge.getChallenges() : RunnerChallenge.getChallenges(this.difficulty);
         final RunnerGamePlayer gamePlayer = this.plugin.getGame().getPlayer(this.owner);
-        final RunnerPlayer account = gamePlayer.getAccount();
+        final RunnerData data = gamePlayer.getData();
         final RunnerChallenge playerChallenge = gamePlayer.getChallenge();
 
         pagination.clear();
@@ -76,15 +76,15 @@ public class RunnerChallengeGUI extends PaginatedInventory {
         for (RunnerChallenge challenge : challenges) {
             final RunnerChallengeModel challengeModel = challenge.getModel();
             final boolean selected = playerChallenge != null && playerChallenge.getModel() == challengeModel;
-            final boolean favorites = account.getFavoritesChallenges().contains(challengeModel);
+            final boolean favorites = data.getFavoritesChallenges().contains(challengeModel);
 
             if (this.favorites && !favorites) {
                 continue;
             }
 
-            pagination.add(PaginatedItem.from(this.createChallengeItem(challenge, selected, favorites, account.getCompletedChallenges().contains(challengeModel)), event -> {
+            pagination.add(PaginatedItem.from(this.createChallengeItem(challenge, selected, favorites, data.getCompletedChallenges().contains(challengeModel)), event -> {
                 if (event.isLeftClick()) {
-                    if (gamePlayer.getChallenge().getModel() == challengeModel) {
+                    if (gamePlayer.getChallenge() != null && gamePlayer.getChallenge().getModel() == challengeModel) {
                         return;
                     }
 
@@ -94,14 +94,14 @@ public class RunnerChallengeGUI extends PaginatedInventory {
 
                     new RunnerChallengeGUI(this.owner, this.favorites, this.difficulty, this.plugin).open();
                 } else if (event.isRightClick()){
-                    if (account.addFavoriteChallenge(challengeModel)) {
+                    if (data.addFavoriteChallenge(challengeModel)) {
                         this.owner.playSound(this.owner.getLocation(), Sound.ORB_PICKUP, 1.0F, 1.7F);
 
                         this.addChallenges();
                     } else {
                         this.owner.playSound(this.owner.getLocation(), Sound.FIZZ, 0.5F, 1.0F);
 
-                        account.removeFavoriteChallenge(challengeModel);
+                        data.removeFavoriteChallenge(challengeModel);
 
                         this.addChallenges();
                     }
