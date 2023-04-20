@@ -67,6 +67,8 @@ public class RunnerStatistics implements IHyriStatistics {
         private long kills;
         private long deaths;
 
+        private long bestRun;
+
         private long successfulRuns;
         private long victories;
         private long gamesPlayed;
@@ -75,6 +77,7 @@ public class RunnerStatistics implements IHyriStatistics {
         public void save(MongoDocument document) {
             document.append("kills", this.kills);
             document.append("deaths", this.deaths);
+            document.append("bestRun", this.bestRun);
             document.append("successfulRuns", this.successfulRuns);
             document.append("victories", this.victories);
             document.append("gamesPlayed", this.gamesPlayed);
@@ -84,6 +87,7 @@ public class RunnerStatistics implements IHyriStatistics {
         public void load(MongoDocument document) {
             this.kills = document.getLong("kills");
             this.deaths = document.getLong("deaths");
+            this.bestRun = document.containsKey("bestRun") ? document.getLong("bestRun") : -1;
             this.successfulRuns = document.getLong("successfulRuns");
             this.victories = document.getLong("victories");
             this.gamesPlayed = document.getLong("gamesPlayed");
@@ -103,6 +107,14 @@ public class RunnerStatistics implements IHyriStatistics {
 
         public void addDeaths(long deaths) {
             this.deaths += deaths;
+        }
+
+        public long getBestRun() {
+            return this.bestRun;
+        }
+
+        public void setBestRun(long bestRun) {
+            this.bestRun = bestRun;
         }
 
         public long getVictories() {

@@ -16,11 +16,11 @@
   "message.last-challenge-used": "&7You &aselected &7challenge is: &b%challenge%&7.",
   "message.teleportation-init": "&7Players' &bteleportation &7is starting...",
 
-  "message.game.end.1": "&61st",
+  "message.game.end.1": "&e1st",
   "message.game.end.2": "&62nd",
-  "message.game.end.3": "&63rd",
+  "message.game.end.3": "&c3rd",
   "message.game.end.nobody": "&7Nobody",
-  "message.game.end.position": "%position% &7- %player% &7- %time%",
+  "message.game.end.position": "%position% %player% &7- &b%time%",
 
   "teleportation.action-bar": "&3Teleporting... &8┃ &f%already%/%total%",
   "arrow.action-bar": "&3Center &8┃ &b%arrow% &f(%meters%m)",

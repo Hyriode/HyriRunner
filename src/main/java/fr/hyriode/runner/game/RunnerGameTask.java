@@ -102,6 +102,10 @@ public class RunnerGameTask extends BukkitRunnable {
         }
 
         game.getPlayers().forEach(gamePlayer -> {
+            if (!gamePlayer.isOnline()) {
+                return;
+            }
+
             gamePlayer.getScoreboard().addTimeLine();
 
             if (game.isPhase(RunnerPhase.BORDER_END) && this.isOutsideBorder(gamePlayer.getPlayer().getLocation()) && !gamePlayer.isSpectator()) {

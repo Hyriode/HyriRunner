@@ -170,6 +170,10 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         this.statistics = statistics;
     }
 
+    public RunnerStatistics.Data getStatisticsData() {
+        return this.statistics.getData(HyriRunner.get().getGame().getType());
+    }
+
     public void setPlugin(HyriRunner plugin) {
         this.plugin = plugin;
     }
