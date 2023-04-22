@@ -87,7 +87,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         gamePlayer.setData(data);
         gamePlayer.setStatistics(statistics);
 
-        if (!HyriAPI.get().getServer().getAccessibility().equals(HyggServer.Accessibility.HOST)) {
+        if (!HyriAPI.get().getServer().getAccessibility().equals(HyggServer.Accessibility.HOST) && this.getState().isAccessible()) {
             RunnerChallenge.getWithModel(data.getLastChallenge()).ifPresent(challenge -> {
                 gamePlayer.setChallenge(challenge);
                 gamePlayer.getPlayer().sendMessage(RunnerMessage.LAST_CHALLENGE_USED.asString(player).replace("%challenge%", gamePlayer.getChallenge().getName(player)));

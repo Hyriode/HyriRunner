@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 public class RunnerChallengeSelectorItem extends HyriItem<HyriRunner> {
 
     public RunnerChallengeSelectorItem(HyriRunner plugin) {
-        super(plugin, "challenge_selector", () -> HyriLanguageMessage.get("item.challenge"), () -> HyriLanguageMessage.get("item.challenge"), Material.PAPER);
+        super(plugin, "challenge_selector", () -> HyriLanguageMessage.get("item.challenge"), null, Material.PAPER);
     }
 
     @Override
