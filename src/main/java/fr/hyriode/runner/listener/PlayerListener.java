@@ -48,7 +48,7 @@ public class PlayerListener extends HyriListener<HyriRunner> {
             return;
         }
 
-        if (this.plugin.getGame().isPhase(RunnerPhase.BORDER_END)) {
+        if (!this.plugin.getGame().isPhase(RunnerPhase.BORDER_END) && !this.plugin.getGame().isPhase(RunnerPhase.PVP)) {
             return;
         }
 
