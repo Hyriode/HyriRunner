@@ -62,6 +62,13 @@ public class RunnerGamePlayer extends HyriGamePlayer {
         RunnerValues.INVENTORY.get().setTo(inventory);
     }
 
+    public void onReconnect() {
+        new RunnerFirstPhaseScoreboard(this.plugin, this.player).show();
+
+        this.arrow = new RunnerArrow(this);
+        this.arrow.runTaskTimer(this.plugin, 0, 5);
+    }
+
     public void onPvp() {
         this.arrow.cancel();
 
@@ -80,6 +87,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
 
         if (this.arrow != null) {
             this.arrow.cancel();
+            this.arrow = null;
         }
 
         if (this.playerTracker != null) {
@@ -124,6 +132,10 @@ public class RunnerGamePlayer extends HyriGamePlayer {
     }
 
     public int getCenterDistance() {
+        if (!this.isOnline()) {
+            return 0;
+        }
+
         final Location playerLocation = this.player.getLocation().clone();
         final Location centerLocation = new Location(IHyrame.WORLD.get(), 0, 0, 0);
 
