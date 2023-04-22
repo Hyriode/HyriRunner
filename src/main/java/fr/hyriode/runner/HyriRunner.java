@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class HyriRunner extends JavaPlugin {
@@ -61,8 +62,12 @@ public class HyriRunner extends JavaPlugin {
 
         Collections.shuffle(worlds);
 
-        if (worlds.size() == 0) {
-            HyriAPI.get().getServerManager().removeServer(HyriAPI.get().getServer().getName(), null);
+        if (worlds.size() == 0) { // Security
+            final HyriWorldGenerator worldGenerator = new HyriWorldGenerator(this, new HyriWorldSettings(GAME_MAP), 1000, world -> HyriAPI.get().getServer().setState(HyggServer.State.READY));
+
+            HyriWorldGenerator.COMMON_PATCHED_BIOMES.forEach(worldGenerator::patchBiomes);
+
+            worldGenerator.start();
             return;
         }
 
