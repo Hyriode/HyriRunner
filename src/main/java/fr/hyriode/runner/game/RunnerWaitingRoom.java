@@ -2,6 +2,8 @@ package fr.hyriode.runner.game;
 
 import fr.hyriode.api.HyriAPI;
 import fr.hyriode.api.language.HyriLanguageMessage;
+import fr.hyriode.api.leaderboard.HyriLeaderboardScope;
+import fr.hyriode.api.leveling.NetworkLeveling;
 import fr.hyriode.api.player.IHyriPlayer;
 import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.waitingroom.HyriWaitingRoom;
@@ -26,6 +28,13 @@ public class RunnerWaitingRoom extends HyriWaitingRoom {
     public RunnerWaitingRoom(HyriGame<?> game, HyriRunner plugin) {
         super(game, Material.DIAMOND_BOOTS, plugin.getConfiguration().getWaitingRoom());
         this.clearBlocks = false;
+
+        this.addLeaderboard(new Leaderboard(NetworkLeveling.LEADERBOARD_TYPE, "therunner-experience",
+                player -> HyriLanguageMessage.get("leaderboard.experience.display").getValue(player))
+                .withScopes(HyriLeaderboardScope.DAILY, HyriLeaderboardScope.WEEKLY, HyriLeaderboardScope.MONTHLY));
+        this.addLeaderboard(new Leaderboard("therunner", "kills", player -> HyriLanguageMessage.get("leaderboard.kills.display").getValue(player)));
+        this.addLeaderboard(new Leaderboard("therunner", "victories", player -> HyriLanguageMessage.get("leaderboard.victories.display").getValue(player)));
+        this.addLeaderboard(new Leaderboard("therunner", "runs", player -> HyriLanguageMessage.get("leaderboard.runs.display").getValue(player)));
 
         this.addStatistics(21, RunnerGameType.SOLO);
         this.addStatistics(23, RunnerGameType.DOUBLES);

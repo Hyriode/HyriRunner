@@ -16,6 +16,11 @@
   "message.last-challenge-used": "&7Votre défi &asélectionné &7est: &b%challenge%&7.",
   "message.teleportation-init": "&7La &btéléportation &7des joueurs est en train de commencer...",
 
+  "leaderboard.experience.display": "&3Expérience &8┃ &7Classement",
+  "leaderboard.kills.display": "&3Kills &8┃ &7Classement",
+  "leaderboard.victories.display": "&3Victoires &8┃ &7Classement",
+  "leaderboard.runs.display": "&3Meilleures courses &8┃ &7Classement",
+
   "message.game.end.1": "&e1er",
   "message.game.end.2": "&62ème",
   "message.game.end.3": "&c3ème",
