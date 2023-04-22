@@ -48,6 +48,10 @@ public class PlayerListener extends HyriListener<HyriRunner> {
             return;
         }
 
+        if (!this.plugin.getGame().isPhase(RunnerPhase.BORDER_END) && !this.plugin.getGame().isPhase(RunnerPhase.PVP)) {
+            return;
+        }
+
         final Block block = event.getBlock();
 
         if (this.maxY == -1) {
