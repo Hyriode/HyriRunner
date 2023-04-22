@@ -54,7 +54,8 @@ public class GameListener extends HyriListener<HyriRunner> {
     public void onReconnect(HyriGameReconnectEvent event) {
         final RunnerGame game = this.plugin.getGame();
 
-        if (game.isPhase(RunnerPhase.BORDER_END)) {
+        if (game.isPhase(RunnerPhase.BORDER_END) || game.isPhase(RunnerPhase.PVP)) {
+            System.out.println("Disallowing reconnection");
             event.disallow();
         }
     }
@@ -64,9 +65,8 @@ public class GameListener extends HyriListener<HyriRunner> {
         final RunnerGame game = this.plugin.getGame();
         final RunnerGamePlayer gamePlayer = event.getGamePlayer().cast();
 
-        new RunnerFirstPhaseScoreboard(this.plugin, gamePlayer.getPlayer()).show();
+        gamePlayer.onReconnect();
     }
-
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
