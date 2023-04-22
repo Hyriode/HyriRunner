@@ -13,6 +13,7 @@ import fr.hyriode.runner.game.ui.RunnerPlayerTracker;
 import fr.hyriode.runner.game.ui.scoreboard.RunnerFirstPhaseScoreboard;
 import fr.hyriode.runner.game.ui.scoreboard.RunnerScoreboard;
 import fr.hyriode.runner.game.ui.scoreboard.RunnerSecondPhaseScoreboard;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerSpectatorScoreboard;
 import fr.hyriode.runner.util.RunnerMessage;
 import fr.hyriode.runner.util.RunnerValues;
 import org.bukkit.GameMode;
@@ -119,9 +120,7 @@ public class RunnerGamePlayer extends HyriGamePlayer {
             this.plugin.getGame().getPlayer(lastHitter).addKill();
         }
 
-        for (RunnerGamePlayer gamePlayer : this.plugin.getGame().getPlayers()) {
-            gamePlayer.getScoreboard().update();
-        }
+        IHyrame.get().getScoreboardManager().getScoreboards(RunnerScoreboard.class).forEach(RunnerScoreboard::update);
     }
 
     public int getCenterDistance() {

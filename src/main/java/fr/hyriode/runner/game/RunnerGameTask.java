@@ -32,7 +32,13 @@ public class RunnerGameTask extends BukkitRunnable {
         if (this.index == 0) {
             Bukkit.getScheduler().runTaskLater(this.plugin, () ->  {
                 game.startBorderShrink();
-                game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f));
+                game.getPlayers().forEach(player -> {
+                    if (!player.isOnline()) {
+                        return;
+                    }
+
+                    player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.SILVERFISH_IDLE, 3f, 3f);
+                });
                 BroadcastUtil.broadcast(RunnerMessage.BORDER_SHRINK::asString);
             }, RunnerValues.BORDER_TIME.get() * 20L);
 
@@ -40,7 +46,13 @@ public class RunnerGameTask extends BukkitRunnable {
                 BroadcastUtil.broadcast(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30)));
             }
         } else if (this.index == 10 || this.index == 27 || this.index == 28 || this.index == 29) {
-            game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
+            game.getPlayers().forEach(player -> {
+                if (!player.isOnline()) {
+                    return;
+                }
+
+                player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f);
+            });
 
             if (!invincibility) {
                 BroadcastUtil.broadcast(player -> RunnerMessage.INVINCIBILITY.asString(player).replace("%seconds%", String.valueOf(30 - this.index)));
@@ -51,6 +63,10 @@ public class RunnerGameTask extends BukkitRunnable {
             BroadcastUtil.broadcast(RunnerMessage.DAMAGE_ON::asString);
 
             game.getPlayers().forEach(gamePlayer -> {
+                if (!gamePlayer.isOnline()) {
+                    return;
+                }
+
                 final Player player = gamePlayer.getPlayer();
 
                 player.playSound(player.getLocation(), Sound.NOTE_PLING, 3f, 3f);
@@ -78,7 +94,13 @@ public class RunnerGameTask extends BukkitRunnable {
                 @Override
                 public void run() {
                     if (this.index > 0) {
-                        game.getPlayers().forEach(player -> player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f));
+                        game.getPlayers().forEach(player -> {
+                            if (!player.isOnline()) {
+                                return;
+                            }
+
+                            player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.CLICK, 3f, 3f);
+                        });
                         BroadcastUtil.broadcast(player -> RunnerMessage.PVP_INCOMING.asString(player).replace("%seconds%", String.valueOf(this.index)));
                     }
 
@@ -87,6 +109,10 @@ public class RunnerGameTask extends BukkitRunnable {
                         BroadcastUtil.broadcast(RunnerMessage.PVP_ON::asString);
 
                         game.getPlayers().forEach(gamePlayer -> {
+                            if (!gamePlayer.isOnline()) {
+                                return;
+                            }
+
                             final Player player = gamePlayer.getPlayer();
 
                             gamePlayer.onPvp();

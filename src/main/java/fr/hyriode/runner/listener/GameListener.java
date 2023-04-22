@@ -12,11 +12,14 @@ import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.hyrame.scoreboard.HyriScoreboard;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.RunnerGame;
+import fr.hyriode.runner.game.RunnerGamePlayer;
 import fr.hyriode.runner.game.phase.RunnerPhase;
 import fr.hyriode.runner.game.phase.RunnerPhaseTriggeredEvent;
 import fr.hyriode.runner.game.ui.scoreboard.RunnerFirstPhaseScoreboard;
 import fr.hyriode.runner.game.ui.scoreboard.RunnerSecondPhaseScoreboard;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerSpectatorScoreboard;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -35,39 +38,14 @@ public class GameListener extends HyriListener<HyriRunner> {
         final HyriGameSpectator spectator = event.getSpectator();
         final Player player = spectator.getPlayer();
 
-        player.teleport(new Location(IHyrame.WORLD.get(), 0, 170, 0));
+        player.teleport(new Location(IHyrame.WORLD.get(), 0, 190, 0));
 
         if (spectator instanceof HyriGamePlayer) {
             final RunnerGame game = this.plugin.getGame();
 
             game.win(game.getWinner());
         } else {
-            final RunnerGame game = event.getGame().cast();
-
-            if (game.isPhase(RunnerPhase.PVP)) {
-                new RunnerSecondPhaseScoreboard(this.plugin, player).show();
-            } else {
-                new RunnerFirstPhaseScoreboard(this.plugin, player).show();
-            }
-        }
-    }
-
-    @HyriEventHandler
-    public void onPhaseTriggered(RunnerPhaseTriggeredEvent event) {
-        final RunnerGame game = event.getGame();
-        final RunnerPhase phase = event.getPhase();
-
-        if (phase == RunnerPhase.PVP) {
-            for (HyriGameSpectator spectator : game.getSpectators()) {
-                final Player player = spectator.getPlayer();
-                final HyriScoreboard oldScoreboard = IHyrame.get().getScoreboardManager().getPlayerScoreboard(player);
-
-                if (oldScoreboard != null) {
-                    oldScoreboard.hide();
-                }
-
-                new RunnerSecondPhaseScoreboard(this.plugin, player).show();
-            }
+            new RunnerSpectatorScoreboard(this.plugin, player).show();
         }
     }
 
@@ -89,7 +67,15 @@ public class GameListener extends HyriListener<HyriRunner> {
 
     @EventHandler
     public void onHeartRegen(EntityRegainHealthEvent event) {
-        event.setCancelled(event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED));
+        final Entity entity = event.getEntity();
+
+        if (entity instanceof Player) {
+            final RunnerGamePlayer gamePlayer = this.plugin.getGame().getPlayer((Player) entity);
+
+            if (gamePlayer != null && !gamePlayer.isSpectator()) {
+                event.setCancelled(event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED));
+            }
+        }
     }
 
 }

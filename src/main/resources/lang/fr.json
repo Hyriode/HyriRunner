@@ -20,7 +20,7 @@
   "message.game.end.2": "&62ème",
   "message.game.end.3": "&c3ème",
   "message.game.end.nobody": "&7Personne",
-  "message.game.end.position": "%position% &7- %player% &7- %time%",
+  "message.game.end.position": "%position% %player% &7- &b%time%",
 
   "teleportation.action-bar": "&3Téléportation... &8┃ &f%already%/%total%",
   "arrow.action-bar": "&3Centre &8┃ &b%arrow% &f(%meters%m)",

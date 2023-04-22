@@ -29,6 +29,8 @@ import fr.hyriode.runner.game.phase.RunnerPhaseTriggeredEvent;
 import fr.hyriode.runner.game.team.RunnerGameTeam;
 import fr.hyriode.runner.game.teleport.RunnerCage;
 import fr.hyriode.runner.game.teleport.RunnerSafeTeleport;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerScoreboard;
+import fr.hyriode.runner.game.ui.scoreboard.RunnerSpectatorScoreboard;
 import fr.hyriode.runner.util.RunnerMessage;
 import fr.hyriode.runner.util.RunnerValues;
 import org.bukkit.*;
@@ -127,6 +129,8 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         super.handleLogout(player);
 
         if (this.getState() == HyriGameState.PLAYING) {
+            IHyrame.get().getScoreboardManager().getScoreboards(RunnerScoreboard.class).forEach(RunnerScoreboard::update);
+
             this.win(this.getWinner());
         }
     }

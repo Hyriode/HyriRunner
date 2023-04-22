@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -112,8 +113,16 @@ public class PlayerListener extends HyriListener<HyriRunner> {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onFoodLevelChanged(FoodLevelChangeEvent event) {
-        if (RunnerValues.FOOD.get()) {
-            event.setCancelled(false);
+        final Entity entity = event.getEntity();
+
+        if (entity instanceof Player) {
+            final RunnerGamePlayer gamePlayer = this.plugin.getGame().getPlayer((Player) entity);
+
+            if (gamePlayer != null && !gamePlayer.isSpectator()) {
+                if (RunnerValues.FOOD.get()) {
+                    event.setCancelled(false);
+                }
+            }
         }
     }
 
