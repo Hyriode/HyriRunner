@@ -7,6 +7,7 @@ import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGamePlayer;
 import fr.hyriode.hyrame.game.HyriGameSpectator;
 import fr.hyriode.hyrame.game.event.player.HyriGameReconnectEvent;
+import fr.hyriode.hyrame.game.event.player.HyriGameReconnectedEvent;
 import fr.hyriode.hyrame.game.event.player.HyriGameSpectatorEvent;
 import fr.hyriode.hyrame.listener.HyriListener;
 import fr.hyriode.hyrame.scoreboard.HyriScoreboard;
@@ -57,6 +58,15 @@ public class GameListener extends HyriListener<HyriRunner> {
             event.disallow();
         }
     }
+
+    @HyriEventHandler
+    public void onReconnected(HyriGameReconnectedEvent event) {
+        final RunnerGame game = this.plugin.getGame();
+        final RunnerGamePlayer gamePlayer = event.getGamePlayer().cast();
+
+        new RunnerFirstPhaseScoreboard(this.plugin, gamePlayer.getPlayer()).show();
+    }
+
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
