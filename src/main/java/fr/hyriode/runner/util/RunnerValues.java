@@ -20,9 +20,9 @@ public class RunnerValues {
     public static final ValueProvider<Long> GAME_TIME = new ValueProvider<>(20 * 60L).addModifiers(new HostValueModifier<>(1, Long.class, "game-time"));
     public static final ValueProvider<SavablePlayerInventory> INVENTORY = new ValueProvider<>(new SavablePlayerInventory(contents(), armor())).addModifiers(new HostValueModifier<>(1, SavablePlayerInventory.class, "inventory"));
 
-    public static final ValueProvider<Integer> BORDER_INITIAL_SIZE = new ValueProvider<>(1500).addModifiers(new HostValueModifier<>(1, Integer.class, "border-initial-size"));
+    public static final ValueProvider<Integer> BORDER_INITIAL_SIZE = new ValueProvider<>(1350).addModifiers(new HostValueModifier<>(1, Integer.class, "border-initial-size"));
     public static final ValueProvider<Integer> BORDER_FINAL_SIZE = new ValueProvider<>(50).addModifiers(new HostValueModifier<>(1, Integer.class, "border-final-size"));
-    public static final ValueProvider<Double> BORDER_SPEED = new ValueProvider<>(6.0D).addModifiers(new HostValueModifier<>(1, Double.class, "border-speed"));
+    public static final ValueProvider<Double> BORDER_SPEED = new ValueProvider<>(8.0D).addModifiers(new HostValueModifier<>(1, Double.class, "border-speed"));
     public static final ValueProvider<Long> BORDER_TIME = new ValueProvider<>(30L).addModifiers(new HostValueModifier<>(1, Long.class, "border-time"));
     public static final ValueProvider<Integer> VERTICAL_BORDER_SIZE = new ValueProvider<>(20).addModifiers(new HostValueModifier<>(1, Integer.class, "vertical-border-size"));
 
