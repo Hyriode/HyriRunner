@@ -98,6 +98,8 @@
   "challenge.lava.lore": "&7Arrivez au centre avec de\n&7la lave dans votre inventaire\n&7pour réussir ce défi.",
   "challenge.rod.name": "Pêcheur",
   "challenge.rod.lore": "&7Crafter une canne à pêche\n&7pour réussir ce défi.",
+  "challenge.pirate.name": "Pirate",
+  "challenge.pirate.lore": "&7Parcourez plus de 40 blocks dans\nun bateau pour réussir ce défi.",
 
   "host.category.runner-main.name": "&bTheRunner",
   "host.category.runner-main.description": "&7Modifie les options liées\n&7au jeu.",

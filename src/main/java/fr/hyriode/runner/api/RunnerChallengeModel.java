@@ -11,5 +11,6 @@ public enum RunnerChallengeModel {
     SURVIVOR,
     LAVA,
     ROD,
+    PIRATE,
 
 }

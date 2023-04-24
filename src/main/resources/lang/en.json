@@ -98,6 +98,8 @@
   "challenge.lava.lore": "&7Get to the center with lava\n&7in your inventory to succeed\n&7in this challenge.",
   "challenge.rod.name": "Fish catcher",
   "challenge.rod.lore": "&7Craft a fishing rod\n&7to succeed in this challenge.",
+  "challenge.pirate.name": "Pirate",
+  "challenge.pirate.lore": "&7Travel more than 40 blocks in\na boat to succeed in this challenge.",
 
   "host.category.runner-main.name": "&bTheRunner",
   "host.category.runner-main.description": "&7Edit the settings linked\n&7to the game.",
