@@ -169,7 +169,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     private BukkitRunnable createPreGameTask(RunnerCage cage) {
         return new BukkitRunnable() {
 
-            private int index = 15;
+            private int index = 20;
 
             @Override
             public void run() {
