@@ -63,6 +63,7 @@ public abstract class RunnerChallenge {
         registerChallenge(new RunnerLavaChallenge(plugin));
         registerChallenge(new RunnerRodChallenge(plugin));
         registerChallenge(new RunnerPirateChallenge(plugin));
+        registerChallenge(new RunnerLooterChallenge(plugin));
 
         if (!CHALLENGES.isEmpty()) {
             HyriRunner.log("Registered " + CHALLENGES.size() + " challenges!");
