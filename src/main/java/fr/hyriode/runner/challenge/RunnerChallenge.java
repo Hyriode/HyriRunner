@@ -81,6 +81,7 @@ public abstract class RunnerChallenge {
     }
 
     public static List<RunnerChallenge> getChallenges(RunnerChallengeDifficulty difficulty) {
+        if (difficulty == null) return getChallenges();
         return getChallenges().stream().filter(challenge -> challenge.difficulty.equals(difficulty)).collect(Collectors.toList());
     }
 

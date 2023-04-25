@@ -167,6 +167,23 @@ public class RunnerChallengeGUI extends PaginatedInventory {
             slot++;
         }
 
+        final ItemBuilder builder = new ItemBuilder(Material.EMERALD).withName(RunnerMessage.CHALLENGE_DIFFICULTY_ITEM_NAME.asString(this.owner)
+                        .replace("%difficulty%", RunnerMessage.CHALLENGE_DIFFICULTY_ALL.asString(this.owner)));
+
+        if (this.difficulty == null) {
+            builder.withGlow();
+        }
+
+        this.setItem(13, builder.build(), event -> {
+            if (this.difficulty == null) {
+                return;
+            }
+
+            this.owner.playSound(this.owner.getLocation(), Sound.CLICK, 0.5F, 2.0F);
+
+            new RunnerChallengeGUI(this.owner, false, null, this.plugin).open();
+        });
+
     }
 
     private ItemStack createChallengeItem(RunnerChallenge challenge, boolean selected, boolean favorite, boolean completed) {

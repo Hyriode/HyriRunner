@@ -39,6 +39,7 @@ public enum RunnerMessage {
     CHALLENGE_SELECT_LINE("challenge.select.line"),
     CHALLENGE_ADD_FAVORITE_LINE("challenge.add-favorite.line"),
     CHALLENGE_REMOVE_FAVORITE_LINE("challenge.remove-favorite.line"),
+    CHALLENGE_DIFFICULTY_ALL("challenge.difficulty.all"),
 
     ;
 

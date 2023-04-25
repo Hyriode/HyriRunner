@@ -79,6 +79,7 @@
   "challenge.select.line": "&3Left-click to select",
   "challenge.add-favorite.line": "&6Right-click to add to favorites",
   "challenge.remove-favorite.line": "&cRight-click to remove from favorites",
+  "challenge.difficulty.all": "All",
 
   "challenge.first.name": "First",
   "challenge.first.lore": "&7Be the first to arrive at the\ncenter to succeed this challenge.",

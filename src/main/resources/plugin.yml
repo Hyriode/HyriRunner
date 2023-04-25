@@ -1,5 +1,5 @@
 main: fr.hyriode.runner.HyriRunner
 version: @version@
 name: HyriRunner
-authors: [Akkashi, AstFaster]
+authors: [Akkashi, AstFaster, Calyx]
 depend: [Hyrame]

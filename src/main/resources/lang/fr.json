@@ -79,6 +79,7 @@
   "challenge.select.line": "&3Clic-gauche pour séléctionner",
   "challenge.add-favorite.line": "&6Clic-droit pour ajouter aux favoris",
   "challenge.remove-favorite.line": "&cClic-droit pour retirer des favoris",
+  "challenge.difficulty.all": "Toutes",
 
   "challenge.first.name": "Premier",
   "challenge.first.lore": "&7Soyez le premier à arriver\n&7au centre pour réussir ce défi.",

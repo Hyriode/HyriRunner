@@ -14,7 +14,7 @@ public enum RunnerChallengeDifficulty {
     NORMAL( 2, DyeColor.YELLOW),
     MEDIUM(3, DyeColor.ORANGE),
     HARD(4, DyeColor.RED),
-    EXTREME(5, DyeColor.PURPLE),
+    EXTREME(5, DyeColor.PURPLE)
 
     ;
 
