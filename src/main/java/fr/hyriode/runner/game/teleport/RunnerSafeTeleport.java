@@ -60,7 +60,7 @@ public class RunnerSafeTeleport implements Listener {
         final Player player = gamePlayer.getPlayer();
 
         for (RunnerMapChunk chunk : chunks) {
-            PacketUtil.sendPacket(player, new PacketPlayOutMapChunk(((CraftChunk) chunk.asBukkit(this.location.getWorld())).getHandle(), true, 65535));
+            //PacketUtil.sendPacket(player, new PacketPlayOutMapChunk(((CraftChunk) chunk.asBukkit(this.location.getWorld())).getHandle(), true, 65535));
         }
 
         HyriRunner.get().getGame().getPlayers().forEach(target -> {
