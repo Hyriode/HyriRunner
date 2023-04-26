@@ -100,9 +100,9 @@
   "challenge.rod.name": "Fish catcher",
   "challenge.rod.lore": "&7Craft a fishing rod\n&7to succeed in this challenge.",
   "challenge.pirate.name": "Pirate",
-  "challenge.pirate.lore": "&7Travel more than 40 blocks in\na boat to succeed in this challenge.",
+  "challenge.pirate.lore": "&7Travel more than 40 blocks in\n&7a boat to succeed in this challenge.",
   "challenge.looter.name": "Looter",
-  "challenge.looter.lore": "&7Loot the chest of a village\nduring your run.",
+  "challenge.looter.lore": "&7Loot the chest of a village\n&7during your run.",
 
   "host.category.runner-main.name": "&bTheRunner",
   "host.category.runner-main.description": "&7Edit the settings linked\n&7to the game.",

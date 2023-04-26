@@ -100,9 +100,9 @@
   "challenge.rod.name": "Pêcheur",
   "challenge.rod.lore": "&7Crafter une canne à pêche\n&7pour réussir ce défi.",
   "challenge.pirate.name": "Pirate",
-  "challenge.pirate.lore": "&7Parcourez plus de 40 blocks dans\nun bateau pour réussir ce défi.",
+  "challenge.pirate.lore": "&7Parcourez plus de 40 blocks dans\n&7un bateau pour réussir ce défi.",
   "challenge.looter.name": "Pilleur",
-  "challenge.looter.lore": "&7Pillez le coffre d'un village\ndurant votre course.",
+  "challenge.looter.lore": "&7Pillez le coffre d'un village\n&7durant votre course.",
 
   "host.category.runner-main.name": "&bTheRunner",
   "host.category.runner-main.description": "&7Modifie les options liées\n&7au jeu.",
