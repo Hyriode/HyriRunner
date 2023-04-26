@@ -36,7 +36,7 @@ public class RunnerSafeTeleport implements Listener {
     }
 
     public void start() {
-        final List<RunnerMapChunk> chunks = this.getChunksAround(this.location.getChunk(), Bukkit.getViewDistance());
+        final List<RunnerMapChunk> chunks = this.getChunksAround(this.location.getChunk(), 2);
 
         for (RunnerMapChunk chunk : chunks) {
             chunk.asBukkit(this.location.getWorld()).load(true);
