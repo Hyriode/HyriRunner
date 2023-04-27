@@ -40,23 +40,7 @@ public class HyriRunner extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        this.hyrame = HyrameLoader.load(new RunnerProvider(this));
-        this.configuration = HyriAPI.get().getConfig().isDevEnvironment() ?
-                new RunnerConfig(new HyriWaitingRoom.Config(
-                        new LocationWrapper(0, 190, 0),
-                        new LocationWrapper(0, 0, 0),
-                        new LocationWrapper(0, 0, 0),
-                        new LocationWrapper(0, 0, 0))):
-                HyriAPI.get().getServer().getConfig(RunnerConfig.class);
-        this.game = new RunnerGame(this.hyrame, this);
-        this.hyrame.getGameManager().registerGame(() -> this.game);
-
-        RunnerChallenge.registerChallenges(this);
-
-        if (HyriAPI.get().getServer().getAccessibility().equals(HyggServer.Accessibility.HOST)) {
-            this.hyrame.getHostController().addCategory(25, new RunnerHostMainCategory());
-        }
-
+        // Load world
         final IWorldGenerationAPI worldGenerationAPI = HyriAPI.get().getWorldGenerationAPI();
         final List<IHyriWorld> worlds = worldGenerationAPI.getWorlds(WorldGenerationType.THE_RUNNER);
 
@@ -78,6 +62,24 @@ public class HyriRunner extends JavaPlugin {
         new WorldCreator(GAME_MAP).createWorld();
 
         worldGenerationAPI.removeWorld(WorldGenerationType.THE_RUNNER, world.getName());
+
+        // Start Hyrame and game
+        this.hyrame = HyrameLoader.load(new RunnerProvider(this));
+        this.configuration = HyriAPI.get().getConfig().isDevEnvironment() ?
+                new RunnerConfig(new HyriWaitingRoom.Config(
+                        new LocationWrapper(0, 190, 0),
+                        new LocationWrapper(0, 0, 0),
+                        new LocationWrapper(0, 0, 0),
+                        new LocationWrapper(0, 0, 0))):
+                HyriAPI.get().getServer().getConfig(RunnerConfig.class);
+        this.game = new RunnerGame(this.hyrame, this);
+        this.hyrame.getGameManager().registerGame(() -> this.game);
+
+        RunnerChallenge.registerChallenges(this);
+
+        if (HyriAPI.get().getServer().getAccessibility().equals(HyggServer.Accessibility.HOST)) {
+            this.hyrame.getHostController().addCategory(25, new RunnerHostMainCategory());
+        }
 
         HyriAPI.get().getServer().setState(HyggServer.State.READY);
     }
