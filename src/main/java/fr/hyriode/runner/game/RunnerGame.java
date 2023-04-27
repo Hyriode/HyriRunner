@@ -82,6 +82,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         super.postRegistration();
 
         this.cage = new RunnerCage();
+        this.cage.create();
         this.safeTeleport = new RunnerSafeTeleport(this.cage.getLocation());
         this.safeTeleport.loadChunks();
     }
@@ -224,7 +225,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         BroadcastUtil.broadcast(RunnerMessage.INIT_TELEPORTATION::asString);
 
         this.safeTeleport.setCallback(callback);
-        this.safeTeleport.teleportPlayers();
+        this.safeTeleport.startTeleportation();
     }
 
     public void initBorder() {

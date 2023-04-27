@@ -21,19 +21,16 @@ public class RunnerSafeTeleport implements Listener {
 
     private Runnable callback;
 
-    private final int totalPlayers;
+    private int totalPlayers;
     private int teleportedPlayers;
 
     private List<RunnerMapChunk> chunks;
-    private final List<RunnerGamePlayer> players;
+    private List<RunnerGamePlayer> players;
 
     private final Location location;
 
     public RunnerSafeTeleport(Location location) {
         this.location = location;
-        this.players = HyriRunner.get().getGame().getPlayers();
-        this.totalPlayers = this.players.size();
-        this.teleportedPlayers = 0;
     }
 
     public void loadChunks() {
@@ -44,7 +41,15 @@ public class RunnerSafeTeleport implements Listener {
         }
     }
 
-    public void teleportPlayers() {
+    public void startTeleportation() {
+        this.players = HyriRunner.get().getGame().getPlayers();
+        this.totalPlayers = this.players.size();
+        this.teleportedPlayers = 0;
+
+        this.teleportPlayers();
+    }
+
+    private void teleportPlayers() {
         if (this.teleportedPlayers == this.totalPlayers) {
             this.finished();
             return;
