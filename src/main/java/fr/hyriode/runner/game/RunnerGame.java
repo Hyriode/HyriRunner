@@ -80,11 +80,6 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
     @Override
     public void postRegistration() {
         super.postRegistration();
-
-        this.cage = new RunnerCage();
-        this.cage.create();
-        this.safeTeleport = new RunnerSafeTeleport(this.cage.getLocation());
-        this.safeTeleport.loadChunks();
     }
 
     @Override
@@ -154,7 +149,15 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         this.hyrame.getWorldProvider().setCurrentWorld(HyriRunner.GAME_MAP);
 
-        this.initBorder();
+        this.border = IHyrame.WORLD.get().getWorldBorder();
+        this.border.setCenter(0, 0);
+        this.border.setSize(RunnerValues.BORDER_INITIAL_SIZE.get() * 2);
+        this.border.setWarningDistance(25);
+
+        this.cage = new RunnerCage();
+        this.cage.create();
+        this.safeTeleport = new RunnerSafeTeleport(this.cage.getLocation());
+        this.safeTeleport.loadChunks();
 
         this.protocolManager.enableProtocol(new HyriLastHitterProtocol(this.hyrame, this.plugin, 10 * 20L));
         this.protocolManager.enableProtocol(new HyriDeathProtocol(this.hyrame, this.plugin, gamePlayer -> {
@@ -226,13 +229,6 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
         this.safeTeleport.setCallback(callback);
         this.safeTeleport.startTeleportation();
-    }
-
-    public void initBorder() {
-        this.border = IHyrame.WORLD.get().getWorldBorder();
-        this.border.setCenter(0, 0);
-        this.border.setSize(RunnerValues.BORDER_INITIAL_SIZE.get() * 2);
-        this.border.setWarningDistance(25);
     }
 
     public void startBorderShrink() {
