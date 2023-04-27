@@ -2,6 +2,8 @@ package fr.hyriode.runner.game.teleport;
 
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.utils.block.Cuboid;
+import fr.hyriode.runner.HyriRunner;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,7 +23,7 @@ public class RunnerCage {
     private final Location center;
 
     public RunnerCage() {
-        final World world = IHyrame.WORLD.get();
+        final World world = Bukkit.getWorld(HyriRunner.GAME_MAP);
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         final int border = (int) (world.getWorldBorder().getSize() / 2);
         final int distance = (int) (border * MULTIPLIER);
@@ -37,7 +39,7 @@ public class RunnerCage {
         final int highestBlock = world.getHighestBlockYAt(x, z);
         final int y = highestBlock + ((256 - highestBlock) / 3);
 
-        this.location = new Location(IHyrame.WORLD.get(), x, y, z);
+        this.location = new Location(world, x, y, z);
         this.center = this.location.clone().subtract(0, 1, 0);
     }
 

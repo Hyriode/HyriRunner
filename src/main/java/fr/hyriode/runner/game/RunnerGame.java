@@ -161,7 +161,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
             return false;
         }));
 
-        this.teleportPlayers( () -> {
+        this.teleportPlayers(() -> {
             for (RunnerGamePlayer gamePlayer : this.players) {
                 gamePlayer.onStart();
             }
