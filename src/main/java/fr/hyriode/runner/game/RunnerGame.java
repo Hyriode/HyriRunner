@@ -51,8 +51,8 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
     private RunnerGameTask gameTask;
 
-    private RunnerCage cage;
-    private RunnerSafeTeleport safeTeleport;
+    private final RunnerCage cage;
+    private final RunnerSafeTeleport safeTeleport;
 
     private final HyriRunner plugin;
 
@@ -68,7 +68,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         this.description = HyriLanguageMessage.get("message.runner.description");
         this.reconnectionTime = 60;
 
-        this.border = IHyrame.WORLD.get().getWorldBorder();
+        this.border = Bukkit.getWorld(HyriRunner.GAME_MAP).getWorldBorder();
         this.border.setCenter(0, 0);
         this.border.setSize(1500L * 2);
         this.border.setWarningDistance(25);
@@ -85,11 +85,6 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         for (RunnerGameTeam value : RunnerGameTeam.values()) {
             this.registerTeam(new HyriGameTeam(value.getName(), value.getDisplayName(), value.getColor(), false, HyriScoreboardTeam.NameTagVisibility.ALWAYS, this.getType().getTeamSize()));
         }
-    }
-
-    @Override
-    public void postRegistration() {
-        super.postRegistration();
     }
 
     @Override

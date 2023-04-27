@@ -6,6 +6,8 @@ import org.bukkit.World;
 
 public class RunnerMapChunk {
 
+    private Chunk handle;
+
     private int x;
     private int z;
 
@@ -31,7 +33,7 @@ public class RunnerMapChunk {
     }
 
     public Chunk asBukkit(World world) {
-        return world.getChunkAt(this.x, this.z);
+        return this.handle == null ? this.handle = world.getChunkAt(this.x, this.z) : null;
     }
 
 }

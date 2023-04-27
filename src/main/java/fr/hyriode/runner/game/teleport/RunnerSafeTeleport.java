@@ -11,7 +11,9 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -116,6 +118,17 @@ public class RunnerSafeTeleport implements Listener {
 
     public void setCallback(Runnable callback) {
         this.callback = callback;
+    }
+
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event) {
+        final Chunk chunk = event.getChunk();
+
+        for (RunnerMapChunk mapChunk : this.chunks) {
+            if (chunk.getX() == mapChunk.getX() && chunk.getZ() == mapChunk.getZ()) {
+                event.setCancelled(true);
+            }
+        }
     }
 
 }
