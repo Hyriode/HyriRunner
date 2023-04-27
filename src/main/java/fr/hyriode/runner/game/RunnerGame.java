@@ -51,6 +51,9 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
 
     private RunnerGameTask gameTask;
 
+    private RunnerCage cage;
+    private RunnerSafeTeleport safeTeleport;
+
     private final HyriRunner plugin;
 
     public RunnerGame(IHyrame hyrame, HyriRunner plugin) {
@@ -72,6 +75,15 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         for (RunnerGameTeam value : RunnerGameTeam.values()) {
             this.registerTeam(new HyriGameTeam(value.getName(), value.getDisplayName(), value.getColor(), false, HyriScoreboardTeam.NameTagVisibility.ALWAYS, this.getType().getTeamSize()));
         }
+    }
+
+    @Override
+    public void postRegistration() {
+        super.postRegistration();
+
+        this.cage = new RunnerCage();
+        this.safeTeleport = new RunnerSafeTeleport(this.cage.getLocation());
+        this.safeTeleport.loadChunks();
     }
 
     @Override
@@ -149,11 +161,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
             return false;
         }));
 
-        final RunnerCage cage = new RunnerCage();
-
-        cage.create();
-
-        this.teleportPlayers(cage.getLocation(), () -> {
+        this.teleportPlayers( () -> {
             for (RunnerGamePlayer gamePlayer : this.players) {
                 gamePlayer.onStart();
             }
@@ -212,13 +220,11 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
         };
     }
 
-    private void teleportPlayers(Location location, Runnable callback) {
-        final RunnerSafeTeleport safeTeleport = new RunnerSafeTeleport(location);
-
-        safeTeleport.setCallback(callback);
-        safeTeleport.start();
-
+    private void teleportPlayers(Runnable callback) {
         BroadcastUtil.broadcast(RunnerMessage.INIT_TELEPORTATION::asString);
+
+        this.safeTeleport.setCallback(callback);
+        this.safeTeleport.teleportPlayers();
     }
 
     public void initBorder() {

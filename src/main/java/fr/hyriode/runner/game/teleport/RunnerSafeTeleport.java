@@ -24,6 +24,7 @@ public class RunnerSafeTeleport implements Listener {
     private final int totalPlayers;
     private int teleportedPlayers;
 
+    private List<RunnerMapChunk> chunks;
     private final List<RunnerGamePlayer> players;
 
     private final Location location;
@@ -35,17 +36,15 @@ public class RunnerSafeTeleport implements Listener {
         this.teleportedPlayers = 0;
     }
 
-    public void start() {
-        final List<RunnerMapChunk> chunks = this.getChunksAround(this.location.getChunk(), Bukkit.getViewDistance());
+    public void loadChunks() {
+        this.chunks = this.getChunksAround(this.location.getChunk(), Bukkit.getViewDistance());
 
-        for (RunnerMapChunk chunk : chunks) {
+        for (RunnerMapChunk chunk : this.chunks) {
             chunk.asBukkit(this.location.getWorld()).load(false);
         }
-
-        this.teleportPlayers(this.location, chunks);
     }
 
-    public void teleportPlayers(Location location, List<RunnerMapChunk> chunks) {
+    public void teleportPlayers() {
         if (this.teleportedPlayers == this.totalPlayers) {
             this.finished();
             return;
@@ -59,7 +58,7 @@ public class RunnerSafeTeleport implements Listener {
 
         final Player player = gamePlayer.getPlayer();
 
-        for (RunnerMapChunk chunk : chunks) {
+        for (RunnerMapChunk chunk : this.chunks) {
             PacketUtil.sendPacket(player, new PacketPlayOutMapChunk(((CraftChunk) chunk.asBukkit(this.location.getWorld())).getHandle(), true, 65535));
         }
 
@@ -76,14 +75,14 @@ public class RunnerSafeTeleport implements Listener {
         });
 
         player.setFallDistance(0.0F);
-        player.teleport(location);
+        player.teleport(this.location);
 
         this.teleportedPlayers++;
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                teleportPlayers(location, chunks);
+                teleportPlayers();
                 cancel();
             }
         }.runTaskLater(HyriRunner.get(), 7L);
