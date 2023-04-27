@@ -39,7 +39,7 @@ public class RunnerSafeTeleport implements Listener {
         final List<RunnerMapChunk> chunks = this.getChunksAround(this.location.getChunk(), Bukkit.getViewDistance());
 
         for (RunnerMapChunk chunk : chunks) {
-            chunk.asBukkit(this.location.getWorld()).load(true);
+            chunk.asBukkit(this.location.getWorld()).load(false);
         }
 
         this.teleportPlayers(this.location, chunks);
