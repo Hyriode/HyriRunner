@@ -33,7 +33,7 @@ public class RunnerMapChunk {
     }
 
     public Chunk asBukkit(World world) {
-        return this.handle == null ? this.handle = world.getChunkAt(this.x, this.z) : null;
+        return this.handle == null ? this.handle = world.getChunkAt(this.x, this.z) : this.handle;
     }
 
 }
