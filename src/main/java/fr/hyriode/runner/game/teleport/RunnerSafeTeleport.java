@@ -47,7 +47,6 @@ public class RunnerSafeTeleport implements Listener {
         this.players = HyriRunner.get().getGame().getPlayers();
         this.totalPlayers = this.players.size();
         this.teleportedPlayers = 0;
-
         this.teleportPlayers();
     }
 
@@ -99,6 +98,7 @@ public class RunnerSafeTeleport implements Listener {
         if (this.callback != null) {
             this.callback.run();
         }
+        this.players.forEach(player -> player.getPlayer().spigot().setViewDistance(Bukkit.getViewDistance()));
     }
 
     private List<RunnerMapChunk> getChunksAround(Chunk origin, int radius) {

@@ -18,6 +18,7 @@ import fr.hyriode.runner.util.RunnerMessage;
 import fr.hyriode.runner.util.RunnerValues;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -50,13 +51,11 @@ public class RunnerGamePlayer extends HyriGamePlayer {
     public void onStart() {
         this.player.setGameMode(GameMode.SURVIVAL);
         this.player.setHealth(20.0F);
-
         this.arrow = new RunnerArrow(this);
         this.arrow.runTaskTimer(this.plugin, 0, 5);
-
         this.scoreboard = new RunnerFirstPhaseScoreboard(this.plugin, this.player);
         this.scoreboard.show();
-
+        this.player.spigot().setViewDistance(1);
         final PlayerInventory inventory = this.player.getInventory();
 
         RunnerValues.INVENTORY.get().setTo(inventory);
