@@ -120,15 +120,4 @@ public class RunnerSafeTeleport implements Listener {
         this.callback = callback;
     }
 
-    @EventHandler
-    public void onChunkUnload(ChunkUnloadEvent event) {
-        final Chunk chunk = event.getChunk();
-
-        for (RunnerMapChunk mapChunk : this.chunks) {
-            if (chunk.getX() == mapChunk.getX() && chunk.getZ() == mapChunk.getZ()) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
 }

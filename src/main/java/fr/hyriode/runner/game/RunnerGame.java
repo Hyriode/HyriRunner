@@ -19,6 +19,7 @@ import fr.hyriode.hyrame.game.util.HyriGameMessages;
 import fr.hyriode.hyrame.game.util.HyriRewardAlgorithm;
 import fr.hyriode.hyrame.scoreboard.team.HyriScoreboardTeam;
 import fr.hyriode.hyrame.utils.BroadcastUtil;
+import fr.hyriode.hyrame.utils.TimeUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.RunnerData;
 import fr.hyriode.runner.api.RunnerStatistics;
@@ -274,14 +275,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
                     continue;
                 }
 
-                final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-
-                format.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                final String time = format.format(endPlayer.getArrivedTime() * 1000);
-
-                positions.add(line.replace("%player%", endPlayer.asHyriPlayer().getNameWithRank())
-                        .replace("%time%", time.startsWith("00:") ? time.substring(3) : time));
+                positions.add(line.replace("%player%", endPlayer.formatNameWithTeam()).replace("%time%", TimeUtil.formatTime(endPlayer.getArrivedTime())));
             }
             return positions;
         };
@@ -314,7 +308,7 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
             if (gamePlayer.isArrived()) {
                 final RunnerStatistics.Data statisticsData = gamePlayer.getStatisticsData();
 
-                if (statisticsData.getBestRun() == -1 || statisticsData.getBestRun() > gamePlayer.getArrivedTime()) {
+                if (statisticsData.getBestRun() <= 0 || statisticsData.getBestRun() > gamePlayer.getArrivedTime()) {
                     statisticsData.setBestRun(gamePlayer.getArrivedTime());
                     provider.getLeaderboard("therunner", "runs").setScore(playerId, gamePlayer.getArrivedTime());
                 }
@@ -334,7 +328,6 @@ public class RunnerGame extends HyriGame<RunnerGamePlayer> {
             } else if (HyriAPI.get().getPlayerManager().isOnline(playerId)) {
                 HyriAPI.get().getPlayerManager().sendMessage(playerId, HyriGameMessages.createOfflineWinMessage(this, account, rewardsLine));
             }
-
 
             // Verify challenge
             final RunnerChallenge challenge = gamePlayer.getChallenge();

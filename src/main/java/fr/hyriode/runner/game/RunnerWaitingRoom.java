@@ -9,6 +9,7 @@ import fr.hyriode.hyrame.game.HyriGame;
 import fr.hyriode.hyrame.game.waitingroom.HyriWaitingRoom;
 import fr.hyriode.hyrame.utils.DurationFormatter;
 import fr.hyriode.hyrame.utils.Symbols;
+import fr.hyriode.hyrame.utils.TimeUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.api.RunnerStatistics;
 import org.bukkit.ChatColor;
@@ -46,6 +47,7 @@ public class RunnerWaitingRoom extends HyriWaitingRoom {
         normal.addData(new NPCData(LANG_DATA.apply("kills"), account -> String.valueOf(this.getStatistics(gameType, account).getKills())));
         normal.addData(new NPCData(LANG_DATA.apply("deaths"), account -> String.valueOf(this.getStatistics(gameType, account).getDeaths())));
         normal.addData(NPCData.voidData());
+        normal.addData(new NPCData(LANG_DATA.apply("best-run"), account -> this.formatBestRun(this.getStatistics(gameType, account).getBestRun())));
         normal.addData(new NPCData(LANG_DATA.apply("successful-runs"), account -> String.valueOf(this.getStatistics(gameType, account).getSuccessfulRuns())));
         normal.addData(new NPCData(LANG_DATA.apply("victories"), account -> String.valueOf(this.getStatistics(gameType, account).getVictories())));
         normal.addData(NPCData.voidData());
@@ -59,6 +61,10 @@ public class RunnerWaitingRoom extends HyriWaitingRoom {
         return playedTime < 1000 ? ChatColor.RED + Symbols.CROSS_STYLIZED_BOLD : new DurationFormatter()
                 .withSeconds(false)
                 .format(account.getSettings().getLanguage(), playedTime);
+    }
+
+    private String formatBestRun(long bestRun) {
+        return bestRun <= 0 ? ChatColor.RED + Symbols.CROSS_STYLIZED_BOLD : TimeUtil.formatTime(bestRun);
     }
 
     private RunnerStatistics.Data getStatistics(RunnerGameType gameType, IHyriPlayer account) {

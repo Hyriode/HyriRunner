@@ -60,6 +60,7 @@
   "waiting-room.npc.data.victories": "Victoires",
   "waiting-room.npc.data.games-played": "Parties jouées",
   "waiting-room.npc.data.played-time": "Temps de jeu",
+  "waiting-room.npc.data.best-run": "Meilleure course",
 
   "bonus.nothing.name": "&cRien",
   "bonus.sword.name": "Epée en diamant",
