@@ -1,6 +1,8 @@
 package fr.hyriode.runner.game;
 
 
+import fr.hyriode.hyrame.game.event.player.HyriGameDeathEvent;
+import fr.hyriode.hyrame.game.protocol.HyriDeathProtocol;
 import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.runner.HyriRunner;
 import fr.hyriode.runner.game.phase.RunnerPhase;
@@ -132,10 +134,16 @@ public class RunnerGameTask extends BukkitRunnable {
                 return;
             }
 
+            final Player player = gamePlayer.getPlayer();
+
             gamePlayer.getScoreboard().addTimeLine();
 
-            if (game.isPhase(RunnerPhase.BORDER_END) && this.isOutsideBorder(gamePlayer.getPlayer().getLocation()) && !gamePlayer.isSpectator()) {
-                gamePlayer.getPlayer().damage(2.0);
+            if (game.isPhase(RunnerPhase.BORDER_END) && this.isOutsideBorder(player.getLocation()) && !gamePlayer.isSpectator()) {
+                if (player.getHealth() - 2.0D <= 0.0D) {
+                    this.plugin.getGame().getProtocolManager().getProtocol(HyriDeathProtocol.class).runDeath(null, player);
+                } else {
+                    gamePlayer.getPlayer().damage(2.0);
+                }
             }
         });
 
