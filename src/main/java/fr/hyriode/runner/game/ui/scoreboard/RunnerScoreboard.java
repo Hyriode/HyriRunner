@@ -46,7 +46,7 @@ public abstract class RunnerScoreboard extends HyriGameScoreboard<RunnerGame> {
         } else {
             pos = this.getGamePlayer().getPosition();
         }
-        return this.getLinePrefix("position") + ChatColor.AQUA+ "#" +pos;
+        return this.getLinePrefix("position") + ChatColor.AQUA+ "#" + pos;
     }
 
     protected String getBorderLine() {

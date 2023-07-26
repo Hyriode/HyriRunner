@@ -1,5 +1,5 @@
 {
-  "message.runner.description": "&fCourrez vers le centre de la carte le plus vite possible. Mais\n&fnattention, la bordure vous poursuit. Arrivez en premier\n&fpour obtenir un bonus et éliminer tous les survivants.",
+  "message.runner.description": "&fCourrez vers le centre de la carte le plus vite possible. Mais\n&fattention, la bordure vous poursuit. Arrivez en premier\n&fpour obtenir un bonus et éliminer tous les survivants.",
 
   "message.preparation": "&7Vous avez &b15 secondes &7pour vous préparer au lancement!",
   "message.invincibility": "&7Vous serez &cvulnérable &7dans &c%seconds% seconde(s)&7!",
