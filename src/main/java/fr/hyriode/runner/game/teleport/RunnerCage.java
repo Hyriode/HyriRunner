@@ -46,7 +46,7 @@ public class RunnerCage {
         this.cuboid = new Cuboid(this.center.clone().add(4, 4, 4), this.center.clone().add(-4, 0, -4));
 
         for (Block block : this.cuboid) {
-            block.setType(Material.DIRT);
+            block.setType(Material.GLASS);
         }
 
         for (Block block : this.cuboid.outset(Cuboid.CuboidDirection.BOTH, -1)) {
